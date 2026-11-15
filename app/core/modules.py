@@ -2,9 +2,9 @@
 
 ``MODULES`` (environment) lists the enabled modules, comma separated:
 
-    MODULES=strafen        penalties only (default - behaves like DartsPenaltySystem)
+    MODULES=penalty        penalties only (default - behaves like DartsPenaltySystem)
     MODULES=elo            Elo ranking only
-    MODULES=elo,strafen    both
+    MODULES=elo,penalty    both
 
 A disabled module is invisible: no URLs, no menu entries, no tiles. Its apps
 stay installed, so its tables and data survive and come back when it is
@@ -15,16 +15,16 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy as _
 
-STRAFEN = "strafen"
+PENALTY = "penalty"
 ELO = "elo"
 
 # Known modules -> human label (shown in menus / overview tiles).
 KNOWN_MODULES: dict[str, str] = {
-    STRAFEN: _("Penalties"),
+    PENALTY: _("Penalties"),
     ELO: _("Elo ranking"),
 }
 # Modules whose code is part of this build. "elo" is added by the Elo port.
-AVAILABLE_MODULES: frozenset[str] = frozenset({STRAFEN})
+AVAILABLE_MODULES: frozenset[str] = frozenset({PENALTY})
 
 
 def parse_modules(raw) -> frozenset[str]:
@@ -49,7 +49,7 @@ def parse_modules(raw) -> frozenset[str]:
 
 
 def enabled_modules() -> frozenset[str]:
-    return parse_modules(getattr(settings, "MODULES", [STRAFEN]))
+    return parse_modules(getattr(settings, "MODULES", [PENALTY]))
 
 
 def is_enabled(name: str) -> bool:

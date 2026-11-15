@@ -5,17 +5,17 @@ feature modules are switched on or off with `MODULES`:
 
 | `MODULES` | What the club gets |
 |---|---|
-| `strafen` (default) | Penalty management: teams, matchdays, penalties, payments, cash box |
+| `penalty` (default) | Penalty management: teams, matchdays, penalties, payments, cash box |
 | `elo` | Elo ranking: matches, ranking, statistics, head-to-head *(being ported)* |
-| `elo,strafen` | Both, in one portal |
+| `elo,penalty` | Both, in one portal |
 
 A disabled module is completely hidden (no menu, no pages); its data stays in
 the database and is back when the module is switched on again. The portal grew
 out of **DartsPenaltySystem** (full history in this repository); existing
 penalty databases keep working unchanged. Plan and roll-out:
-[docs/ARCHITEKTUR.md](docs/ARCHITEKTUR.md).
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-## Module "strafen" (penalties)
+## Module "penalty" (penalties)
 
 A Django 5.2 (LTS) module for dart clubs that manages **teams, players,
 matchdays, individual and group penalties, player/team balances and financial

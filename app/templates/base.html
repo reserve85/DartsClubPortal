@@ -47,7 +47,7 @@
             {% if request.user.is_authenticated %}
                 <ul class="navbar-nav me-auto">
                     {# --- header order: Finanzübersicht – Spieltage – Verwaltung --- #}
-                    {% if modules.strafen %}
+                    {% if modules.penalty %}
                     <li class="nav-item">
                         <a class="nav-link{% if nav_section == 'financial' %} active{% endif %}"
                            href="{% url 'dashboard:index' %}">{% translate "Financial overview" %}</a>
@@ -55,8 +55,8 @@
                     {% endif %}
 
                     {# --- Spieltage + Verwaltung: captains (penalty module) and admins --- #}
-                    {% if request.user.is_admin or request.user.is_captain and modules.strafen %}
-                        {% if modules.strafen %}
+                    {% if request.user.is_admin or request.user.is_captain and modules.penalty %}
+                        {% if modules.penalty %}
                         <li class="nav-item">
                             <a class="nav-link{% if nav_section == 'matchdays' %} active{% endif %}"
                                href="{% url 'matchdays:matchday_list' %}">{% translate "Matchdays" %}</a>
@@ -71,7 +71,7 @@
                             </a>
                             <ul class="dropdown-menu">
                                 {# teams, players and the penalty catalog live here now #}
-                                {% if modules.strafen %}
+                                {% if modules.penalty %}
                                 <li>
                                     <a class="dropdown-item" href="{% url 'teams:team_list' %}">{% translate "Teams & Players" %}</a>
                                 </li>
@@ -83,7 +83,7 @@
                                 </li>
                                 {% endif %}
                                 {% if request.user.is_admin %}
-                                    {% if modules.strafen %}
+                                    {% if modules.penalty %}
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item" href="{% url 'season_list' %}">{% translate "Seasons" %}</a>

@@ -394,9 +394,9 @@ ALLAUTH_TRUSTED_PROXY_COUNT = env_int("ALLAUTH_TRUSTED_PROXY_COUNT", 0)
 # ---------------------------------------------------------------------------
 # Shown in the navbar, page titles and e-mails.
 SITE_NAME = env("SITE_NAME", "Darts Club Portal")
-# Enabled feature modules (see app/core/modules.py): "strafen", "elo".
-# Default "strafen" keeps an upgraded DartsPenaltySystem install unchanged.
-MODULES = env_list("MODULES", "strafen")
+# Enabled feature modules (see app/core/modules.py): "penalty", "elo".
+# Default "penalty" keeps an upgraded DartsPenaltySystem install unchanged.
+MODULES = env_list("MODULES", "penalty")
 
 IMPRINT_NAME = env("IMPRINT_NAME")
 IMPRINT_URL = env("IMPRINT_URL")

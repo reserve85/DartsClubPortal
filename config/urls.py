@@ -20,7 +20,7 @@ from django.contrib import admin
 from django.urls import include, path
 
 from app.core import views as core_views
-from app.core.modules import STRAFEN, enabled_modules
+from app.core.modules import PENALTY, enabled_modules
 
 _MODULES = enabled_modules()
 
@@ -30,7 +30,7 @@ urlpatterns = [
     path("health/", core_views.HealthView.as_view(), name="health"),
 ]
 
-STRAFEN_URLS = [
+PENALTY_URLS = [
     path("", include("app.dashboard.urls")),
     path("teams/", include("app.teams.urls")),
     path("players/", include("app.players.urls")),
@@ -58,10 +58,10 @@ urlpatterns += i18n_patterns(
     # Custom mailbox actions (delete one / delete read) — mounted AFTER the
     # package include so the package keeps owning every notifications:* name.
     path("notifications/actions/", include("app.notifications.urls")),
-    # Module "strafen" (penalties): routed only when enabled. Its "" index then
+    # Module "penalty" (penalties): routed only when enabled. Its "" index then
     # stays the start page, so an upgraded penalty install behaves as before.
-    *(STRAFEN_URLS if STRAFEN in _MODULES else []),
-    # Portal start page. With "strafen" on, "/" is served by the financial
+    *(PENALTY_URLS if PENALTY in _MODULES else []),
+    # Portal start page. With "penalty" on, "/" is served by the financial
     # overview above and this route only provides the name "home".
     path("", core_views.HomeView.as_view(), name="home"),
     path("audit/", core_views.AuditLogListView.as_view(), name="audit_list"),

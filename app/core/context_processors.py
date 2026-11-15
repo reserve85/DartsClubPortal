@@ -4,7 +4,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from app.core.choices import THEME_COOKIE_NAME, ThemeChoice
-from app.core.modules import KNOWN_MODULES, STRAFEN, enabled_modules
+from app.core.modules import KNOWN_MODULES, PENALTY, enabled_modules
 from app.core.permissions import user_is_admin
 from app.core.version import get_version_info
 from app.matchdays.models import Season
@@ -113,8 +113,8 @@ def site_context(request):
     theme = _theme_choice(request)
     seasons = []
     active_season = None
-    strafen_on = STRAFEN in enabled_modules()
-    if strafen_on and getattr(request, "user", None) is not None and request.user.is_authenticated:
+    penalty_on = PENALTY in enabled_modules()
+    if penalty_on and getattr(request, "user", None) is not None and request.user.is_authenticated:
         # ONE query for the dropdown; the active season resolves from the same
         # list (session id -> default flag -> newest) without extra queries.
         seasons = list(Season.objects.order_by("-name"))
@@ -123,7 +123,7 @@ def site_context(request):
     modules = enabled_modules()
     return {
         "site_name": settings.SITE_NAME,
-        # {"strafen": True, "elo": False} - drives menus and tiles.
+        # {"penalty": True, "elo": False} - drives menus and tiles.
         "modules": {name: name in modules for name in KNOWN_MODULES},
         "current_year": timezone.now().year,
         "current_theme": theme,

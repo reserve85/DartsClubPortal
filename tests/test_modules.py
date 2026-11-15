@@ -27,18 +27,18 @@ def modules(settings):
         _reload_urls()
 
     yield apply
-    settings.MODULES = ["strafen"]
+    settings.MODULES = ["penalty"]
     _reload_urls()
 
 
 class TestParseModules:
     def test_comma_separated_and_case_insensitive(self):
-        assert parse_modules(" Strafen , ") == frozenset({"strafen"})
+        assert parse_modules(" Penalty , ") == frozenset({"penalty"})
         assert parse_modules([]) == frozenset()
 
     def test_unknown_module_is_a_configuration_error(self):
         with pytest.raises(ImproperlyConfigured, match="unknown"):
-            parse_modules("strafen,kegeln")
+            parse_modules("penalty,bowling")
 
     def test_module_not_in_this_version_yet(self):
         with pytest.raises(ImproperlyConfigured, match="not part of this version"):

@@ -39,10 +39,10 @@ class HomeView(LoginRequiredMixin, View):
     """
 
     def get(self, request):
-        from app.core.modules import KNOWN_MODULES, STRAFEN, enabled_modules
+        from app.core.modules import KNOWN_MODULES, PENALTY, enabled_modules
 
         modules = enabled_modules()
-        if STRAFEN in modules:
+        if PENALTY in modules:
             return redirect("dashboard:index")
         tiles = [
             {"key": key, "label": label} for key, label in KNOWN_MODULES.items() if key in modules

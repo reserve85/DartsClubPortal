@@ -45,7 +45,7 @@ services:
     environment:
       # ── Club portal ────────────────────────────────────────────────────
       - SITE_NAME=Darts Club Portal                 # Name in navbar, page titles and e-mails
-      - MODULES=strafen                             # Enabled modules: strafen, elo (comma separated) | Default: strafen
+      - MODULES=penalty                             # Enabled modules: penalty, elo (comma separated) | Default: penalty
       # ── Django core ────────────────────────────────────────────────────
       - DJANGO_SECRET_KEY=CHANGE_ME_GENERATE_RANDOM   # Secret key | Any random string | ⚠ CHANGE THIS
       - DJANGO_DEBUG=False                            # Debug mode | true, false | Default: False
