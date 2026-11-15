@@ -2,19 +2,23 @@
 {% load i18n %}
 {% block title %}{{ matchday.display_label }} – {{ site_name }}{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">{{ matchday.display_label }}
-        {% if matchday.season %}<span class="badge text-bg-secondary">{{ matchday.season.name }}</span>{% endif %}
-    </h1>
+<div class="ui-hero is-duo">
+    <div class="ui-hero-head">
+        <span class="ui-avatar lg is-a" data-name="{{ matchday.team.name }}"></span>
+        <div class="min-w-0">
+            <h1 class="ui-hero-title h3">{{ matchday.display_label }}</h1>
+            {% if matchday.season %}<span class="ui-chip is-a">{{ matchday.season.name }}</span>{% endif %}
+        </div>
+    </div>
+    {% if matchday.description %}<p class="mb-0 mt-2">{{ matchday.description }}</p>{% endif %}
     {# WRITE controls only for Admins / the own team's captain (view-only for foreign teams). #}
     {% if can_manage %}
-    <div class="btn-group">
+    <div class="d-flex gap-2 mt-3 flex-wrap">
         <a class="btn btn-primary" href="{% url 'penalties:penalty_create' matchday.pk %}">{% translate "Add penalty" %}</a>
         <a class="btn btn-outline-secondary" href="{% url 'matchdays:matchday_update' matchday.pk %}">{% translate "Edit" %}</a>
     </div>
     {% endif %}
 </div>
-{% if matchday.description %}<p>{{ matchday.description }}</p>{% endif %}
 
 <h2 class="h5 d-flex justify-content-between align-items-center mb-2">
     <span>{% translate "Participants" %} ({{ participants|length }})</span>

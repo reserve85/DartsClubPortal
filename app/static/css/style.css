@@ -114,10 +114,11 @@
     pointer-events: none; /* the <label> forwards the click — exactly one toggle */
 }
 .matrix-toggle:has(.matrix-input:checked) {
-    background-color: var(--bs-success);
+    background-color: rgba(var(--bs-success-rgb), 0.2);
+    box-shadow: inset 0 0 0 1px rgba(var(--bs-success-rgb), 0.45);
 }
 .matrix-toggle:has(.matrix-input:checked) .matrix-mark {
-    color: var(--bs-white);
+    color: var(--ui-gain, var(--bs-success));
 }
 .matrix-toggle:focus-within {
     outline: 2px solid var(--bs-primary);
@@ -129,7 +130,8 @@
     cursor: default;
 }
 .matrix-toggle.is-locked:has(.matrix-input:checked) {
-    background-color: rgba(var(--bs-success-rgb), 0.45);
+    background-color: rgba(var(--bs-success-rgb), 0.08);
+    box-shadow: none;
 }
 .matrix-toggle.is-locked:has(.matrix-input:checked) .matrix-mark {
     color: var(--bs-body-color);
@@ -176,11 +178,10 @@
     transition: background-color 0.15s ease;
 }
 .participant-select-row:has(.participant-check:checked) > * {
-    background-color: var(--bs-success);
-    color: var(--bs-white);
+    background-color: rgba(var(--bs-success-rgb), 0.2);
 }
 .participant-select-row:has(.participant-check:checked) .participant-mark {
-    color: var(--bs-white);
+    color: var(--ui-gain, var(--bs-success));
 }
 /* The checkbox is visually collapsed, so the row carries the focus ring. */
 .participant-select-row:has(.participant-check:focus) > * {

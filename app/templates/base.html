@@ -27,18 +27,19 @@
             root.style.colorScheme = theme;
             // Canvas colour matching Bootstrap's --bs-body-bg — the UA default
             // is white and would flash bright while the CSS is still loading.
-            root.style.backgroundColor = theme === "dark" ? "#212529" : "#ffffff";
+            root.style.backgroundColor = theme === "dark" ? "#171923" : "#f4f6fa";
         })();
     </script>
     <title>{% block title %}{{ site_name }}{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/club-ui.css' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body class="d-flex flex-column min-vh-100">
 {# Navbar surface/colors follow data-bs-theme via the Bootstrap .navbar variables (no hardcoded dark bar). #}
-<nav class="navbar navbar-expand-lg bg-body-secondary sticky-top">
+<nav class="navbar navbar-expand-lg club-nav">
     <div class="container">
-        <a class="navbar-brand" href="{% url 'home' %}">🎯 {{ site_name }}</a>
+        <a class="navbar-brand" href="{% url 'home' %}"><span class="brand-mark" aria-hidden="true">🎯</span>{{ site_name }}</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
                 aria-controls="mainNav" aria-expanded="false" aria-label="{% translate 'Toggle navigation' %}">
             <span class="navbar-toggler-icon"></span>
@@ -142,7 +143,12 @@
                             </a>
                         </li>
                     {% endif %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'accounts:settings' %}">{% translate "Settings" %}</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-user" href="{% url 'accounts:settings' %}">
+                            <span class="ui-avatar xs" data-name="{{ request.user.full_name|default:request.user.email }}" aria-hidden="true"></span>
+                            {% translate "Settings" %}
+                        </a>
+                    </li>
                     <li class="nav-item">
                         {# Logout must stay a PLAIN nav-link: .btn brings the 2.75rem touch-target min-height from style.css, which is taller than the .nav-link anchors next to it. #}
                         <form method="post" action="{% url 'account_logout' %}" class="m-0">
@@ -177,7 +183,9 @@
 
 {% include "includes/_cookie_consent.html" %}
 
+<div id="ui-toasts" aria-live="polite"></div>
 <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'js/club-ui.js' %}"></script>
 <script src="{% static 'js/base.js' %}"></script>
 <script src="{% static 'js/theme.js' %}"></script>
 <script src="{% static 'js/cookie-consent.js' %}"></script>

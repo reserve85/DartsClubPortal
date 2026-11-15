@@ -2,24 +2,21 @@
 {% load i18n balance_tags %}
 {% block title %}{{ player.name }} – {{ site_name }}{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">{{ player.name }}
-        {% if not player.active %}<span class="badge text-bg-secondary">{% translate "inactive" %}</span>{% endif %}
-    </h1>
-    {% if can_edit %}
-        <a class="btn btn-outline-secondary" href="{% url 'players:player_update' player.pk %}">{% translate "Edit" %}</a>
-    {% endif %}
+<div class="ui-hero">
+    <div class="ui-hero-head">
+        <span class="ui-avatar xl{% if not player.active %} is-off{% endif %}" data-name="{{ player.name }}"></span>
+        <div class="min-w-0">
+            <h1 class="ui-hero-title h3">{{ player.name }}</h1>
+            {% if not player.active %}<span class="ui-chip">{% translate "inactive" %}</span>{% endif %}
+        </div>
+        {% if can_edit %}
+        <div class="ui-hero-actions">
+            <a class="btn btn-outline-secondary btn-sm" href="{% url 'players:player_update' player.pk %}">{% translate "Edit" %}</a>
+        </div>
+        {% endif %}
+    </div>
+    {% include "includes/_balance_tiles.html" with total=total paid=paid balance=balance %}
 </div>
-
-<p>
-    <strong class="text-danger">{% translate "Penalties total" %}:</strong> <span class="text-danger">{{ total|floatformat:2 }} €</span>
-    &middot; <strong class="text-success">{% translate "Penalties settled" %}:</strong> <span class="text-success">{{ paid|floatformat:2 }} €</span>
-    {% if balance < 0 %}
-    &middot; <strong class="text-success">{% translate "Credit" %}:</strong> <strong class="text-success">{{ balance|abs|floatformat:2 }} €</strong>
-    {% else %}
-    &middot; <strong class="text-danger">{% translate "Penalties open" %}:</strong> <strong class="text-danger">{{ balance|floatformat:2 }} €</strong>
-    {% endif %}
-</p>
 
 <h2 class="h5">{% translate "Teams" %}</h2>
 <div class="table-responsive mb-4">

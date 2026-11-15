@@ -1,0 +1,271 @@
+/* ==========================================================================
+   Club UI kit — the shared look of DartsClubPortal (all modules).
+
+   Built from the Elo redesign (head-to-head style): calm dark/light palette,
+   gradient hero bands, initials avatars, chips, tiles, card lists on phones,
+   toasts and busy buttons. Bootstrap 5.3 is the base; this file only themes
+   it and adds the "ui-*" components. Loaded after bootstrap.min.css and
+   before style.css (page-specific rules).
+   ========================================================================== */
+
+/* ---- Palette ------------------------------------------------------------ */
+:root,
+[data-bs-theme="light"] {
+    --ui-a: #206bc4;                 /* primary / player 1 */
+    --ui-b: #f76707;                 /* accent / player 2 */
+    --ui-a-soft: rgba(32, 107, 196, 0.14);
+    --ui-b-soft: rgba(247, 103, 7, 0.14);
+    --ui-track: rgba(128, 128, 128, 0.14);
+    --ui-line: rgba(128, 128, 128, 0.16);
+    --ui-surface: #ffffff;
+    --ui-gain: #2fb344;
+    --ui-loss: #d63939;
+    --ui-warn: #c27c00;
+
+    --bs-primary: #206bc4;
+    --bs-primary-rgb: 32, 107, 196;
+    --bs-link-color: #206bc4;
+    --bs-link-color-rgb: 32, 107, 196;
+    --bs-link-hover-color: #1a569d;
+    --bs-link-hover-color-rgb: 26, 86, 157;
+    --bs-body-bg: #f4f6fa;
+    --bs-secondary-bg: #eef1f6;
+    --bs-tertiary-bg: #f8f9fc;
+    --bs-border-color: #e1e6ef;
+    --bs-border-radius: 0.6rem;
+    --bs-success: #2fb344;
+    --bs-success-rgb: 47, 179, 68;
+    --bs-danger: #d63939;
+    --bs-danger-rgb: 214, 57, 57;
+}
+
+[data-bs-theme="dark"] {
+    --ui-a-soft: rgba(32, 107, 196, 0.20);
+    --ui-b-soft: rgba(247, 103, 7, 0.18);
+    --ui-surface: #1e2233;
+    --ui-gain: #4ade80;
+    --ui-loss: #f87171;
+    --ui-warn: #fcd34d;
+
+    --bs-body-bg: #171923;
+    --bs-body-color: #c2c8d1;
+    --bs-body-color-rgb: 194, 200, 209;
+    --bs-emphasis-color: #eef1f6;
+    --bs-secondary-color: #8e95a9;
+    --bs-secondary-bg: #1a1e2e;
+    --bs-tertiary-bg: #1e2233;
+    --bs-border-color: #2c3048;
+    --bs-link-color: #7fb5f5;
+    --bs-link-color-rgb: 127, 181, 245;
+    --bs-link-hover-color: #a9cdf8;
+    --bs-link-hover-color-rgb: 169, 205, 248;
+    --bs-success: #4ade80;
+    --bs-success-rgb: 74, 222, 128;
+    --bs-danger: #f87171;
+    --bs-danger-rgb: 248, 113, 113;
+    --bs-table-bg: transparent;
+}
+
+body { background-color: var(--bs-body-bg); }
+
+/* ---- Buttons ------------------------------------------------------------ */
+.btn-primary {
+    --bs-btn-bg: #206bc4; --bs-btn-border-color: #206bc4;
+    --bs-btn-hover-bg: #1a5aa6; --bs-btn-hover-border-color: #1a5aa6;
+    --bs-btn-active-bg: #174f92; --bs-btn-active-border-color: #174f92;
+    --bs-btn-disabled-bg: #206bc4; --bs-btn-disabled-border-color: #206bc4;
+}
+.btn-outline-primary {
+    --bs-btn-color: var(--bs-link-color); --bs-btn-border-color: #206bc4;
+    --bs-btn-hover-bg: #206bc4; --bs-btn-hover-border-color: #206bc4;
+    --bs-btn-active-bg: #1a5aa6; --bs-btn-active-border-color: #1a5aa6;
+}
+.btn.is-busy { pointer-events: none; opacity: .7; }
+.btn.is-busy::after {
+    content: ""; display: inline-block; width: .9em; height: .9em; margin-left: .5em; vertical-align: -.1em;
+    border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%;
+    animation: ui-spin .7s linear infinite;
+}
+@keyframes ui-spin { to { transform: rotate(360deg); } }
+
+/* ---- Header (navbar) ---------------------------------------------------- */
+.navbar.club-nav {
+    position: sticky; top: 0; z-index: 1030;
+    background: var(--ui-surface) !important;
+    border-bottom: 1px solid var(--bs-border-color);
+    padding-top: .55rem; padding-bottom: .45rem;
+}
+.navbar.club-nav::before {     /* signature accent line */
+    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px;
+    background: linear-gradient(90deg, var(--ui-a), var(--ui-b));
+}
+.club-nav .navbar-brand { display: inline-flex; align-items: center; gap: .55rem; font-weight: 700; font-size: 1.05rem; }
+.club-nav .brand-mark {
+    width: 30px; height: 30px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--ui-a), var(--ui-b)); color: #fff; font-size: .95rem;
+}
+.club-nav .nav-link { font-weight: 600; border-radius: 999px; padding: .4rem .85rem !important; }
+.club-nav .nav-link.active { background: var(--ui-a-soft); color: var(--bs-link-color) !important; }
+.club-nav .navbar-toggler { border: 0; box-shadow: none; }
+.club-nav .nav-user { display: inline-flex; align-items: center; gap: .5rem; }
+@media (max-width: 991.98px) {
+    .club-nav .navbar-collapse { padding-top: .5rem; }
+    .club-nav .nav-link { border-radius: 10px; }
+}
+
+/* ---- Cards, headings, links -------------------------------------------- */
+.card { border-radius: 12px; border-color: var(--bs-border-color); background-color: var(--ui-surface); }
+.card > .card-header:first-child { border-top-left-radius: 12px; border-top-right-radius: 12px; }
+.modal-content { border-radius: 14px; overflow: hidden; background-color: var(--ui-surface); }
+main h1, main .h1-like { font-size: 1.4rem; font-weight: 700; letter-spacing: -.01em; }
+main h1.h3 { font-size: 1.4rem; }
+main h2.h5, main h3.h6 { font-weight: 700; }
+.table a, .list-group a { text-decoration: none; }
+.table a:hover { text-decoration: underline; }
+.table { --bs-table-striped-bg: rgba(128, 128, 128, 0.05); }
+.table > :not(caption) > * > * { border-bottom-color: var(--ui-line); }
+.table thead th {
+    font-size: .72rem; text-transform: uppercase; letter-spacing: .05em;
+    color: var(--bs-secondary-color); font-weight: 700; white-space: nowrap;
+}
+footer.footer { background: transparent !important; border-top: 1px solid var(--ui-line); }
+footer.footer a { color: var(--bs-secondary-color); text-decoration: none; }
+footer.footer a:hover { text-decoration: underline; }
+
+/* ---- Avatars (initials) -------------------------------------------------- */
+.ui-avatar {
+    --ui-av: var(--ui-a);
+    width: 36px; height: 36px; flex: 0 0 auto; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--ui-av); color: #fff; font-weight: 700; font-size: .8rem;
+    letter-spacing: .02em; line-height: 1; user-select: none; vertical-align: middle;
+}
+.ui-avatar.xs { width: 22px; height: 22px; font-size: .58rem; }
+.ui-avatar.sm { width: 28px; height: 28px; font-size: .68rem; }
+.ui-avatar.lg { width: 56px; height: 56px; font-size: 1.15rem; }
+.ui-avatar.xl { width: 72px; height: 72px; font-size: 1.5rem; }
+.ui-avatar.is-a { --ui-av: var(--ui-a); }
+.ui-avatar.is-b { --ui-av: var(--ui-b); }
+.ui-avatar.is-off { filter: grayscale(1); opacity: .55; }
+.ui-avatar.is-ring { box-shadow: 0 0 0 3px var(--ui-surface), 0 0 0 5px var(--ui-av); }
+.ui-person { display: inline-flex; align-items: center; gap: .5rem; min-width: 0; }
+
+/* ---- Hero bands ---------------------------------------------------------- */
+.ui-hero {
+    border-radius: 14px; padding: 18px 16px; margin-bottom: 1rem;
+    background: linear-gradient(100deg, var(--ui-a-soft) 0%, transparent 70%);
+    border: 1px solid var(--ui-line);
+}
+.ui-hero.is-duo { background: linear-gradient(90deg, var(--ui-a-soft) 0%, transparent 42%, transparent 58%, var(--ui-b-soft) 100%); }
+.ui-hero.is-brand { background: linear-gradient(120deg, var(--ui-a-soft) 0%, transparent 50%, var(--ui-b-soft) 100%); }
+.ui-hero-head { display: flex; align-items: center; gap: .9rem; min-width: 0; }
+.ui-hero-title { margin: 0; font-size: 1.35rem; font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; }
+.ui-hero-sub { color: var(--bs-secondary-color); font-size: .85rem; }
+.ui-hero-actions { margin-left: auto; display: flex; gap: .4rem; flex-wrap: wrap; justify-content: flex-end; }
+
+/* ---- Tiles --------------------------------------------------------------- */
+.ui-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 14px; }
+.ui-tile { border-radius: 10px; padding: 10px 8px; text-align: center; background: var(--ui-surface); border: 1px solid var(--ui-line); min-width: 0; }
+.ui-tile .t { font-size: .64rem; text-transform: uppercase; letter-spacing: .04em; color: var(--bs-secondary-color); line-height: 1.25; }
+.ui-tile .n { font-size: 1.2rem; font-weight: 800; line-height: 1.3; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ui-tile.is-gain .n { color: var(--ui-gain); }
+.ui-tile.is-loss .n { color: var(--ui-loss); }
+.ui-tile.is-a .n { color: var(--bs-link-color); }
+
+/* ---- Chips, section titles ---------------------------------------------- */
+.ui-chip {
+    display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 999px;
+    font-size: .72rem; font-weight: 600; line-height: 1.5; background: var(--ui-track); color: var(--bs-secondary-color); white-space: nowrap;
+}
+.ui-chip.is-a { background: var(--ui-a-soft); color: var(--bs-link-color); }
+.ui-chip.is-b { background: var(--ui-b-soft); color: var(--ui-b); }
+.ui-chip.is-ok { background: rgba(47, 179, 68, .16); color: var(--ui-gain); }
+.ui-chip.is-bad { background: rgba(214, 57, 57, .16); color: var(--ui-loss); }
+.ui-section-title {
+    font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+    color: var(--bs-secondary-color); margin: 1.2rem 0 .6rem;
+}
+.ui-gain { color: var(--ui-gain) !important; }
+.ui-loss { color: var(--ui-loss) !important; }
+.ui-num { font-variant-numeric: tabular-nums; }
+
+/* Bootstrap badges -> soft chips */
+.badge.text-bg-secondary { background: var(--ui-track) !important; color: var(--bs-secondary-color) !important; }
+.badge { border-radius: 999px; font-weight: 600; }
+
+/* ---- Toasts -------------------------------------------------------------- */
+#ui-toasts {
+    position: fixed; left: 50%; transform: translateX(-50%); top: 12px; z-index: 11000;
+    display: flex; flex-direction: column; gap: 8px; width: min(92vw, 420px); pointer-events: none;
+}
+.ui-toast {
+    pointer-events: auto; padding: 11px 14px; border-radius: 10px; font-weight: 600; font-size: .9rem;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, .28); background: #1f2937; color: #fff; border-left: 4px solid var(--ui-a);
+    opacity: 0; transform: translateY(-8px); transition: opacity .2s ease, transform .2s ease;
+}
+.ui-toast.show { opacity: 1; transform: none; }
+.ui-toast.is-ok { border-left-color: var(--ui-gain); }
+.ui-toast.is-bad { border-left-color: var(--ui-loss); }
+
+/* ---- Tables become card lists on phones ---------------------------------
+   club-ui.js marks every content table with .rt-auto and copies the column
+   header into data-label of each cell. Tables that must stay grids (team
+   assignment matrix, participant selection) carry .rt-keep. */
+@media (max-width: 767.98px) {
+    .table-responsive:has(> table.rt-auto) { overflow: visible; }
+    table.rt-auto, table.rt-auto > tbody { display: block; width: 100%; }
+    table.rt-auto > thead { display: none; }
+    table.rt-auto > tbody > tr {
+        display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; row-gap: 3px;
+        padding: 10px 2px; border-bottom: 1px solid var(--ui-line);
+    }
+    table.rt-auto > tbody > tr > td {
+        display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+        grid-column: 1 / -1; padding: 0 !important; border: 0 !important; background: transparent !important;
+        box-shadow: none !important; text-align: right !important; min-width: 0; overflow-wrap: anywhere;
+    }
+    table.rt-auto > tbody > tr > td::before {
+        content: attr(data-label); flex: 0 0 auto; max-width: 48%; text-align: left;
+        font-size: .74rem; color: var(--bs-secondary-color); font-weight: 600;
+    }
+    table.rt-auto > tbody > tr > td[data-label=""]::before { content: none; }
+    /* first column = the entry itself: big, left aligned, no label */
+    table.rt-auto > tbody > tr > td:first-child {
+        justify-content: flex-start; text-align: left !important; font-weight: 700; font-size: 1rem; margin-bottom: 2px;
+    }
+    table.rt-auto > tbody > tr > td:first-child::before { content: none; }
+    /* action buttons: one row at the end, right aligned */
+    table.rt-auto > tbody > tr > td.rt-actions { justify-content: flex-end; flex-wrap: wrap; margin-top: 4px; }
+    table.rt-auto > tbody > tr > td.rt-actions::before { content: none; }
+    table.rt-auto > tbody > tr > td[colspan] { justify-content: center; text-align: center !important; color: var(--bs-secondary-color); }
+    table.rt-auto > tbody > tr > td[colspan]::before { content: none; }
+
+    .btn { min-height: 2.6rem; }
+    .form-control, .form-select { font-size: 16px; }   /* no iOS zoom on focus */
+    .ui-hero { padding: 14px 12px; }
+    .ui-hero-title { font-size: 1.2rem; }
+    .ui-tile .n { font-size: 1.02rem; }
+}
+
+/* ---- Page polish ---------------------------------------------------------- */
+/* Page heads "title | buttons": wrap instead of running off the screen. */
+main .d-flex.justify-content-between.align-items-center { flex-wrap: wrap; gap: .6rem; }
+main .d-flex.justify-content-between.align-items-center > .d-flex { flex-wrap: wrap; }
+/* allauth's honeypot sits at right:-99999px and made every signup page
+   scroll sideways on phones; parking it on the left keeps it hidden. */
+#id_website { right: auto !important; left: -99999px !important; }
+/* Participant / name pills: soft chips instead of white badges. */
+.badge.text-bg-light {
+    background: var(--ui-track) !important; color: var(--bs-body-color) !important;
+    border-color: transparent !important; font-weight: 600; padding: .4em .8em;
+}
+.ui-hero ul { list-style: none; padding-left: 0; }
+.ui-hero .alert { margin-bottom: 0; }
+/* Entrance pages (login, signup, password reset): brand band above the card. */
+.ui-entrance-brand { text-align: center; }
+.ui-entrance-brand .brand-mark {
+    width: 52px; height: 52px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--ui-a), var(--ui-b)); font-size: 1.6rem; margin-bottom: .5rem;
+}
+.ui-entrance-brand .name { font-size: 1.3rem; font-weight: 800; }
+.min-w-0 { min-width: 0; }

@@ -562,9 +562,12 @@ def test_financial_overview_shows_credit_and_payout_action(
     )
     assert trigger is not None  # … and the credit row opens it with ITS balance
     assert Decimal(trigger.group(1)) == Decimal(-6)
-    # The team summary says CREDIT (absolute value, green) instead of
+    # The team summary says CREDIT (absolute value, green tile) instead of
     # "Penalties open: -6.00 €" in red.
-    assert re.search(r"(Credit|Guthaben):</strong> <strong class=\"text-success\">6[.,]00", content)
+    assert re.search(
+        r'<div class="ui-tile is-gain">\s*<div class="t">(Credit|Guthaben)</div>\s*<div class="n">6[.,]00 €',
+        content,
+    )
     # The row balance itself stays signed but turns green.
     assert re.search(r'class="text-end text-success">-6[.,]00 €', content)
 

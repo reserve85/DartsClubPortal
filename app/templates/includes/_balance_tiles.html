@@ -1,0 +1,24 @@
+{% load i18n balance_tags %}
+{# Balance trio as tiles: total / settled / open (or credit when negative). #}
+{# Usage: {% include "includes/_balance_tiles.html" with total=x paid=y balance=z %} #}
+<div class="ui-tiles" role="group" aria-label="{% translate 'Balance' %}">
+    <div class="ui-tile is-loss">
+        <div class="t">{% translate "Penalties total" %}</div>
+        <div class="n">{{ total|floatformat:2 }} €</div>
+    </div>
+    <div class="ui-tile is-gain">
+        <div class="t">{% translate "Penalties settled" %}</div>
+        <div class="n">{{ paid|floatformat:2 }} €</div>
+    </div>
+    {% if balance < 0 %}
+    <div class="ui-tile is-gain">
+        <div class="t">{% translate "Credit" %}</div>
+        <div class="n">{{ balance|abs|floatformat:2 }} €</div>
+    </div>
+    {% else %}
+    <div class="ui-tile is-loss">
+        <div class="t">{% translate "Penalties open" %}</div>
+        <div class="n">{{ balance|floatformat:2 }} €</div>
+    </div>
+    {% endif %}
+</div>

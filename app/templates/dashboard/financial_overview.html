@@ -15,15 +15,16 @@
     {% if no_player_link %}
         <p class="text-muted">{% translate "Your account is not linked to a player yet." %}</p>
     {% else %}
-        <p>
-            <strong class="text-danger">{% translate "Penalties total" %}:</strong> <span class="text-danger">{{ own_total|floatformat:2 }} €</span>
-            &middot; <strong class="text-success">{% translate "Penalties settled" %}:</strong> <span class="text-success">{{ own_paid|floatformat:2 }} €</span>
-            {% if own_balance < 0 %}
-            &middot; <strong class="text-success">{% translate "Credit" %}:</strong> <strong class="text-success">{{ own_balance|abs|floatformat:2 }} €</strong>
-            {% else %}
-            &middot; <strong class="text-danger">{% translate "Penalties open" %}:</strong> <strong class="text-danger">{{ own_balance|floatformat:2 }} €</strong>
-            {% endif %}
-        </p>
+        <div class="ui-hero mb-3">
+            <div class="ui-hero-head">
+                <span class="ui-avatar lg" data-name="{{ request.user.player_link.name|default:request.user.email }}"></span>
+                <div>
+                    <div class="ui-hero-title h4">{{ request.user.player_link.name|default:request.user.email }}</div>
+                    <div class="ui-hero-sub">{% translate "My penalties" %}</div>
+                </div>
+            </div>
+            {% include "includes/_balance_tiles.html" with total=own_total paid=own_paid balance=own_balance %}
+        </div>
         <div class="table-responsive">
             <table class="table table-striped align-middle">
                 <thead><tr><th>{% translate "Date" %}</th><th>{% translate "Team" %}</th><th>{% translate "Description" %}</th><th class="text-end">{% translate "Amount" %}</th></tr></thead>
@@ -60,8 +61,14 @@
 {% endif %}
 
 {% if selected_team %}
-        <h2 class="h5">{{ selected_team.name }}
-            {% if active_season %}<span class="badge text-bg-secondary">{{ active_season.name }}</span>{% endif %}</h2>
+    <div class="ui-hero is-brand">
+        <div class="ui-hero-head mb-2">
+            <span class="ui-avatar lg" data-name="{{ selected_team.name }}"></span>
+            <div>
+                <h2 class="ui-hero-title h5">{{ selected_team.name }}</h2>
+                {% if active_season %}<span class="ui-chip is-a">{{ active_season.name }}</span>{% endif %}
+            </div>
+        </div>
         {% if team_captains %}
         {# Captain marking (👑): the accounts assigned to THIS team — a Captain #}
         {# role is not required, Admins may captain a team too (decoupled).     #}
@@ -98,15 +105,8 @@
                 <a href="{% url 'teams:cashier_list' %}">{% translate "Set the cashier" %}</a>
             </div>
         {% endif %}
-        <p class="mb-2">
-            <strong class="text-danger">{% translate "Penalties total" %}:</strong> <span class="text-danger">{{ team_penalties|floatformat:2 }} €</span>
-            &middot; <strong class="text-success">{% translate "Penalties settled" %}:</strong> <span class="text-success">{{ team_paid|floatformat:2 }} €</span>
-            {% if team_total < 0 %}
-            &middot; <strong class="text-success">{% translate "Credit" %}:</strong> <strong class="text-success">{{ team_total|abs|floatformat:2 }} €</strong>
-            {% else %}
-            &middot; <strong class="text-danger">{% translate "Penalties open" %}:</strong> <strong class="text-danger">{{ team_total|floatformat:2 }} €</strong>
-            {% endif %}
-        </p>
+        {% include "includes/_balance_tiles.html" with total=team_penalties paid=team_paid balance=team_total %}
+    </div>
 
         {# Price list for EVERY signed-in account: which penalties exist and what #}
         {# THIS team charges (fee overrides via TeamCatalogAmount apply). The     #}

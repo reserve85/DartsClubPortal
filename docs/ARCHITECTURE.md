@@ -66,6 +66,9 @@ DartsClubPortal (Django, 1 container, 1 SQLite database, 1 volume)
 - **Permissions:**
   - Members enter matches and see ranking and statistics.
   - Admins manage matches, players, exports and backups.
+  - **Per-module access (later, phase 5):** accounts can be limited to single
+    modules, e.g. an *Elo-only* user who enters matches but has no access to
+    the penalty module (no menu entry, pages return 403/404).
 - **QR login** for a shared club account (e.g. a tablet in the club house)
   stays, with the token in the QR code as in Elo v1.0.39.
 
@@ -138,8 +141,14 @@ import → verification report**.
   Elo v1.0.41: gradient hero, initials avatars, chips, tiles, card lists on
   phones, toasts and busy buttons. Technology: Bootstrap 5.3, with the
   Tabler-style elements from Elo rebuilt on it.
-- **Menu:** Overview · Ranking · Penalties · Administration · Profile. It shows
-  only the enabled modules.
+- **Menu:** one top-level entry per module – **Elo** and **Penalty** – with
+  their pages as sub-items (Elo: ranking, matches, statistics, head-to-head …;
+  Penalty: financial overview, matchdays, teams, catalog …), plus overview,
+  administration and profile. Only enabled modules (and modules the user may
+  access) appear. Design quality bar: polished on phones first.
+- **Phase 1 status:** done – UI kit (`static/css/club-ui.css`,
+  `static/js/club-ui.js`), new base template, penalty pages and entrance pages
+  restyled.
 - **Penalty pages:** moved onto the same components.
 - **Dark mode and language:** per account, as today in DartsPenaltySystem.
 
@@ -148,11 +157,11 @@ import → verification report**.
 | Phase | Content | Result |
 |---|---|---|
 | **0** | Base: fork, name/branding, module switch `MODULES`, menu, tests green | ✅ portal = today's penalty app, modules switchable |
-| **1** | Design: new base template + UI kit, penalty pages restyled, screenshots | target design in place |
+| **1** | Design: new base template + UI kit, penalty pages restyled, screenshots | ✅ target design in place |
 | **2** | Elo core: models, Elo calculation, recalculation, ranking, statistics, head-to-head + ported tests | calculation identical to Elo |
 | **3** | Elo UI + API: dashboard, match entry, statistics, head-to-head, administration, PDF/CSV, QR login, German/English | Elo module usable |
 | **4** | Import: `import_elo` + `import_penalty` with preview, matching, transaction, verification report; admin upload | data of both systems importable |
-| **5** | "My overview" (Elo + penalty), club accounts, role polish | portal start page |
+| **5** | "My overview" (Elo + penalty), club accounts, role polish, per-module access (Elo-only users) | portal start page |
 | **6** | One image, Compose/Portainer example, switch-over guide, end-to-end test with real copies of both databases | ready to switch |
 
 Every phase ends with tests and screenshots for approval.

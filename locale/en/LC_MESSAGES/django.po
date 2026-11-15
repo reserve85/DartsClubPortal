@@ -1845,3 +1845,6 @@ msgstr ""
 
 msgid "Elo ranking"
 msgstr ""
+
+msgid "Balance"
+msgstr ""

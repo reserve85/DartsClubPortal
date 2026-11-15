@@ -3317,6 +3317,9 @@ msgstr ""
 msgid "Elo ranking"
 msgstr "Elo-Rangliste"
 
+msgid "Balance"
+msgstr "Saldo"
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 
