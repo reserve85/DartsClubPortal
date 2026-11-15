@@ -423,7 +423,7 @@ class InviteAcceptView(View):
     def get(self, request, token):
         invitation = get_object_or_404(Invitation, token=token)
         if request.user.is_authenticated:
-            return redirect("dashboard:index")
+            return redirect("home")
         error = _invite_unusable_reason(invitation)
         if error is not None:
             return self._render(request, invitation, error=error)
@@ -432,7 +432,7 @@ class InviteAcceptView(View):
     def post(self, request, token):
         invitation = get_object_or_404(Invitation, token=token)
         if request.user.is_authenticated:
-            return redirect("dashboard:index")
+            return redirect("home")
         form = InvitationAcceptForm(request.POST)
         if not form.is_valid():
             return self._render(request, invitation, form=form)

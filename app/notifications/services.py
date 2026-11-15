@@ -488,7 +488,7 @@ class NotificationService:
 
         ctx = {
             "support_email": settings.SUPPORT_EMAIL,
-            "site_name": "Darts Penalty Manager",
+            "site_name": settings.SITE_NAME,
         }
         ctx.update(context or {})
 
@@ -708,7 +708,7 @@ class NotificationService:
         return self.send_templated(
             recipients=[user],
             template_base="emails/invitation",
-            subject=_("You have been invited to {site}").format(site="Darts Penalty Manager"),
+            subject=_("You have been invited to {site}").format(site=settings.SITE_NAME),
             context={
                 "invitation": invitation,
                 "invitee_email": user.email,

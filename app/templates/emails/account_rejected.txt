@@ -1,6 +1,6 @@
 {% extends "emails/base_email.txt" %}{% load i18n %}
 {% block content %}
-{% blocktranslate %}Unfortunately, your registration on the Darts Penalty Manager has been reviewed and declined:{% endblocktranslate %}
+{% blocktranslate with site=site_name %}Unfortunately, your registration on {{ site }} has been reviewed and declined:{% endblocktranslate %}
 
 {% translate "E-mail" %}: {{ rejected_user.email }}
 

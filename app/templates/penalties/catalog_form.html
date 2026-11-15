@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
-{% block title %}{% translate "Catalog item" %} – {% translate "Darts Penalty Manager" %}{% endblock %}
+{% block title %}{% translate "Catalog item" %} – {{ site_name }}{% endblock %}
 {% block content %}
 <h1 class="h3 mb-3">{% if view.object.pk %}{% translate "Edit catalog item" %}{% else %}{% translate "New catalog item" %}{% endif %}</h1>
 <form method="post" novalidate class="card card-body">

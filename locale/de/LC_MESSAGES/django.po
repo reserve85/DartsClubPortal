@@ -2,7 +2,7 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
@@ -21,8 +21,7 @@ msgstr ""
 msgid "Admin"
 msgstr "Administrator"
 
-#: .\app\accounts\forms.py:27
-#: .\app\templates\accounts\user_list.html:26
+#: .\app\accounts\forms.py:27 .\app\templates\accounts\user_list.html:26
 msgid "Captain"
 msgstr "Kapitän"
 
@@ -46,7 +45,9 @@ msgstr "Ihre Registrierung wurde abgelehnt. Bitte kontaktieren Sie den Verein."
 msgid ""
 "Your account has not been approved by an administrator yet. Please contact "
 "the club."
-msgstr "Ihr Konto wurde noch nicht von einem Administrator freigegeben. Bitte kontaktieren Sie den Verein."
+msgstr ""
+"Ihr Konto wurde noch nicht von einem Administrator freigegeben. Bitte "
+"kontaktieren Sie den Verein."
 
 #: .\app\accounts\forms.py:70 .\app\accounts\forms.py:166
 #: .\app\templates\accounts\user_list.html:20
@@ -72,7 +73,8 @@ msgstr "Ein Benutzer mit dieser E-Mail-Adresse existiert bereits."
 
 #: .\app\accounts\forms.py:108 .\app\accounts\forms.py:220
 msgid "A team can only be assigned to Admin or Captain accounts."
-msgstr "Ein Team kann nur Konten mit der Rolle Admin oder Captain zugewiesen werden."
+msgstr ""
+"Ein Team kann nur Konten mit der Rolle Admin oder Captain zugewiesen werden."
 
 #: .\app\accounts\forms.py:131 .\app\accounts\forms.py:331
 msgid "Captain in this team"
@@ -101,7 +103,9 @@ msgstr "Optional: Einen neuen Spieler anlegen und direkt verknüpfen."
 
 #: .\app\accounts\forms.py:160
 msgid "Choose an existing player OR enter a new player name — not both."
-msgstr "Wählen Sie einen bestehenden Spieler ODER geben Sie einen neuen Spielernamen ein — beides zusammen ist nicht möglich."
+msgstr ""
+"Wählen Sie einen bestehenden Spieler ODER geben Sie einen neuen Spielernamen "
+"ein — beides zusammen ist nicht möglich."
 
 #: .\app\accounts\managers.py:15
 msgid "The email address must be set"
@@ -115,8 +119,7 @@ msgstr "Superuser muss is_staff=True haben."
 msgid "Superuser must have is_superuser=True."
 msgstr "Superuser muss is_superuser=True haben."
 
-#: .\app\accounts\models.py:26
-#: .\app\templates\emails\account_registered.html:8
+#: .\app\accounts\models.py:26 .\app\templates\emails\account_registered.html:8
 #: .\app\templates\emails\account_registered.txt:7
 msgid "Pending approval"
 msgstr "Wartet auf Freigabe"
@@ -141,7 +144,9 @@ msgstr "Freigabestatus"
 
 #: .\app\accounts\models.py:44
 msgid "Pending users cannot log in until an admin approves them."
-msgstr "Benutzer in der Warteliste können sich erst nach der Freigabe durch einen Administrator anmelden."
+msgstr ""
+"Benutzer in der Warteliste können sich erst nach der Freigabe durch einen "
+"Administrator anmelden."
 
 #: .\app\accounts\models.py:53 .\app\matchdays\models.py:84
 #: .\app\penalties\models.py:62 .\app\penalties\models.py:115
@@ -150,8 +155,12 @@ msgid "team"
 msgstr "Team"
 
 #: .\app\accounts\models.py:56
-msgid "Optional captaincy: the team this account leads. Allowed for Captain and Admin."
-msgstr "Optional: die Mannschaft, für die dieses Konto Kapitän ist (Rollen: Captain oder Admin)."
+msgid ""
+"Optional captaincy: the team this account leads. Allowed for Captain and "
+"Admin."
+msgstr ""
+"Optional: die Mannschaft, für die dieses Konto Kapitän ist (Rollen: Captain "
+"oder Admin)."
 
 #: .\app\accounts\models.py:62
 msgid "linked player"
@@ -387,7 +396,9 @@ msgstr "Saison '%(name)s' ist jetzt die Standard-Saison."
 msgid ""
 "This season cannot be deleted because it still has open amounts. Settle all "
 "balances first."
-msgstr "Diese Saison kann nicht gelöscht werden, weil sie noch offene Beträge enthält. Stellen Sie zuerst alle Salden auf null."
+msgstr ""
+"Diese Saison kann nicht gelöscht werden, weil sie noch offene Beträge "
+"enthält. Stellen Sie zuerst alle Salden auf null."
 
 #: .\app\core\views.py:209
 msgid ""
@@ -398,7 +409,9 @@ msgstr ""
 
 #: .\app\core\views.py:215
 msgid "This season cannot be deleted because players are still assigned to it."
-msgstr "Diese Saison kann nicht gelöscht werden, weil ihr noch Spieler zugeordnet sind."
+msgstr ""
+"Diese Saison kann nicht gelöscht werden, weil ihr noch Spieler zugeordnet "
+"sind."
 
 #: .\app\core\views.py:220
 msgid "Season deleted."
@@ -655,8 +668,8 @@ msgid ""
 "Manual penalty: required (comment/reason) — normal and group penalties: "
 "optional. Always listed as: penalty type (comment)."
 msgstr ""
-"Manuelle Strafe: Pflicht (Kommentar/Begründung) — normale und "
-"Gruppenstrafen: optional. Anzeige immer: Straftyp (Kommentar)."
+"Manuelle Strafe: Pflicht (Kommentar/Begründung) — normale und Gruppenstrafen:"
+" optional. Anzeige immer: Straftyp (Kommentar)."
 
 #: .\app\penalties\forms.py:80 .\app\penalties\services.py:114
 msgid "A manual penalty needs an individual amount."
@@ -869,8 +882,8 @@ msgstr "Ein Spieler kann mehreren Teams angehören."
 #: .\app\players\forms.py:49
 #, python-format
 msgid ""
-"Assignments are season-dependent — this saves the teams of season "
-"%(season)s; other seasons keep their own assignment."
+"Assignments are season-dependent — this saves the teams of season %(season)s;"
+" other seasons keep their own assignment."
 msgstr ""
 "Zuordnungen sind saisonabhängig — gespeichert werden die Teams der Saison "
 "%(season)s; andere Saisons behalten ihre eigene Zuordnung."
@@ -990,19 +1003,19 @@ msgstr "Bestätigen"
 
 #: .\app\templates\account\email_confirm.html:21
 msgid ""
-"Unable to confirm this address because it is already confirmed by a "
-"different account."
+"Unable to confirm this address because it is already confirmed by a different"
+" account."
 msgstr ""
-"Diese Adresse kann nicht bestätigt werden, da sie bereits von einem "
-"anderen Konto bestätigt wurde."
+"Diese Adresse kann nicht bestätigt werden, da sie bereits von einem anderen "
+"Konto bestätigt wurde."
 
 #: .\app\templates\account\email_confirm.html:26
 msgid ""
 "This confirmation link expired or is invalid. Please request a new "
 "confirmation e-mail after logging in."
 msgstr ""
-"Dieser Bestätigungslink ist abgelaufen oder ungültig. Bitte fordern Sie "
-"nach dem Anmelden eine neue Bestätigungs-E-Mail an."
+"Dieser Bestätigungslink ist abgelaufen oder ungültig. Bitte fordern Sie nach "
+"dem Anmelden eine neue Bestätigungs-E-Mail an."
 
 #: .\app\templates\account\login.html:13
 #: .\app\templates\accounts\approval_form.html:16
@@ -1020,7 +1033,6 @@ msgstr "E-Mail"
 #: .\app\templates\account\login.html:25
 msgid "Remember Me"
 msgstr "Angemeldet bleiben"
-
 
 #: .\app\templates\account\login.html:32
 msgid "Forgot your password?"
@@ -1063,11 +1075,11 @@ msgstr "Passwort zurücksetzen"
 
 #: .\app\templates\account\password_reset.html:10
 msgid ""
-"Forgotten your password? Enter your e-mail address below and we will send "
-"you a link to set a new one."
+"Forgotten your password? Enter your e-mail address below and we will send you"
+" a link to set a new one."
 msgstr ""
-"Passwort vergessen? Geben Sie unten Ihre E-Mail-Adresse ein und wir "
-"senden Ihnen einen Link zum Festlegen eines neuen Passworts."
+"Passwort vergessen? Geben Sie unten Ihre E-Mail-Adresse ein und wir senden "
+"Ihnen einen Link zum Festlegen eines neuen Passworts."
 
 #: .\app\templates\account\password_reset.html:23
 msgid "Send reset link"
@@ -1099,7 +1111,9 @@ msgstr "Neues Passwort festlegen"
 
 #: .\app\templates\account\password_reset_from_key.html:11
 msgid "The password reset link was invalid or has already been used."
-msgstr "Der Link zum Zurücksetzen des Passworts ist ungültig oder wurde bereits verwendet."
+msgstr ""
+"Der Link zum Zurücksetzen des Passworts ist ungültig oder wurde bereits "
+"verwendet."
 
 #: .\app\templates\account\password_reset_from_key.html:12
 msgid "Request a new link."
@@ -1115,12 +1129,11 @@ msgstr "Ihr Passwort wurde geändert."
 
 #: .\app\templates\account\signup.html:10
 msgid ""
-"After registration, an administrator must release your account before you "
-"can log in. You will receive an e-mail as soon as your account is active."
+"After registration, an administrator must release your account before you can"
+" log in. You will receive an e-mail as soon as your account is active."
 msgstr ""
-"Nach der Registrierung muss ein Administrator Ihr Konto freigeben, bevor "
-"Sie sich anmelden können. Sie erhalten eine E-Mail, sobald Ihr Konto "
-"aktiv ist."
+"Nach der Registrierung muss ein Administrator Ihr Konto freigeben, bevor Sie "
+"sich anmelden können. Sie erhalten eine E-Mail, sobald Ihr Konto aktiv ist."
 
 #: .\app\templates\account\signup.html:28 .\app\templates\base.html:116
 msgid "Register"
@@ -1144,17 +1157,17 @@ msgid ""
 "to finalize your registration. If you do not see the e-mail, check your spam "
 "folder."
 msgstr ""
-"Wir haben Ihnen eine Bestätigungs-E-Mail gesendet. Folgen Sie dem Link in "
-"der Nachricht, um Ihre Registrierung abzuschließen. Falls Sie die E-Mail "
-"nicht sehen, prüfen Sie Ihren Spam-Ordner."
+"Wir haben Ihnen eine Bestätigungs-E-Mail gesendet. Folgen Sie dem Link in der"
+" Nachricht, um Ihre Registrierung abzuschließen. Falls Sie die E-Mail nicht "
+"sehen, prüfen Sie Ihren Spam-Ordner."
 
 #: .\app\templates\account\verification_sent.html:13
 msgid ""
-"Your account will be activated by an administrator after the registration "
-"has been checked."
+"Your account will be activated by an administrator after the registration has"
+" been checked."
 msgstr ""
-"Ihr Konto wird von einem Administrator aktiviert, sobald die "
-"Registrierung geprüft wurde."
+"Ihr Konto wird von einem Administrator aktiviert, sobald die Registrierung "
+"geprüft wurde."
 
 #: .\app\templates\accounts\approval_form.html:3
 #: .\app\templates\accounts\approval_form.html:8
@@ -1226,7 +1239,9 @@ msgstr "Zurück zu den Benutzern"
 
 #: .\app\templates\accounts\pending_list.html:9
 msgid "Newly registered accounts must be released before the users can log in."
-msgstr "Neu registrierte Konten müssen freigegeben werden, bevor sich die Benutzer anmelden können."
+msgstr ""
+"Neu registrierte Konten müssen freigegeben werden, bevor sich die Benutzer "
+"anmelden können."
 
 #: .\app\templates\accounts\pending_list.html:14
 #: .\app\templates\accounts\user_list.html:19
@@ -1382,8 +1397,8 @@ msgstr "Saisons"
 
 #: .\app\templates\base.html:94
 msgid ""
-"Your personal view for this session — it never changes the default season "
-"for other users."
+"Your personal view for this session — it never changes the default season for"
+" other users."
 msgstr ""
 "Deine persönliche Ansicht für diese Sitzung — sie ändert die Standard-Saison "
 "für andere Benutzer nie."
@@ -1511,8 +1526,8 @@ msgstr "3. Zweck der Datenverarbeitung"
 
 #: .\app\templates\core\privacy.html:28
 msgid ""
-"Data is processed exclusively to operate the club's penalty system, "
-"including matchday planning, balances and financial reporting."
+"Data is processed exclusively to operate the club's penalty system, including"
+" matchday planning, balances and financial reporting."
 msgstr ""
 "Die Daten werden ausschließlich zum Betrieb des Vereins-Strafensystems "
 "einschließlich Spieltagsplanung, Salden und Finanzberichten verarbeitet."
@@ -1533,8 +1548,8 @@ msgstr "Session-Cookie (HttpOnly):"
 msgid ""
 "Required for login sessions. This cookie is essential and cannot be declined."
 msgstr ""
-"Erforderlich für Anmeldesitzungen. Dieses Cookie ist notwendig und kann "
-"nicht abgelehnt werden."
+"Erforderlich für Anmeldesitzungen. Dieses Cookie ist notwendig und kann nicht"
+" abgelehnt werden."
 
 #: .\app\templates\core\privacy.html:34
 msgid "CSRF and language cookies:"
@@ -1545,8 +1560,8 @@ msgid ""
 "Required for secure forms and your language choice. These cookies are "
 "essential and cannot be declined."
 msgstr ""
-"Erforderlich für sichere Formulare und Ihre Sprachauswahl. Diese Cookies "
-"sind notwendig und können nicht abgelehnt werden."
+"Erforderlich für sichere Formulare und Ihre Sprachauswahl. Diese Cookies sind"
+" notwendig und können nicht abgelehnt werden."
 
 #: .\app\templates\core\privacy.html:35
 msgid "Cookie consent flag:"
@@ -1680,8 +1695,8 @@ msgstr ""
 msgid ""
 "Switching the season in the navbar is a personal choice for the session only."
 msgstr ""
-"Das Umschalten der Saison in der Navigationsleiste ist eine persönliche "
-"Wahl, die nur für die Sitzung gilt."
+"Das Umschalten der Saison in der Navigationsleiste ist eine persönliche Wahl,"
+" die nur für die Sitzung gilt."
 
 #: .\app\templates\core\season_list.html:19
 #: .\app\templates\emails\support_request.html:6
@@ -1817,8 +1832,8 @@ msgstr "Keine Strafen."
 
 #: .\app\templates\dashboard\dashboard.html:63
 msgid ""
-"Your account is not linked to a player yet. Ask an administrator to link "
-"your account."
+"Your account is not linked to a player yet. Ask an administrator to link your"
+" account."
 msgstr ""
 "Ihr Konto ist noch mit keinem Spieler verknüpft. Bitten Sie einen "
 "Administrator, Ihr Konto zu verknüpfen."
@@ -1943,12 +1958,13 @@ msgstr "Kein Team ausgewählt."
 
 #: .\app\templates\emails\account_approved.html:4
 #: .\app\templates\emails\account_approved.txt:3
+#, python-format
 msgid ""
-"Your account on the Darts Penalty Manager has been approved by an "
-"administrator. You can now log in with your e-mail address:"
+"Your account on %(site)s has been approved by an administrator. You can now "
+"log in with your e-mail address:"
 msgstr ""
-"Ihr Konto im Darts Penalty Manager wurde von einem Administrator "
-"freigegeben. Sie können sich jetzt mit Ihrer E-Mail-Adresse anmelden:"
+"Ihr Konto im %(site)s wurde von einem Administrator freigegeben. Sie können "
+"sich jetzt mit Ihrer E-Mail-Adresse anmelden:"
 
 #: .\app\templates\emails\account_approved.html:9
 #: .\app\templates\emails\account_approved.txt:8
@@ -1976,12 +1992,10 @@ msgstr "Benutzer prüfen"
 
 #: .\app\templates\emails\account_rejected.html:4
 #: .\app\templates\emails\account_rejected.txt:3
+#, python-format
 msgid ""
-"Unfortunately, your registration on the Darts Penalty Manager has been "
-"reviewed and declined:"
-msgstr ""
-"Leider wurde Ihre Registrierung im Darts Penalty Manager geprüft und "
-"abgelehnt:"
+"Unfortunately, your registration on %(site)s has been reviewed and declined:"
+msgstr "Leider wurde Ihre Registrierung im %(site)s geprüft und abgelehnt:"
 
 #: .\app\templates\emails\account_rejected.html:6
 #: .\app\templates\emails\account_rejected.txt:7
@@ -1989,12 +2003,13 @@ msgid ""
 "If you think this is a mistake, please contact the club (support address "
 "below)."
 msgstr ""
-"Wenn Sie dies für einen Fehler halten, wenden Sie sich bitte an den "
-"Verein (Support-Adresse unten)."
+"Wenn Sie dies für einen Fehler halten, wenden Sie sich bitte an den Verein "
+"(Support-Adresse unten)."
 
 #: .\app\templates\emails\base_email.html:20
-msgid "This is an automated message from the Darts Penalty Manager."
-msgstr "Dies ist eine automatisch erstellte Nachricht des Darts Penalty Manager."
+#, python-format
+msgid "This is an automated message from %(site)s."
+msgstr "Dies ist eine automatisch erstellte Nachricht von %(site)s."
 
 #: .\app\templates\emails\base_email.html:21
 #: .\app\templates\emails\base_email.txt:6
@@ -2058,11 +2073,8 @@ msgstr "Supportanfrage"
 #: .\app\templates\emails\support_request.html:4
 #: .\app\templates\emails\support_request.txt:3
 #, python-format
-msgid ""
-"A support request has been sent via the Darts Penalty Manager by %(name)s:"
-msgstr ""
-"Über den Darts Penalty Manager wurde eine Support-Anfrage von %(name)s "
-"gesendet:"
+msgid "A support request has been sent via %(site)s by %(name)s:"
+msgstr "Über %(site)s wurde eine Support-Anfrage von %(name)s gesendet:"
 
 #: .\app\templates\includes\_cookie_consent.html:3
 msgid "Cookie notice"
@@ -2334,18 +2346,22 @@ msgstr ""
 msgid "Captains"
 msgstr "Kapitäne"
 
-#: .\app\templates\base.html
-#: .\app\templates\teams\team_list.html
+#: .\app\templates\base.html .\app\templates\teams\team_list.html
 msgid "Teams & Players"
 msgstr "Mannschaften & Spieler"
 
 #: .\app\templates\teams\team_list.html
-msgid "Tick a box to assign a player to a team — the assignment belongs to the season shown above."
-msgstr "Häkchen setzen, um einen Spieler einer Mannschaft zuzuweisen — die Zuordnung gilt für die oben angezeigte Saison."
+msgid ""
+"Tick a box to assign a player to a team — the assignment belongs to the "
+"season shown above."
+msgstr ""
+"Häkchen setzen, um einen Spieler einer Mannschaft zuzuweisen — die Zuordnung "
+"gilt für die oben angezeigte Saison."
 
 #: .\app\templates\players\player_form.html
 msgid "Team assignments are managed on the Teams & Players page."
-msgstr "Team-Zuordnungen werden auf der Seite „Mannschaften & Spieler“ verwaltet."
+msgstr ""
+"Team-Zuordnungen werden auf der Seite „Mannschaften & Spieler“ verwaltet."
 
 #: .\app\templates\teams\team_list.html
 msgid "Save the player/team assignments?"
@@ -2385,47 +2401,6 @@ msgstr "Teilnehmer gespeichert."
 msgid "Today"
 msgstr "Heute"
 
-#~ msgid "Balance (owed)"
-#~ msgstr "Saldo (geschuldet)"
-
-#~ msgid "Total paid"
-#~ msgstr "Summe gezahlt"
-
-#~ msgid "Total balance (owed)"
-#~ msgstr "Gesamtsaldo (geschuldet)"
-
-#~ msgid "Only for normal penalties — leave empty to use the catalog amount."
-#~ msgstr ""
-#~ "Nur für normale Strafen — leer lassen, um den Katalogbetrag zu verwenden."
-
-#~ msgid "Flexible charge — must be a positive amount."
-#~ msgstr "Flexibler Betrag — muss positiv sein."
-
-#~ msgid "Comment"
-#~ msgstr "Kommentar"
-
-#~ msgid "Why the penalty? E.g. \"said stupid stuff\"."
-#~ msgstr "Warum die Strafe? Z. B. \"blödes Gelaber\"."
-
-#~ msgid "paid at"
-#~ msgstr "bezahlt am"
-
-#~ msgid "paid by"
-#~ msgstr "bezahlt von"
-
-#~ msgid "paid"
-#~ msgstr "bezahlt"
-
-#~ msgid "unpaid"
-#~ msgstr "offen"
-
-#~ msgid "Mark as paid"
-#~ msgstr "Bezahlen"
-
-#~ msgid "Manual penalty — flexible amount with a required comment."
-#~ msgstr "Manuelle Strafe — flexibler Betrag mit Pflichtkommentar."
-
-
 #: app\templates\dashboard\financial_overview.html
 msgid "Close"
 msgstr "Schließen"
@@ -2438,8 +2413,7 @@ msgstr "Gesamtbetrag"
 msgid "New approval request"
 msgstr "Neue Freigabe-Anfrage"
 
-#: app\templates\base.html
-#: app\templates\notifications\list.html
+#: app\templates\base.html app\templates\notifications\list.html
 msgid "Notifications"
 msgstr "Benachrichtigungen"
 
@@ -2455,22 +2429,31 @@ msgstr "Ungelesen"
 msgid "No notifications yet."
 msgstr "Noch keine Benachrichtigungen."
 
-# --- Per-team catalog flags / integrated fee form / guarded delete (2026-09) ---
+# --- Per-team catalog flags / integrated fee form / guarded delete (2026-09)
+# ---
 #: app\penalties\views.py
 msgid "Catalog item deleted."
 msgstr "Katalogeintrag gelöscht."
 
 #: app\penalties\views.py
-msgid "This catalog item cannot be deleted because it is still referenced by penalties."
-msgstr "Dieser Katalogeintrag kann nicht gelöscht werden, weil noch Strafen auf ihn verweisen."
+msgid ""
+"This catalog item cannot be deleted because it is still referenced by "
+"penalties."
+msgstr ""
+"Dieser Katalogeintrag kann nicht gelöscht werden, weil noch Strafen auf ihn "
+"verweisen."
 
 #: app\templates\penalties\catalog_form.html
 msgid "Delete this catalog item?"
 msgstr "Diesen Katalogeintrag löschen?"
 
 #: app\templates\penalties\catalog_form.html
-msgid "All fees must be filled — when creating an entry the default amount is copied into every row automatically."
-msgstr "Alle Gebühren müssen gefüllt sein – beim Anlegen wird der Standardbetrag automatisch in jede Zeile kopiert."
+msgid ""
+"All fees must be filled — when creating an entry the default amount is copied"
+" into every row automatically."
+msgstr ""
+"Alle Gebühren müssen gefüllt sein – beim Anlegen wird der Standardbetrag "
+"automatisch in jede Zeile kopiert."
 
 # --- Teams & Players: all teams + season flag / team form season field ---
 #: app\templates\teams\team_list.html
@@ -2487,8 +2470,14 @@ msgstr "Aktiviert die neue Mannschaft optional in einer bestehenden Saison."
 
 #: app\templates\teams\team_list.html
 #, python-format
-msgid "The table below lists every team — the ✓/✗ shows who is active in season %(name)s. The assignment matrix only shows the teams active in this season; manage them on the seasons page."
-msgstr "Die Tabelle unten listet alle Mannschaften — ✓/✗ zeigt, wer in der Saison %(name)s aktiv ist. Die Zuordnungsmatrix zeigt nur die in dieser Saison aktiven Mannschaften; diese verwaltet man auf den Seiten der Saisons."
+msgid ""
+"The table below lists every team — the ✓/✗ shows who is active in season "
+"%(name)s. The assignment matrix only shows the teams active in this season; "
+"manage them on the seasons page."
+msgstr ""
+"Die Tabelle unten listet alle Mannschaften — ✓/✗ zeigt, wer in der Saison "
+"%(name)s aktiv ist. Die Zuordnungsmatrix zeigt nur die in dieser Saison "
+"aktiven Mannschaften; diese verwaltet man auf den Seiten der Saisons."
 
 # --- New audit action labels (AuditAction, core app) ---
 #: app\core\models.py
@@ -2552,24 +2541,39 @@ msgstr "Ablaufdatum"
 msgid "accepted at"
 msgstr "Annahmedatum"
 
-msgid "Single-use acceptance token — blanked on acceptance, regenerated on resend."
-msgstr "Einmaliger Annahme-Token — bei der Annahme geleert, beim erneuten Senden neu erzeugt."
+msgid ""
+"Single-use acceptance token — blanked on acceptance, regenerated on resend."
+msgstr ""
+"Einmaliger Annahme-Token — bei der Annahme geleert, beim erneuten Senden neu "
+"erzeugt."
 
 msgid "Optional captaincy pre-assignment — only valid for Captain/Admin."
-msgstr "Optionale vorab zugewiesene Kapitänsrolle — nur für Kapitän/Administrator gültig."
+msgstr ""
+"Optionale vorab zugewiesene Kapitänsrolle — nur für Kapitän/Administrator "
+"gültig."
 
 msgid "Pre-assigned player — linked to the user on acceptance."
-msgstr "Vorab zugewiesener Spieler — wird bei der Annahme mit dem Konto verknüpft."
+msgstr ""
+"Vorab zugewiesener Spieler — wird bei der Annahme mit dem Konto verknüpft."
 
 #: app\accounts\forms.py (hand-added: invitation forms + requested login gate)
-msgid "You have been invited but have not completed your registration yet. Please use the link in your invitation e-mail."
-msgstr "Du wurdest eingeladen, aber deine Registrierung wurde noch nicht abgeschlossen. Bitte verwende den Link in deiner Einladungs-E-Mail."
+msgid ""
+"You have been invited but have not completed your registration yet. Please "
+"use the link in your invitation e-mail."
+msgstr ""
+"Du wurdest eingeladen, aber deine Registrierung wurde noch nicht "
+"abgeschlossen. Bitte verwende den Link in deiner Einladungs-E-Mail."
 
-msgid "Optional: pre-assigned player — linked to the account when the invitation is accepted."
-msgstr "Optional: vorab zugewiesener Spieler — wird bei der Annahme der Einladung mit dem Konto verknüpft."
+msgid ""
+"Optional: pre-assigned player — linked to the account when the invitation is "
+"accepted."
+msgstr ""
+"Optional: vorab zugewiesener Spieler — wird bei der Annahme der Einladung mit"
+" dem Konto verknüpft."
 
 msgid "Already invited — cancel or resend the existing invitation."
-msgstr "Bereits eingeladen — bestehende Einladung stornieren oder erneut senden."
+msgstr ""
+"Bereits eingeladen — bestehende Einladung stornieren oder erneut senden."
 
 msgid "This player is already reserved by another invitation."
 msgstr "Dieser Spieler ist bereits durch eine andere Einladung reserviert."
@@ -2579,26 +2583,35 @@ msgid "This invitation has already been used."
 msgstr "Diese Einladung wurde bereits verwendet."
 
 msgid "This invitation has expired. Please ask the club to resend it."
-msgstr "Diese Einladung ist abgelaufen. Bitte lass sie vom Verein erneut senden."
+msgstr ""
+"Diese Einladung ist abgelaufen. Bitte lass sie vom Verein erneut senden."
 
 msgid "This invitation is no longer valid."
 msgstr "Diese Einladung ist nicht mehr gültig."
 
 msgid "The pre-assigned player has already been linked to another account."
-msgstr "Der vorab zugewiesene Spieler wurde bereits mit einem anderen Konto verknüpft."
+msgstr ""
+"Der vorab zugewiesene Spieler wurde bereits mit einem anderen Konto "
+"verknüpft."
 
 msgid "This invitation has already been accepted."
 msgstr "Diese Einladung wurde bereits angenommen."
 
-msgid "The pre-assigned player has meanwhile been linked to another account — cancel this invitation instead."
-msgstr "Der vorab zugewiesene Spieler wurde inzwischen mit einem anderen Konto verknüpft — storniere diese Einladung stattdessen."
+msgid ""
+"The pre-assigned player has meanwhile been linked to another account — cancel"
+" this invitation instead."
+msgstr ""
+"Der vorab zugewiesene Spieler wurde inzwischen mit einem anderen Konto "
+"verknüpft — storniere diese Einladung stattdessen."
 
 #: app\accounts\views.py (hand-added: invitation views)
 msgid "Cancel or resend the invitation instead."
 msgstr "Storniere oder sende die Einladung stattdessen erneut."
 
 msgid "Invitation created, but the e-mail could not be sent — use Resend."
-msgstr "Einladung erstellt, aber die E-Mail konnte nicht gesendet werden — nutze „Erneut senden“."
+msgstr ""
+"Einladung erstellt, aber die E-Mail konnte nicht gesendet werden — nutze "
+"„Erneut senden“."
 
 msgid "Invitation sent."
 msgstr "Einladung gesendet."
@@ -2623,8 +2636,9 @@ msgid "Invited user completed registration"
 msgstr "Eingeladener Nutzer hat die Registrierung abgeschlossen"
 
 #: app\templates\emails\invitation.* + invitation_completed.* (hand-added)
-msgid "You have been invited to create your account on the Darts Penalty Manager:"
-msgstr "Du wurdest eingeladen, dein Konto im Darts Penalty Manager anzulegen:"
+#, python-format
+msgid "You have been invited to create your account on %(site)s:"
+msgstr "Du wurdest eingeladen, dein Konto im %(site)s anzulegen:"
 
 msgid "Invited by"
 msgstr "Eingeladen von"
@@ -2660,8 +2674,13 @@ msgstr "Einladungen"
 msgid "New invitation"
 msgstr "Neue Einladung"
 
-msgid "An invited account is created immediately and becomes active when the invited person sets a password via the link in the e-mail — no approval step."
-msgstr "Ein eingeladenes Konto wird sofort angelegt und aktiviert sich, sobald die eingeladene Person über den Link in der E-Mail ein Passwort setzt — kein Freigabeschritt."
+msgid ""
+"An invited account is created immediately and becomes active when the invited"
+" person sets a password via the link in the e-mail — no approval step."
+msgstr ""
+"Ein eingeladenes Konto wird sofort angelegt und aktiviert sich, sobald die "
+"eingeladene Person über den Link in der E-Mail ein Passwort setzt — kein "
+"Freigabeschritt."
 
 msgid "Invited at"
 msgstr "Eingeladen am"
@@ -2697,8 +2716,14 @@ msgid "No invitations yet."
 msgstr "Noch keine Einladungen."
 
 #: app\templates\accounts\invite_form.html (hand-added)
-msgid "The invited person receives an e-mail with an acceptance link (valid for %(days)s days). Setting a password completes the registration — no approval step follows."
-msgstr "Die eingeladene Person erhält eine E-Mail mit einem Annahmelink (gültig für %(days)s Tage). Das Setzen eines Passworts schließt die Registrierung ab — es folgt kein Freigabeschritt."
+msgid ""
+"The invited person receives an e-mail with an acceptance link (valid for "
+"%(days)s days). Setting a password completes the registration — no approval "
+"step follows."
+msgstr ""
+"Die eingeladene Person erhält eine E-Mail mit einem Annahmelink (gültig für "
+"%(days)s Tage). Das Setzen eines Passworts schließt die Registrierung ab — es"
+" folgt kein Freigabeschritt."
 
 msgid "Send invitation"
 msgstr "Einladung senden"
@@ -2708,7 +2733,9 @@ msgid "Accept your invitation"
 msgstr "Nimm deine Einladung an"
 
 msgid "Please contact the club if you think you should still have access."
-msgstr "Bitte kontaktiere den Verein, falls du der Meinung bist, dass du noch Zugang haben solltest."
+msgstr ""
+"Bitte kontaktiere den Verein, falls du der Meinung bist, dass du noch Zugang "
+"haben solltest."
 
 msgid "You will play as %(player)s."
 msgstr "Du wirst als %(player)s spielen."
@@ -2724,8 +2751,12 @@ msgstr "Wurdest du eingeladen? Verwende den Link in deiner Einladungs-E-Mail."
 msgid "Affects both doubles players?"
 msgstr "Betrifft im Doppelspiel beide Spieler?"
 
-msgid "Offer the doubles partner when this penalty is assigned — e.g. a low dart both players achieved together."
-msgstr "Beim Verhängen dieser Strafe den Doppelspieler anbieten – z. B. ein gemeinsam erzielter Lowdart."
+msgid ""
+"Offer the doubles partner when this penalty is assigned — e.g. a low dart "
+"both players achieved together."
+msgstr ""
+"Beim Verhängen dieser Strafe den Doppelspieler anbieten – z. B. ein gemeinsam"
+" erzielter Lowdart."
 
 #: app\penalties\forms.py (hand-added)
 msgid "Doubles partner"
@@ -2734,14 +2765,20 @@ msgstr "Doppelspieler"
 msgid "No doubles partner"
 msgstr "Kein Doppelspieler"
 
-msgid "Optional — only offered when the catalog item applies to both doubles players (e.g. a low dart achieved together)."
-msgstr "Optional – nur angeboten, wenn der Katalogeintrag beide Doppelspieler betrifft (z. B. ein gemeinsam erzielter Lowdart)."
+msgid ""
+"Optional — only offered when the catalog item applies to both doubles players"
+" (e.g. a low dart achieved together)."
+msgstr ""
+"Optional – nur angeboten, wenn der Katalogeintrag beide Doppelspieler "
+"betrifft (z. B. ein gemeinsam erzielter Lowdart)."
 
 msgid "The doubles partner must be another player."
 msgstr "Der Doppelspieler muss ein anderer Spieler sein."
 
-msgid "A group penalty with a doubles partner needs at least three participants."
-msgstr "Eine Gruppenstraße mit Doppelspieler braucht mindestens drei Teilnehmer."
+msgid ""
+"A group penalty with a doubles partner needs at least three participants."
+msgstr ""
+"Eine Gruppenstraße mit Doppelspieler braucht mindestens drei Teilnehmer."
 
 #: app\penalties\services.py (hand-added)
 msgid "This catalog item does not apply to both doubles players."
@@ -2751,10 +2788,13 @@ msgstr "Dieser Katalogeintrag betrifft nicht beide Doppelspieler."
 msgid "Penalty assigned to both players."
 msgstr "Strafe für beide Spieler verhängt."
 
-# --- Group delete choice / group headline names / partner exclusion (hand-added) ---
+# --- Group delete choice / group headline names / partner exclusion (hand-
+# added) ---
 #: app\templates\penalties\penalty_form.html
 msgid "Delete only this single penalty? The other rows of the group stay."
-msgstr "Nur diese einzelne Strafe löschen? Die übrigen Zeilen der Gruppe bleiben erhalten."
+msgstr ""
+"Nur diese einzelne Strafe löschen? Die übrigen Zeilen der Gruppe bleiben "
+"erhalten."
 
 #: app\templates\penalties\penalty_form.html
 #, python-format
@@ -2780,6 +2820,7 @@ msgstr "Ungültiger Löschumfang."
 #: app\penalties\views.py
 msgid "Penalty deleted for all players of the group."
 msgstr "Strafe für alle Spieler der Gruppe gelöscht."
+
 # --- Notification preferences: outbox + digest (hand-added) ---
 #: app\core\choices.py (also used by app\accounts\forms.py)
 msgid "Off"
@@ -2840,6 +2881,7 @@ msgstr "Abonnieren"
 #: app\accounts\forms.py
 msgid "Choose the time of day for the daily digest."
 msgstr "Wähle die Tageszeit für den täglichen Digest."
+
 # --- NotificationOutbox model (hand-added) ---
 #: app\notifications\models.py
 msgid "Coalescing deadline (quick mode) or the next digest time."
@@ -2850,8 +2892,11 @@ msgid "NULL = pending; set BEFORE delivery as the flush claim."
 msgstr "NULL = ausstehend; wird VOR dem Versand als Anspruch gesetzt."
 
 #: app\notifications\models.py
-msgid "Recipient language at queue time (rendering must not depend on a request)."
-msgstr "Empfängersprache beim Einreihen (Rendern darf nicht von einem Request abhängen)."
+msgid ""
+"Recipient language at queue time (rendering must not depend on a request)."
+msgstr ""
+"Empfängersprache beim Einreihen (Rendern darf nicht von einem Request "
+"abhängen)."
 
 #: app\notifications\models.py
 msgid "Snapshot at queue time — the audit trail keeps the original target."
@@ -2904,6 +2949,7 @@ msgstr "senden nach"
 #: app\notifications\models.py
 msgid "sent at"
 msgstr "gesendet am"
+
 # --- Penalty digest mail + Settings notification card (hand-added) ---
 #: app\notifications\services.py
 #, python-format
@@ -2911,12 +2957,20 @@ msgid "New penalties: {count} ({total} €)"
 msgstr "Neue Strafen: {count} ({total} €)"
 
 #: app\templates\accounts\settings.html
-msgid "Invitations, approval decisions, password and verification mails are always sent."
-msgstr "Einladungen, Freigabe-Entscheidungen sowie Passwort- und Bestätigungs-Mails werden immer zugestellt."
+msgid ""
+"Invitations, approval decisions, password and verification mails are always "
+"sent."
+msgstr ""
+"Einladungen, Freigabe-Entscheidungen sowie Passwort- und Bestätigungs-Mails "
+"werden immer zugestellt."
 
 #: app\templates\accounts\settings.html
-msgid "One e-mail per recorded payment or payout — the confirmation for the money movement."
-msgstr "Eine E-Mail pro erfasster Zahlung oder Auszahlung — die Bestätigung für den Geldfluss."
+msgid ""
+"One e-mail per recorded payment or payout — the confirmation for the money "
+"movement."
+msgstr ""
+"Eine E-Mail pro erfasster Zahlung oder Auszahlung — die Bestätigung für den "
+"Geldfluss."
 
 #: app\templates\accounts\settings.html
 msgid "Round mails and information from your club."
@@ -2924,9 +2978,11 @@ msgstr "Rundschreiben und Informationen aus deinem Verein."
 
 #: app\templates\accounts\settings.html
 msgid "Several penalties entered in a row always arrive as ONE e-mail."
-msgstr "Mehrere hintereinander erfasste Strafen kommen immer als EINE E-Mail an."
+msgstr ""
+"Mehrere hintereinander erfasste Strafen kommen immer als EINE E-Mail an."
 
-#: app\templates\emails\penalty_digest.html app\templates\emails\penalty_digest.txt
+#: app\templates\emails\penalty_digest.html
+#: app\templates\emails\penalty_digest.txt
 #, python-format
 msgid "Hi %(name)s, the following new penalties have been recorded for you:"
 msgstr "Hallo %(name)s, folgende neue Strafen wurden für dich erfasst:"
@@ -2948,8 +3004,12 @@ msgid "received by"
 msgstr "empfangen von"
 
 #: app\penalties\models.py
-msgid "The cashier who physically received or paid out the money (snapshot at record time)."
-msgstr "Der Kassier, der das Geld tatsächlich erhalten oder ausgezahlt hat (Stand im Zeitpunkt der Erfassung)."
+msgid ""
+"The cashier who physically received or paid out the money (snapshot at record"
+" time)."
+msgstr ""
+"Der Kassier, der das Geld tatsächlich erhalten oder ausgezahlt hat (Stand im "
+"Zeitpunkt der Erfassung)."
 
 #: app\teams\models.py
 msgid "cashier"
@@ -2961,7 +3021,8 @@ msgstr "Kassier (Stand)"
 
 #: app\teams\models.py
 msgid "Display name at assignment time — survives account deletion."
-msgstr "Anzeigename zum Zeitpunkt der Zuweisung — überlebt die Löschung des Kontos."
+msgstr ""
+"Anzeigename zum Zeitpunkt der Zuweisung — überlebt die Löschung des Kontos."
 
 #: app\teams\models.py
 msgid "valid from"
@@ -2989,7 +3050,9 @@ msgstr "Nur aktive, freigegebene Konten können als Kassier zugewiesen werden."
 
 #: app\teams\services.py
 msgid "The cashier was just changed by someone else — please reload the page."
-msgstr "Der Kassier wurde gerade von jemand anderem geändert — bitte lade die Seite neu."
+msgstr ""
+"Der Kassier wurde gerade von jemand anderem geändert — bitte lade die Seite "
+"neu."
 
 #: app\teams\views.py
 msgid "Cashier updated."
@@ -3007,7 +3070,8 @@ msgstr "Für dieses Team ist noch kein Kassier festgelegt."
 msgid "Cash box"
 msgstr "Kasse"
 
-#: app\templates\dashboard\financial_overview.html app\templates\teams\cashier_list.html
+#: app\templates\dashboard\financial_overview.html
+#: app\templates\teams\cashier_list.html
 msgid "Cashier"
 msgstr "Kassier"
 
@@ -3024,8 +3088,12 @@ msgid "Received by"
 msgstr "Empfangen von"
 
 #: app\templates\teams\cashier_list.html
-msgid "The cashier of a team is the only account that may record or revert payments for that team."
-msgstr "Der Kassier eines Teams ist das einzige Konto, das Zahlungen für dieses Team erfassen oder stornieren kann."
+msgid ""
+"The cashier of a team is the only account that may record or revert payments "
+"for that team."
+msgstr ""
+"Der Kassier eines Teams ist das einzige Konto, das Zahlungen für dieses Team "
+"erfassen oder stornieren kann."
 
 #: app\templates\teams\cashier_list.html
 msgid "Assign"
@@ -3055,7 +3123,8 @@ msgstr "Zugewiesen von"
 msgid "No entries yet."
 msgstr "Noch keine Einträge."
 
-#: app\templates\emails\penalty_repayment.html app\templates\emails\penalty_repayment.txt
+#: app\templates\emails\penalty_repayment.html
+#: app\templates\emails\penalty_repayment.txt
 msgid "Recorded by"
 msgstr "Erfasst von"
 
@@ -3133,7 +3202,9 @@ msgstr "Die Auszahlung übersteigt das verfügbare Guthaben."
 
 #: app\penalties\forms.py app\templates\dashboard\financial_overview.html
 msgid "Payout of the credit — any amount up to the available credit."
-msgstr "Auszahlung des Guthabens — jeder positive Betrag bis zum verfügbaren Guthaben."
+msgstr ""
+"Auszahlung des Guthabens — jeder positive Betrag bis zum verfügbaren "
+"Guthaben."
 
 #: app\notifications\services.py
 msgid "Payout confirmation: {amount} €"
@@ -3159,7 +3230,10 @@ msgstr "Deine Auszahlung wurde storniert: {amount} €"
 msgid "Reverted payout for {player}: {amount} €"
 msgstr "Stornierte Auszahlung für {player}: {amount} €"
 
-#: app\templates\dashboard\financial_overview.html app\templates\players\player_detail.html app\templates\emails\penalty_repayment.html app\templates\emails\penalty_repayment.txt
+#: app\templates\dashboard\financial_overview.html
+#: app\templates\players\player_detail.html
+#: app\templates\emails\penalty_repayment.html
+#: app\templates\emails\penalty_repayment.txt
 msgid "Credit"
 msgstr "Guthaben"
 
@@ -3175,24 +3249,29 @@ msgstr "Auszahlung"
 msgid "Record payout"
 msgstr "Auszahlung erfassen"
 
-#: app\templates\emails\penalty_payout.html app\templates\emails\penalty_payout.txt
+#: app\templates\emails\penalty_payout.html
+#: app\templates\emails\penalty_payout.txt
 msgid "Amount paid out"
 msgstr "Ausgezahlter Betrag"
 
 #. first line of the payout status pair (partial vs. full)
-#: app\templates\emails\penalty_payout.html app\templates\emails\penalty_payout.txt
+#: app\templates\emails\penalty_payout.html
+#: app\templates\emails\penalty_payout.txt
 msgid "Partial payout"
 msgstr "Teilauszahlung"
 
-#: app\templates\emails\penalty_payout.html app\templates\emails\penalty_payout.txt
+#: app\templates\emails\penalty_payout.html
+#: app\templates\emails\penalty_payout.txt
 msgid "Remaining credit"
 msgstr "Verbleibendes Guthaben"
 
-#: app\templates\emails\penalty_payout.html app\templates\emails\penalty_payout.txt
+#: app\templates\emails\penalty_payout.html
+#: app\templates\emails\penalty_payout.txt
 msgid "Full payout — the credit has been paid out."
 msgstr "Vollständige Auszahlung — das Guthaben wurde ausgezahlt."
 
-#: app\templates\emails\penalty_payout.html app\templates\emails\penalty_payout.txt
+#: app\templates\emails\penalty_payout.html
+#: app\templates\emails\penalty_payout.txt
 #, python-format
 msgid "Hi %(name)s, your payout has been recorded:"
 msgstr "Hallo %(name)s, Ihre Auszahlung wurde erfasst:"
@@ -3216,9 +3295,64 @@ msgid "Please enter your first and last name."
 msgstr "Bitte geben Sie Ihren Vor- und Nachnamen ein."
 
 #: .\app\accounts\models.py
-msgid "Name entered at registration — used to assign the player during approval."
+msgid ""
+"Name entered at registration — used to assign the player during approval."
 msgstr ""
 "Bei der Registrierung eingegebener Name — dient der Spielerzuordnung beim "
 "Freigeben."
 
+msgid "Overview"
+msgstr "Übersicht"
 
+msgid "This module will be available here soon."
+msgstr "Dieses Modul ist hier bald verfügbar."
+
+msgid ""
+"No module is enabled. An administrator can enable modules with the MODULES "
+"setting."
+msgstr ""
+"Es ist kein Modul aktiv. Ein Administrator kann Module über die Einstellung "
+"MODULES aktivieren."
+
+msgid "Elo ranking"
+msgstr "Elo-Rangliste"
+
+#~ msgid "Balance (owed)"
+#~ msgstr "Saldo (geschuldet)"
+
+#~ msgid "Total paid"
+#~ msgstr "Summe gezahlt"
+
+#~ msgid "Total balance (owed)"
+#~ msgstr "Gesamtsaldo (geschuldet)"
+
+#~ msgid "Only for normal penalties — leave empty to use the catalog amount."
+#~ msgstr ""
+#~ "Nur für normale Strafen — leer lassen, um den Katalogbetrag zu verwenden."
+
+#~ msgid "Flexible charge — must be a positive amount."
+#~ msgstr "Flexibler Betrag — muss positiv sein."
+
+#~ msgid "Comment"
+#~ msgstr "Kommentar"
+
+#~ msgid "Why the penalty? E.g. \"said stupid stuff\"."
+#~ msgstr "Warum die Strafe? Z. B. \"blödes Gelaber\"."
+
+#~ msgid "paid at"
+#~ msgstr "bezahlt am"
+
+#~ msgid "paid by"
+#~ msgstr "bezahlt von"
+
+#~ msgid "paid"
+#~ msgstr "bezahlt"
+
+#~ msgid "unpaid"
+#~ msgstr "offen"
+
+#~ msgid "Mark as paid"
+#~ msgstr "Bezahlen"
+
+#~ msgid "Manual penalty — flexible amount with a required comment."
+#~ msgstr "Manuelle Strafe — flexibler Betrag mit Pflichtkommentar."

@@ -7,7 +7,7 @@ sensible defaults for local development.
 import os
 from datetime import datetime
 
-GITHUB_REPO_URL = "https://github.com/reserve85/DartsPenaltySystem"
+GITHUB_REPO_URL = "https://github.com/reserve85/DartsClubPortal"
 
 
 def get_version_info(timezone: str = "UTC") -> dict:

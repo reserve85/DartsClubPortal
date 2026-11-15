@@ -1,6 +1,6 @@
 {% extends "emails/base_email.txt" %}{% load i18n %}
 {% block content %}
-{% blocktranslate with email=invitee_email %}You have been invited to create your account on the Darts Penalty Manager:{% endblocktranslate %}
+{% blocktranslate with email=invitee_email site=site_name %}You have been invited to create your account on {{ site }}:{% endblocktranslate %}
 
 {% translate "E-mail" %}: {{ invitee_email }}
 {% if invitation.player %}{% translate "Linked player" %}: {{ invitation.player.name }}

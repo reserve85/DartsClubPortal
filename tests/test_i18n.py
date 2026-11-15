@@ -265,7 +265,7 @@ def test_settings_language_change_writes_cookie(captain_client, captain_user):
 
 def test_anonymous_default_language_renders(admin_user):
     content = Client().get(reverse("account_login")).content.decode()
-    assert "Darts Penalty Manager" in content
+    assert settings.SITE_NAME in content
 
 
 # ---------------------------------------------------------------------------

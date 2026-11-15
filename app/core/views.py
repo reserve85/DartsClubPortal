@@ -31,6 +31,25 @@ class HealthView(View):
         return JsonResponse({"status": "ok"})
 
 
+class HomeView(LoginRequiredMixin, View):
+    """Portal start page: one tile per enabled module.
+
+    With the penalty module on, "/" is the financial overview (as before) and
+    this view is only reached via the name "home" - it then forwards there.
+    """
+
+    def get(self, request):
+        from app.core.modules import KNOWN_MODULES, STRAFEN, enabled_modules
+
+        modules = enabled_modules()
+        if STRAFEN in modules:
+            return redirect("dashboard:index")
+        tiles = [
+            {"key": key, "label": label} for key, label in KNOWN_MODULES.items() if key in modules
+        ]
+        return render(request, "core/home.html", {"tiles": tiles})
+
+
 class ImprintView(View):
     """Imprint page driven by CONTACT_* / IMPRINT_* settings (public)."""
 

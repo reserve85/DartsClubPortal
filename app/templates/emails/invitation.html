@@ -1,7 +1,7 @@
 {% extends "emails/base_email.html" %}{% load i18n %}
 {% block subject %}{% translate "You have been invited" %}{% endblock %}
 {% block content %}
-<p>{% blocktranslate with email=invitee_email %}You have been invited to create your account on the Darts Penalty Manager:{% endblocktranslate %}</p>
+<p>{% blocktranslate with email=invitee_email site=site_name %}You have been invited to create your account on {{ site }}:{% endblocktranslate %}</p>
 <ul>
     <li><strong>{% translate "E-mail" %}:</strong> {{ invitee_email }}</li>
     {% if invitation.player %}<li><strong>{% translate "Linked player" %}:</strong> {{ invitation.player.name }}</li>{% endif %}

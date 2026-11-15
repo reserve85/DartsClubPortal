@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
-{% block title %}{% if season %}{% translate "Edit season" %}{% else %}{% translate "New season" %}{% endif %} – {% translate "Darts Penalty Manager" %}{% endblock %}
+{% block title %}{% if season %}{% translate "Edit season" %}{% else %}{% translate "New season" %}{% endif %} – {{ site_name }}{% endblock %}
 {% block content %}
 <h1 class="h3 mb-3">
     {% if season %}

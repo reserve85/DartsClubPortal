@@ -1,5 +1,5 @@
 """
-Django settings for the Dart Penalty Manager (DartsPenaltySystem).
+Django settings for the DartsClubPortal (club portal; grown out of DartsPenaltySystem).
 
 Environment-driven configuration via a small, dependency-free helper (H2).
 """
@@ -350,7 +350,7 @@ STORAGES = {
 # Authentication (django-allauth for signup/login/logout/password flows)
 # ---------------------------------------------------------------------------
 LOGIN_URL = "account_login"
-LOGIN_REDIRECT_URL = "dashboard:index"
+LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "account_login"
 
 # Our custom User has no username column — login is e-mail only.
@@ -389,6 +389,15 @@ ALLAUTH_TRUSTED_PROXY_COUNT = env_int("ALLAUTH_TRUSTED_PROXY_COUNT", 0)
 # Legal — Imprint / Privacy Policy (env-driven, same pattern as EloRankingSystem)
 # ---------------------------------------------------------------------------
 # Legacy imprint (optional): IMPRINT_NAME doubles as company fallback.
+# ---------------------------------------------------------------------------
+# Club portal: name and modules
+# ---------------------------------------------------------------------------
+# Shown in the navbar, page titles and e-mails.
+SITE_NAME = env("SITE_NAME", "Darts Club Portal")
+# Enabled feature modules (see app/core/modules.py): "strafen", "elo".
+# Default "strafen" keeps an upgraded DartsPenaltySystem install unchanged.
+MODULES = env_list("MODULES", "strafen")
+
 IMPRINT_NAME = env("IMPRINT_NAME")
 IMPRINT_URL = env("IMPRINT_URL")
 

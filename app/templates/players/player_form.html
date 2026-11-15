@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
-{% block title %}{% translate "Player" %} – {% translate "Darts Penalty Manager" %}{% endblock %}
+{% block title %}{% translate "Player" %} – {{ site_name }}{% endblock %}
 {% block content %}
 <h1 class="h3 mb-3">{% if view.object.pk %}{% translate "Edit player" %}{% else %}{% translate "New player" %}{% endif %}</h1>
 {# Assignments (create AND edit) live on the combined page (the matrix) — never in this form. #}

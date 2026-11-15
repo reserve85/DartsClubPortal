@@ -1,11 +1,11 @@
-# ClubPortal – eine App für den Verein
+# DartsClubPortal – eine App für den Verein
 
 **Ziel:** Ein einziges Vereinsportal in **einem Container** mit einem Konto, einem
 Design und einer Sprache. Die Elo-Rangliste und die Strafenverwaltung sind
 **Module**, die per Einstellung an- oder ausgeschaltet werden: nur Elo, nur
 Strafen oder beides.
 
-Das Portal entsteht aus **DartsPenaltySystem** (dieses Repo ist ein Abzweig mit
+Das Portal (DartsClubPortal) entsteht aus **DartsPenaltySystem** (dieses Repo ist ein Abzweig mit
 voller Git-Historie). EloRankingSystem wird als Modul **hineinportiert**. Beide
 alten Projekte laufen unverändert weiter, bis der Verein umstellt. Ihre
 **Datenbanken lassen sich vollständig importieren**.
@@ -28,7 +28,7 @@ alten Projekte laufen unverändert weiter, bis der Verein umstellt. Ihre
 ## 1. Aufbau
 
 ```
-ClubPortal (Django, 1 Container, 1 SQLite-Datenbank, 1 Volume)
+DartsClubPortal (Django, 1 Container, 1 SQLite-Datenbank, 1 Volume)
 ├── core        Einstellungen, Module an/aus, Menü, Audit, Saisons, Rechtliches
 ├── accounts    Konten, Login, Freigabe, Einladungen, Profil (Sprache, Design)
 ├── players     Personen (gemeinsam für alle Module)

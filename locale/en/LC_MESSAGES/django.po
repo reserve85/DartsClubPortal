@@ -2,7 +2,7 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# 
+#
 #, fuzzy
 msgid ""
 msgstr ""
@@ -63,7 +63,9 @@ msgstr ""
 msgid "team"
 msgstr ""
 
-msgid "Optional captaincy: the team this account leads. Allowed for Captain and Admin."
+msgid ""
+"Optional captaincy: the team this account leads. Allowed for Captain and "
+"Admin."
 msgstr ""
 
 msgid "linked player"
@@ -481,7 +483,9 @@ msgid "A player can belong to multiple teams — per season."
 msgstr ""
 
 #, python-format
-msgid "Assignments are season-dependent — this saves the teams of season %(season)s; other seasons keep their own assignment."
+msgid ""
+"Assignments are season-dependent — this saves the teams of season %(season)s;"
+" other seasons keep their own assignment."
 msgstr ""
 
 msgid "player team assignment"
@@ -691,8 +695,8 @@ msgid "3. Purpose of Data Processing"
 msgstr ""
 
 msgid ""
-"Data is processed exclusively to operate the club's penalty system, "
-"including matchday planning, balances and financial reporting."
+"Data is processed exclusively to operate the club's penalty system, including"
+" matchday planning, balances and financial reporting."
 msgstr ""
 
 msgid "4. Cookies"
@@ -835,8 +839,8 @@ msgid "No penalties."
 msgstr ""
 
 msgid ""
-"Your account is not linked to a player yet. Ask an administrator to link "
-"your account."
+"Your account is not linked to a player yet. Ask an administrator to link your"
+" account."
 msgstr ""
 
 msgid "Financial overview"
@@ -1130,13 +1134,16 @@ msgstr ""
 msgid "Full amount"
 msgstr ""
 
-# --- Per-team catalog flags / integrated fee form / guarded delete (2026-09) ---
+# --- Per-team catalog flags / integrated fee form / guarded delete (2026-09)
+# ---
 #: app\penalties\views.py
 msgid "Catalog item deleted."
 msgstr ""
 
 #: app\penalties\views.py
-msgid "This catalog item cannot be deleted because it is still referenced by penalties."
+msgid ""
+"This catalog item cannot be deleted because it is still referenced by "
+"penalties."
 msgstr ""
 
 #: app\templates\penalties\catalog_form.html
@@ -1144,7 +1151,9 @@ msgid "Delete this catalog item?"
 msgstr ""
 
 #: app\templates\penalties\catalog_form.html
-msgid "All fees must be filled — when creating an entry the default amount is copied into every row automatically."
+msgid ""
+"All fees must be filled — when creating an entry the default amount is copied"
+" into every row automatically."
 msgstr ""
 
 # --- Teams & Players: all teams + season flag / team form season field ---
@@ -1162,7 +1171,10 @@ msgstr ""
 
 #: app\templates\teams\team_list.html
 #, python-format
-msgid "The table below lists every team — the ✓/✗ shows who is active in %(name)s. The assignment matrix only shows the teams active in this season; manage them on the seasons page."
+msgid ""
+"The table below lists every team — the ✓/✗ shows who is active in %(name)s. "
+"The assignment matrix only shows the teams active in this season; manage them"
+" on the seasons page."
 msgstr ""
 
 # --- New audit action labels (AuditAction, core app) ---
@@ -1227,7 +1239,8 @@ msgstr ""
 msgid "accepted at"
 msgstr ""
 
-msgid "Single-use acceptance token — blanked on acceptance, regenerated on resend."
+msgid ""
+"Single-use acceptance token — blanked on acceptance, regenerated on resend."
 msgstr ""
 
 msgid "Optional captaincy pre-assignment — only valid for Captain/Admin."
@@ -1237,10 +1250,14 @@ msgid "Pre-assigned player — linked to the user on acceptance."
 msgstr ""
 
 #: app\accounts\forms.py (hand-added: invitation forms + requested login gate)
-msgid "You have been invited but have not completed your registration yet. Please use the link in your invitation e-mail."
+msgid ""
+"You have been invited but have not completed your registration yet. Please "
+"use the link in your invitation e-mail."
 msgstr ""
 
-msgid "Optional: pre-assigned player — linked to the account when the invitation is accepted."
+msgid ""
+"Optional: pre-assigned player — linked to the account when the invitation is "
+"accepted."
 msgstr ""
 
 msgid "Already invited — cancel or resend the existing invitation."
@@ -1265,7 +1282,9 @@ msgstr ""
 msgid "This invitation has already been accepted."
 msgstr ""
 
-msgid "The pre-assigned player has meanwhile been linked to another account — cancel this invitation instead."
+msgid ""
+"The pre-assigned player has meanwhile been linked to another account — cancel"
+" this invitation instead."
 msgstr ""
 
 #: app\accounts\views.py (hand-added: invitation views)
@@ -1298,7 +1317,8 @@ msgid "Invited user completed registration"
 msgstr ""
 
 #: app\templates\emails\invitation.* + invitation_completed.* (hand-added)
-msgid "You have been invited to create your account on the Darts Penalty Manager:"
+#, python-format
+msgid "You have been invited to create your account on %(site)s:"
 msgstr ""
 
 msgid "Invited by"
@@ -1335,7 +1355,9 @@ msgstr ""
 msgid "New invitation"
 msgstr ""
 
-msgid "An invited account is created immediately and becomes active when the invited person sets a password via the link in the e-mail — no approval step."
+msgid ""
+"An invited account is created immediately and becomes active when the invited"
+" person sets a password via the link in the e-mail — no approval step."
 msgstr ""
 
 msgid "Invited at"
@@ -1369,7 +1391,10 @@ msgid "No invitations yet."
 msgstr ""
 
 #: app\templates\accounts\invite_form.html (hand-added)
-msgid "The invited person receives an e-mail with an acceptance link (valid for %(days)s days). Setting a password completes the registration — no approval step follows."
+msgid ""
+"The invited person receives an e-mail with an acceptance link (valid for "
+"%(days)s days). Setting a password completes the registration — no approval "
+"step follows."
 msgstr ""
 
 msgid "Send invitation"
@@ -1396,7 +1421,9 @@ msgstr ""
 msgid "Affects both doubles players?"
 msgstr ""
 
-msgid "Offer the doubles partner when this penalty is assigned — e.g. a low dart both players achieved together."
+msgid ""
+"Offer the doubles partner when this penalty is assigned — e.g. a low dart "
+"both players achieved together."
 msgstr ""
 
 #: app\penalties\forms.py (hand-added)
@@ -1406,13 +1433,16 @@ msgstr ""
 msgid "No doubles partner"
 msgstr ""
 
-msgid "Optional — only offered when the catalog item applies to both doubles players (e.g. a low dart achieved together)."
+msgid ""
+"Optional — only offered when the catalog item applies to both doubles players"
+" (e.g. a low dart achieved together)."
 msgstr ""
 
 msgid "The doubles partner must be another player."
 msgstr ""
 
-msgid "A group penalty with a doubles partner needs at least three participants."
+msgid ""
+"A group penalty with a doubles partner needs at least three participants."
 msgstr ""
 
 #: app\penalties\services.py (hand-added)
@@ -1422,6 +1452,7 @@ msgstr ""
 #: app\penalties\views.py (hand-added)
 msgid "Penalty assigned to both players."
 msgstr ""
+
 # --- Notification preferences: outbox + digest (hand-added) ---
 #: app\core\choices.py (also used by app\accounts\forms.py)
 msgid "Off"
@@ -1482,6 +1513,7 @@ msgstr ""
 #: app\accounts\forms.py
 msgid "Choose the time of day for the daily digest."
 msgstr ""
+
 # --- NotificationOutbox model (hand-added) ---
 #: app\notifications\models.py
 msgid "Coalescing deadline (quick mode) or the next digest time."
@@ -1492,7 +1524,8 @@ msgid "NULL = pending; set BEFORE delivery as the flush claim."
 msgstr ""
 
 #: app\notifications\models.py
-msgid "Recipient language at queue time (rendering must not depend on a request)."
+msgid ""
+"Recipient language at queue time (rendering must not depend on a request)."
 msgstr ""
 
 #: app\notifications\models.py
@@ -1546,6 +1579,7 @@ msgstr ""
 #: app\notifications\models.py
 msgid "sent at"
 msgstr ""
+
 # --- Penalty digest mail + Settings notification card (hand-added) ---
 #: app\notifications\services.py
 #, python-format
@@ -1553,11 +1587,15 @@ msgid "New penalties: {count} ({total} €)"
 msgstr ""
 
 #: app\templates\accounts\settings.html
-msgid "Invitations, approval decisions, password and verification mails are always sent."
+msgid ""
+"Invitations, approval decisions, password and verification mails are always "
+"sent."
 msgstr ""
 
 #: app\templates\accounts\settings.html
-msgid "One e-mail per recorded payment or payout — the confirmation for the money movement."
+msgid ""
+"One e-mail per recorded payment or payout — the confirmation for the money "
+"movement."
 msgstr ""
 
 #: app\templates\accounts\settings.html
@@ -1568,7 +1606,8 @@ msgstr ""
 msgid "Several penalties entered in a row always arrive as ONE e-mail."
 msgstr ""
 
-#: app\templates\emails\penalty_digest.html app\templates\emails\penalty_digest.txt
+#: app\templates\emails\penalty_digest.html
+#: app\templates\emails\penalty_digest.txt
 #, python-format
 msgid "Hi %(name)s, the following new penalties have been recorded for you:"
 msgstr ""
@@ -1590,7 +1629,8 @@ msgid "received by"
 msgstr ""
 
 #: app\penalties\models.py
-msgid "The cashier who physically received the money (snapshot at record time)."
+msgid ""
+"The cashier who physically received the money (snapshot at record time)."
 msgstr ""
 
 #: app\teams\models.py
@@ -1649,7 +1689,8 @@ msgstr ""
 msgid "Cash box"
 msgstr ""
 
-#: app\templates\dashboard\financial_overview.html app\templates\teams\cashier_list.html
+#: app\templates\dashboard\financial_overview.html
+#: app\templates\teams\cashier_list.html
 msgid "Cashier"
 msgstr ""
 
@@ -1666,7 +1707,9 @@ msgid "Received by"
 msgstr ""
 
 #: app\templates\teams\cashier_list.html
-msgid "The cashier of a team is the only account that may record or revert payments for that team."
+msgid ""
+"The cashier of a team is the only account that may record or revert payments "
+"for that team."
 msgstr ""
 
 #: app\templates\teams\cashier_list.html
@@ -1697,7 +1740,8 @@ msgstr ""
 msgid "No entries yet."
 msgstr ""
 
-#: app\templates\emails\penalty_repayment.html app\templates\emails\penalty_repayment.txt
+#: app\templates\emails\penalty_repayment.html
+#: app\templates\emails\penalty_repayment.txt
 msgid "Recorded by"
 msgstr ""
 
@@ -1784,5 +1828,20 @@ msgid "Please enter your first and last name."
 msgstr ""
 
 #: .\app\accounts\models.py
-msgid "Name entered at registration — used to assign the player during approval."
+msgid ""
+"Name entered at registration — used to assign the player during approval."
+msgstr ""
+
+msgid "Overview"
+msgstr ""
+
+msgid "This module will be available here soon."
+msgstr ""
+
+msgid ""
+"No module is enabled. An administrator can enable modules with the MODULES "
+"setting."
+msgstr ""
+
+msgid "Elo ranking"
 msgstr ""

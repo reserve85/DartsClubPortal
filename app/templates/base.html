@@ -30,7 +30,7 @@
             root.style.backgroundColor = theme === "dark" ? "#212529" : "#ffffff";
         })();
     </script>
-    <title>{% block title %}{% translate "Darts Penalty Manager" %}{% endblock %}</title>
+    <title>{% block title %}{{ site_name }}{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
@@ -38,7 +38,7 @@
 {# Navbar surface/colors follow data-bs-theme via the Bootstrap .navbar variables (no hardcoded dark bar). #}
 <nav class="navbar navbar-expand-lg bg-body-secondary sticky-top">
     <div class="container">
-        <a class="navbar-brand" href="{% url 'dashboard:index' %}">🎯 {% translate "Darts Penalty Manager" %}</a>
+        <a class="navbar-brand" href="{% url 'home' %}">🎯 {{ site_name }}</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
                 aria-controls="mainNav" aria-expanded="false" aria-label="{% translate 'Toggle navigation' %}">
             <span class="navbar-toggler-icon"></span>
@@ -47,17 +47,21 @@
             {% if request.user.is_authenticated %}
                 <ul class="navbar-nav me-auto">
                     {# --- header order: Finanzübersicht – Spieltage – Verwaltung --- #}
+                    {% if modules.strafen %}
                     <li class="nav-item">
                         <a class="nav-link{% if nav_section == 'financial' %} active{% endif %}"
                            href="{% url 'dashboard:index' %}">{% translate "Financial overview" %}</a>
                     </li>
+                    {% endif %}
 
-                    {# --- Spieltage + Verwaltung: captains and admins --- #}
-                    {% if request.user.is_admin or request.user.is_captain %}
+                    {# --- Spieltage + Verwaltung: captains (penalty module) and admins --- #}
+                    {% if request.user.is_admin or request.user.is_captain and modules.strafen %}
+                        {% if modules.strafen %}
                         <li class="nav-item">
                             <a class="nav-link{% if nav_section == 'matchdays' %} active{% endif %}"
                                href="{% url 'matchdays:matchday_list' %}">{% translate "Matchdays" %}</a>
                         </li>
+                        {% endif %}
 
                         <li class="nav-item nav-sep" aria-hidden="true"></li>
                         <li class="nav-item dropdown">
@@ -67,6 +71,7 @@
                             </a>
                             <ul class="dropdown-menu">
                                 {# teams, players and the penalty catalog live here now #}
+                                {% if modules.strafen %}
                                 <li>
                                     <a class="dropdown-item" href="{% url 'teams:team_list' %}">{% translate "Teams & Players" %}</a>
                                 </li>
@@ -76,11 +81,14 @@
                                 <li>
                                     <a class="dropdown-item" href="{% url 'teams:cashier_list' %}">{% translate "Cash box" %}</a>
                                 </li>
+                                {% endif %}
                                 {% if request.user.is_admin %}
+                                    {% if modules.strafen %}
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item" href="{% url 'season_list' %}">{% translate "Seasons" %}</a>
                                     </li>
+                                    {% endif %}
                                     <li>
                                         <a class="dropdown-item" href="{% url 'accounts:user_list' %}">{% translate "Users" %}</a>
                                     </li>
@@ -158,7 +166,7 @@
 
 <footer class="footer mt-auto py-3 bg-body-secondary">
     <div class="container text-center text-muted small">
-        © {{ current_year }} {% translate "Darts Penalty Manager" %}
+        © {{ current_year }} {{ site_name }}
         · <a href="{% url 'imprint' %}">{% translate "Imprint" %}</a>
         · <a href="{% url 'privacy' %}">{% translate "Privacy Policy" %}</a>
         · <a href="{{ version_info.release_url }}" rel="noopener">

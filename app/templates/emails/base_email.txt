@@ -1,4 +1,4 @@
-{% load i18n %}{% translate "Darts Penalty Manager" %}
+{% load i18n %}{{ site_name }}
 ========================================
 
 {% block content %}{% endblock %}

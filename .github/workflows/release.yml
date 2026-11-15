@@ -11,7 +11,7 @@ concurrency:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/darts_penalty_system
+  IMAGE_NAME: ${{ github.repository_owner }}/darts_club_portal
 
 jobs:
   # Gate (review L3): a published release must pass the same checks as main.
@@ -48,10 +48,10 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/reserve85/darts_penalty_system:main
-            ghcr.io/reserve85/darts_penalty_system:${{ steps.version.outputs.VERSION }}
-            ghcr.io/reserve85/darts_penalty_system:${{ github.sha }}
-            ghcr.io/reserve85/darts_penalty_system:latest
+            ghcr.io/reserve85/darts_club_portal:main
+            ghcr.io/reserve85/darts_club_portal:${{ steps.version.outputs.VERSION }}
+            ghcr.io/reserve85/darts_club_portal:${{ github.sha }}
+            ghcr.io/reserve85/darts_club_portal:latest
           build-args: |
             GIT_COMMIT=${{ github.sha }}
             BUILD_DATE=${{ github.event.release.created_at }}
@@ -65,7 +65,7 @@ jobs:
           echo "Git SHA: ${{ github.sha }}" >> release_info.txt
           echo "Build Date: ${{ github.event.release.created_at }}" >> release_info.txt
           echo "Release: ${{ github.event.release.html_url }}" >> release_info.txt
-          echo "Image: ghcr.io/reserve85/darts_penalty_system:${{ steps.version.outputs.VERSION }}" >> release_info.txt
+          echo "Image: ghcr.io/reserve85/darts_club_portal:${{ steps.version.outputs.VERSION }}" >> release_info.txt
 
       - name: Upload release artifact
         uses: actions/upload-artifact@v4

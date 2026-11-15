@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Overview" %} – {{ site_name }}{% endblock %}
+{% block content %}
+  <h1 class="h3 mb-3">{% translate "Overview" %}</h1>
+  {% if tiles %}
+    <div class="row g-3">
+      {% for tile in tiles %}
+        <div class="col-12 col-md-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h2 class="h5 mb-1">{{ tile.label }}</h2>
+              <p class="text-muted mb-0">{% translate "This module will be available here soon." %}</p>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info">
+      {% translate "No module is enabled. An administrator can enable modules with the MODULES setting." %}
+    </div>
+  {% endif %}
+{% endblock %}

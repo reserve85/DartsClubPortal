@@ -20,11 +20,32 @@ from django.contrib import admin
 from django.urls import include, path
 
 from app.core import views as core_views
+from app.core.modules import STRAFEN, enabled_modules
+
+_MODULES = enabled_modules()
 
 urlpatterns = [
     path("i18n/", include("django.conf.urls.i18n")),
     path("admin/", admin.site.urls),
     path("health/", core_views.HealthView.as_view(), name="health"),
+]
+
+STRAFEN_URLS = [
+    path("", include("app.dashboard.urls")),
+    path("teams/", include("app.teams.urls")),
+    path("players/", include("app.players.urls")),
+    path("matchdays/", include("app.matchdays.urls")),
+    path("", include("app.penalties.urls")),
+    path("seasons/", core_views.SeasonListView.as_view(), name="season_list"),
+    path("seasons/create/", core_views.SeasonCreateView.as_view(), name="season_create"),
+    path("seasons/<int:pk>/update/", core_views.SeasonUpdateView.as_view(), name="season_update"),
+    path(
+        "seasons/<int:pk>/set-default/",
+        core_views.SeasonSetDefaultView.as_view(),
+        name="season_set_default",
+    ),
+    path("seasons/<int:pk>/delete/", core_views.SeasonDeleteView.as_view(), name="season_delete"),
+    path("seasons/set/", core_views.SeasonSetView.as_view(), name="season_set"),
 ]
 
 urlpatterns += i18n_patterns(
@@ -37,22 +58,13 @@ urlpatterns += i18n_patterns(
     # Custom mailbox actions (delete one / delete read) — mounted AFTER the
     # package include so the package keeps owning every notifications:* name.
     path("notifications/actions/", include("app.notifications.urls")),
-    path("", include("app.dashboard.urls")),
-    path("teams/", include("app.teams.urls")),
-    path("players/", include("app.players.urls")),
-    path("matchdays/", include("app.matchdays.urls")),
-    path("", include("app.penalties.urls")),
+    # Module "strafen" (penalties): routed only when enabled. Its "" index then
+    # stays the start page, so an upgraded penalty install behaves as before.
+    *(STRAFEN_URLS if STRAFEN in _MODULES else []),
+    # Portal start page. With "strafen" on, "/" is served by the financial
+    # overview above and this route only provides the name "home".
+    path("", core_views.HomeView.as_view(), name="home"),
     path("audit/", core_views.AuditLogListView.as_view(), name="audit_list"),
-    path("seasons/", core_views.SeasonListView.as_view(), name="season_list"),
-    path("seasons/create/", core_views.SeasonCreateView.as_view(), name="season_create"),
-    path("seasons/<int:pk>/update/", core_views.SeasonUpdateView.as_view(), name="season_update"),
-    path(
-        "seasons/<int:pk>/set-default/",
-        core_views.SeasonSetDefaultView.as_view(),
-        name="season_set_default",
-    ),
-    path("seasons/<int:pk>/delete/", core_views.SeasonDeleteView.as_view(), name="season_delete"),
-    path("seasons/set/", core_views.SeasonSetView.as_view(), name="season_set"),
     path("imprint/", core_views.ImprintView.as_view(), name="imprint"),
     path("privacy/", core_views.PrivacyView.as_view(), name="privacy"),
     prefix_default_language=False,

@@ -12,7 +12,7 @@ concurrency:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/darts_penalty_system
+  IMAGE_NAME: ${{ github.repository_owner }}/darts_club_portal
 
 jobs:
   # Gate (review L3): the image is only built/pushed when lint, formatting,
