@@ -118,3 +118,13 @@ class AvatarUploadView(LoginRequiredMixin, View):
         if not url_has_allowed_host_and_scheme(nxt, {request.get_host()}):
             nxt = reverse("accounts:settings")
         return redirect(nxt)
+
+
+def avatars_for(player_ids) -> dict[int, str]:
+    """{player_id: picture URL} for the given players (only those with a picture)."""
+    rows = (
+        Player.objects.filter(pk__in=list(player_ids))
+        .exclude(avatar="")
+        .values_list("pk", "avatar")
+    )
+    return {pk: reverse("player_avatar", args=[name]) for pk, name in rows}

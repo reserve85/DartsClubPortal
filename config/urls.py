@@ -21,6 +21,7 @@ from django.urls import include, path
 
 from app.accounts.qr import LegacyAutoLoginView, QrLoginView
 from app.core import views as core_views
+from app.core.branding import LogoAdminView, LogoFileView
 from app.core.modules import ELO, PENALTY, enabled_modules
 from app.players.avatars import AvatarFileView, AvatarUploadView
 
@@ -30,6 +31,7 @@ urlpatterns = [
     path("i18n/", include("django.conf.urls.i18n")),
     path("admin/", admin.site.urls),
     path("health/", core_views.HealthView.as_view(), name="health"),
+    path("branding/logo-<str:kind>.png", LogoFileView.as_view(), name="club_logo"),
     # Old printed QR codes of the Elo system (paths unchanged on purpose).
     path("ui/qr-login", QrLoginView.as_view(legacy=True), name="legacy_qr_login"),
     path("auth/auto-login", LegacyAutoLoginView.as_view(), name="legacy_auto_login"),
@@ -71,6 +73,7 @@ urlpatterns += i18n_patterns(
     *([path("elo/", include("app.elo.urls"))] if ELO in _MODULES else []),
     path("audit/", core_views.AuditLogListView.as_view(), name="audit_list"),
     path("import/", include("app.importer.urls")),
+    path("club-logo/", LogoAdminView.as_view(), name="club_logo_admin"),
     path("avatars/upload/", AvatarUploadView.as_view(), name="avatar_upload"),
     path("avatars/<str:name>", AvatarFileView.as_view(), name="player_avatar"),
     path("imprint/", core_views.ImprintView.as_view(), name="imprint"),

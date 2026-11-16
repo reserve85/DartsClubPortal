@@ -44,6 +44,37 @@ class _Rollback(Exception):
     pass
 
 
+def unpack_backup(path: str) -> str:
+    """An Elo backup ZIP -> path of its database.db; club logos are taken over.
+
+    A plain database file is returned unchanged.
+    """
+    import os
+    import tempfile
+    import zipfile
+
+    if not zipfile.is_zipfile(path):
+        return path
+    from app.core.branding import save_logo
+
+    with zipfile.ZipFile(path) as zf:
+        names = zf.namelist()
+        db_name = next((n for n in names if n.rsplit("/", 1)[-1] == "database.db"), None)
+        if db_name is None:
+            raise ImportAborted("The ZIP file contains no database.db.")
+        target = os.path.join(tempfile.mkdtemp(prefix="elo-import-"), "database.db")
+        with zf.open(db_name) as src, open(target, "wb") as dst:
+            dst.write(src.read())
+        for name in names:
+            base = name.rsplit("/", 1)[-1]
+            if base.startswith("club_logo") and base.lower().endswith((".png", ".jpg", ".jpeg")):
+                try:
+                    save_logo("dark" if "_dark" in base else "light", zf.read(name))
+                except ValueError:
+                    pass
+    return target
+
+
 def _connect(path: str) -> sqlite3.Connection:
     try:
         con = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
@@ -115,6 +146,13 @@ def import_elo(
 ) -> ImportReport:
     """``account_map``: Elo login name -> existing portal account (pk or e-mail)."""
     report = ImportReport(kind="Elo", dry_run=dry_run)
+    if not dry_run:
+        path = unpack_backup(path)
+    else:
+        import zipfile
+
+        if zipfile.is_zipfile(path):
+            path = _db_from_zip_for_preview(path)
     con = _connect(path)
     try:
         with transaction.atomic():
@@ -135,8 +173,28 @@ def import_elo(
     return report
 
 
+def _db_from_zip_for_preview(path: str) -> str:
+    """Preview: only extract database.db (logos are taken over on the real run)."""
+    import os
+    import tempfile
+    import zipfile
+
+    with zipfile.ZipFile(path) as zf:
+        db_name = next((n for n in zf.namelist() if n.rsplit("/", 1)[-1] == "database.db"), None)
+        if db_name is None:
+            raise ImportAborted("The ZIP file contains no database.db.")
+        target = os.path.join(tempfile.mkdtemp(prefix="elo-preview-"), "database.db")
+        with zf.open(db_name) as src, open(target, "wb") as dst:
+            dst.write(src.read())
+    return target
+
+
 def elo_accounts(path: str) -> list[dict]:
     """Accounts of an Elo database (for the mapping step of the import page)."""
+    import zipfile
+
+    if zipfile.is_zipfile(path):
+        path = _db_from_zip_for_preview(path)
     con = _connect(path)
     try:
         return [

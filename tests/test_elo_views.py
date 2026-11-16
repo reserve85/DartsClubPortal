@@ -17,6 +17,7 @@ from app.elo.models import EloMonthlyReport, Match
 from app.elo.services import matches as match_service
 from app.elo.services import players as player_service
 from app.notifications.unsubscribe import make_token
+from tests.conftest import inertia_props
 
 TODAY = timezone.localdate()
 D0 = TODAY - timedelta(days=200)
@@ -91,14 +92,16 @@ class TestPages:
 
     def test_ranking_marks_my_row(self, player_client, linked_player_user, elo_players):
         _play(elo_players[0], elo_players[1])
-        html = player_client.get(reverse("elo:ranking")).content.decode()
-        assert "is-me" in html
+        props = inertia_props(player_client.get(reverse("elo:ranking")))
+        assert props["myPlayerId"] == elo_players[0].player_id
 
     def test_inverted_custom_range_is_rejected_gracefully(self, player_client, elo_players):
         resp = player_client.get(
             reverse("elo:ranking") + "?period=custom&from=2030-01-01&to=2020-01-01"
         )
-        assert resp.status_code == 302
+        assert resp.status_code == 200  # swapped and clamped, never an error
+        period = inertia_props(resp)["period"]
+        assert period["from"] <= period["to"] <= timezone.localdate().isoformat()
 
 
 # ------------------------------------------------------------ permissions
@@ -181,7 +184,7 @@ class TestMatchEntry:
         _post_match(player_client, a, b)
         resp = _post_match(player_client, a, b)
         assert resp.status_code == 200
-        assert "force" in resp.content.decode()
+        assert inertia_props(resp)["duplicate"] is True
         assert Match.objects.count() == 1
         resp = _post_match(player_client, a, b, force="True")
         assert resp.status_code == 302

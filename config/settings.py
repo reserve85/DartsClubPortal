@@ -231,6 +231,8 @@ LOCAL_APPS = [
     "app.notifications",
     "app.elo",
     "app.importer",
+    "inertia",
+    "django_vite",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -262,6 +264,10 @@ MIDDLEWARE = [
     "app.accounts.middleware.ApprovalGateMiddleware",
     # Per-user module access (Elo / Penalty) - 403 for foreign modules.
     "app.core.access.ModuleAccessMiddleware",
+    # Inertia: React + Mantine pages; shared props (user, menu, rights, i18n).
+    "inertia.middleware.InertiaMiddleware",
+    "app.core.inertia_share.InertiaShareMiddleware",
+    "app.core.inertia_share.InertiaFallbackMiddleware",
     # django-allauth (requires sessions + auth; see allauth docs)
     "allauth.account.middleware.AccountMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -407,6 +413,18 @@ SITE_NAME = env("SITE_NAME", "Darts Club Portal")
 MODULES = env_list("MODULES", "elo,penalty")
 
 # Start page for accounts that did not choose one: "elo", "penalty" or "overview".
+# Frontend: React + Mantine pages via Inertia, built by Vite into app/static/dist.
+INERTIA_LAYOUT = "inertia_layout.html"
+INERTIA_VERSION = env("APP_VERSION", "dev")
+DJANGO_VITE = {
+    "default": {
+        # VITE_DEV_MODE=true: assets come from the Vite dev server (npm run dev).
+        "dev_mode": env_bool("VITE_DEV_MODE", "False"),
+        "manifest_path": BASE_DIR / "app" / "static" / "dist" / ".vite" / "manifest.json",
+        "static_url_prefix": "dist",
+    }
+}
+
 # Form widgets render through the project templates (Bootstrap classes).
 FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 

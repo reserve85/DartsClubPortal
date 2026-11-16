@@ -1,4 +1,4 @@
-"""Elo module pages (server-rendered, phone first).
+"""Elo module pages (React + Mantine via Inertia; data and rights stay here).
 
 Read pages and match entry: every account with Elo access.
 Editing/deleting matches, managing Elo players, recalculation and exports:
@@ -15,21 +15,25 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.dateparse import parse_date
 from django.utils.translation import gettext as _
 from django.views import View
+from inertia import render as inertia_render
 
 from app.core.permissions import user_is_admin
 from app.elo import notify
+from app.elo.conf import elo_setting
 from app.elo.forms import EloPlayerAddForm, EloPlayerEditForm, MatchEditForm, MatchForm
 from app.elo.models import EloProfile, Match
 from app.elo.services import h2h as h2h_service
 from app.elo.services import matches as match_service
 from app.elo.services import players as player_service
 from app.elo.services import ranking as ranking_service
+from app.elo.services.validation import VALID_BEST_OF
+from app.players.avatars import avatars_for
 from app.players.models import Player
 
 PERIODS = ("month", "last_month", "year", "all", "custom")
@@ -52,6 +56,10 @@ def resolve_period(request) -> dict:
     elif key == "custom":
         start = parse_date(request.GET.get("from") or "") or today.replace(day=1)
         end = parse_date(request.GET.get("to") or "") or today
+        if start > end:  # an inverted range is swapped, never an error page
+            start, end = end, start
+        end = min(end, today)  # nothing after today
+        start = min(start, end)
     else:
         start, end = today.replace(day=1), today
     return {"key": key, "from": start, "to": end}
@@ -89,40 +97,134 @@ class RankingView(LoginRequiredMixin, View):
         except ValidationError as exc:
             messages.error(request, " ".join(_errors(exc)))
             return redirect("elo:ranking")
-        entries = ranking.entries
-        return render(
+        pics = avatars_for(e.player_id for e in ranking.entries)
+        return inertia_render(
             request,
-            "elo/ranking.html",
-            {
-                "period": period,
-                "include_inactive": include_inactive,
-                "entries": entries,
-                "podium": entries[:3] if len(entries) >= 3 else [],
-                "field_size": ranking.field_size,
-                "my_player_id": _my_player_id(request.user),
-                "match_count": Match.objects.filter(
+            "Elo/Ranking",
+            props={
+                "period": period_props(period),
+                "includeInactive": include_inactive,
+                "entries": [entry_props(e, pics) for e in ranking.entries],
+                "fieldSize": ranking.field_size,
+                "matchCount": Match.objects.filter(
                     date__gte=period["from"], date__lte=period["to"]
                 ).count(),
-                "nav_section": "elo",
+                "myPlayerId": _my_player_id(request.user),
+                "today": timezone.localdate().isoformat(),
             },
         )
+
+
+def period_props(period) -> dict:
+    return {
+        "key": period["key"],
+        "from": period["from"].isoformat(),
+        "to": period["to"].isoformat(),
+    }
+
+
+def entry_props(e, pics) -> dict:
+    return {
+        "playerId": e.player_id,
+        "name": e.name,
+        "avatar": pics.get(e.player_id, ""),
+        "position": e.position,
+        "elo": round(e.elo, 1),
+        "eloChange": round(e.elo_change, 1),
+        "positionChange": e.position_change,
+        "matches": e.matches,
+        "wins": e.wins,
+        "total180s": e.total_180s,
+        "bestFinish": e.best_high_finish,
+        "inactive": e.inactive,
+        "disabled": e.disabled,
+    }
 
 
 class AllTimeView(LoginRequiredMixin, View):
     def get(self, request):
         include_inactive = request.GET.get("inactive", "1") != "0"
         rows = ranking_service.all_players_all_time_high(include_inactive)
-        return render(
+        pics = avatars_for(r["player_id"] for r in rows)
+        return inertia_render(
             request,
-            "elo/all_time.html",
-            {"rows": rows, "include_inactive": include_inactive, "nav_section": "elo"},
+            "Elo/AllTime",
+            props={
+                "includeInactive": include_inactive,
+                "rows": [
+                    {
+                        "playerId": r["player_id"],
+                        "name": r["name"],
+                        "avatar": pics.get(r["player_id"], ""),
+                        "maxElo": round(r["max_elo"], 1),
+                        "dateReached": r["date_reached"].isoformat() if r["date_reached"] else None,
+                        "inactive": r["inactive"],
+                        "disabled": r["disabled"],
+                    }
+                    for r in rows
+                ],
+            },
         )
+
+
+def elo_players(include_disabled=False) -> list[dict]:
+    """Players for pickers: id, name, Elo, picture, disabled."""
+    qs = EloProfile.objects.select_related("player").order_by("player__name")
+    if not include_disabled:
+        qs = qs.filter(disabled=False)
+    profiles = list(qs)
+    pics = avatars_for(p.player_id for p in profiles)
+    return [
+        {
+            "id": p.player_id,
+            "name": p.player.name,
+            "elo": round(p.current_elo),
+            "avatar": pics.get(p.player_id, ""),
+            "disabled": p.disabled,
+            "entryDate": p.entry_date.isoformat(),
+        }
+        for p in profiles
+    ]
+
+
+def match_props(m, pics=None) -> dict:
+    pics = pics or {}
+    return {
+        "id": m.pk,
+        "date": m.date.isoformat(),
+        "bestOf": m.best_of_legs,
+        "a": {"id": m.player_a_id, "name": m.player_a.name, "avatar": pics.get(m.player_a_id, "")},
+        "b": {"id": m.player_b_id, "name": m.player_b.name, "avatar": pics.get(m.player_b_id, "")},
+        "scoreA": m.score_a if m.score_a is not None else 0,
+        "scoreB": m.score_b if m.score_b is not None else 0,
+        "winnerId": m.winner_id,
+        "eloChangeA": round(m.elo_change_a, 1),
+        "eloChangeB": round(m.elo_change_b, 1),
+        "avgA": m.a_average,
+        "avgB": m.b_average,
+    }
+
+
+def _limits() -> dict:
+    return {
+        "hfMin": elo_setting("HIGH_FINISH_MIN"),
+        "hfMax": elo_setting("HIGH_FINISH_MAX"),
+        "ldMin": elo_setting("LOW_DARTS_MIN"),
+        "ldMax": elo_setting("LOW_DARTS_MAX"),
+    }
+
+
+def form_errors(form) -> dict:
+    out = {}
+    for field, errs in form.errors.items():
+        out["form" if field == "__all__" else field] = " ".join(str(e) for e in errs)
+    return out
 
 
 # ---------------------------------------------------------------- matches
 class MatchListView(LoginRequiredMixin, View):
     def get(self, request):
-        qs = Match.objects.select_related("player_a", "player_b", "winner").order_by(
+        qs = Match.objects.select_related("player_a", "player_b").order_by(
             "-date", "-created_at", "-id"
         )
         player_id = request.GET.get("player")
@@ -135,40 +237,55 @@ class MatchListView(LoginRequiredMixin, View):
         if end:
             qs = qs.filter(date__lte=end)
         page = Paginator(qs, 25).get_page(request.GET.get("page"))
-        query = request.GET.copy()
-        query.pop("page", None)
-        return render(
+        rows = list(page.object_list)
+        pics = avatars_for({m.player_a_id for m in rows} | {m.player_b_id for m in rows})
+        return inertia_render(
             request,
-            "elo/match_list.html",
-            {
-                "page": page,
-                "players": Player.objects.filter(elo__isnull=False).order_by("name"),
-                "selected_player": int(player_id) if player_id and player_id.isdigit() else None,
-                "date_from": start,
-                "date_to": end,
-                "query": query.urlencode(),
-                "is_admin": user_is_admin(request.user),
-                "nav_section": "elo",
+            "Elo/MatchList",
+            props={
+                "matches": [match_props(m, pics) for m in rows],
+                "page": page.number,
+                "pages": page.paginator.num_pages,
+                "total": page.paginator.count,
+                "filters": {
+                    "player": player_id if player_id and player_id.isdigit() else "",
+                    "from": start.isoformat() if start else "",
+                    "to": end.isoformat() if end else "",
+                },
+                "players": [{"id": p["id"], "name": p["name"]} for p in elo_players(True)],
+                "isAdmin": user_is_admin(request.user),
+                "today": timezone.localdate().isoformat(),
             },
         )
 
 
 class MatchCreateView(LoginRequiredMixin, View):
-    template_name = "elo/match_form.html"
+    def _props(self, request, form=None, duplicate=False, initial=None):
+        return {
+            "players": elo_players(),
+            "defaults": initial or {},
+            "bestOfChoices": list(VALID_BEST_OF),
+            "defaultBestOf": elo_setting("BEST_OF_LEGS"),
+            "today": timezone.localdate().isoformat(),
+            "duplicate": duplicate,
+            "errors": form_errors(form) if form is not None else {},
+            "limits": _limits(),
+        }
 
     def get(self, request):
         initial = {}
         mine = _my_player_id(request.user)
         if mine:
-            initial["player_a"] = mine
-        if request.GET.get("a", "").isdigit():
-            initial["player_a"] = int(request.GET["a"])
-        if request.GET.get("b", "").isdigit():
-            initial["player_b"] = int(request.GET["b"])
-        return render(request, self.template_name, self._ctx(MatchForm(initial=initial)))
+            initial["playerA"] = mine
+        for key, name in (("a", "playerA"), ("b", "playerB")):
+            if request.GET.get(key, "").isdigit():
+                initial[name] = int(request.GET[key])
+        return inertia_render(
+            request, "Elo/MatchCreate", props=self._props(request, initial=initial)
+        )
 
     def post(self, request):
-        form = MatchForm(request.POST)
+        form = MatchForm(request.POST or _json(request))
         duplicate = False
         if form.is_valid():
             d = form.cleaned_data
@@ -201,79 +318,113 @@ class MatchCreateView(LoginRequiredMixin, View):
                         "b": match.player_b.name,
                     },
                 )
-                if request.POST.get("again"):
+                if form.data.get("again"):
                     return redirect(reverse("elo:match_create") + f"?a={match.player_a_id}")
                 return redirect("elo:match_detail", pk=match.pk)
-        return render(request, self.template_name, self._ctx(form, duplicate=duplicate))
+        initial = {
+            "playerA": form.data.get("player_a"),
+            "playerB": form.data.get("player_b"),
+        }
+        return inertia_render(
+            request, "Elo/MatchCreate", props=self._props(request, form, duplicate, initial)
+        )
 
-    def _ctx(self, form, duplicate=False):
-        profiles = {
-            p.player_id: {"elo": round(p.current_elo), "name": p.player.name}
-            for p in EloProfile.objects.select_related("player").filter(disabled=False)
-        }
-        return {
-            "form": form,
-            "duplicate": duplicate,
-            "players_json": profiles,
-            "nav_section": "elo",
-        }
+
+def _json(request) -> dict:
+    """Inertia posts JSON; Django forms want a flat dict of strings."""
+    import json as _j
+
+    try:
+        data = _j.loads(request.body or b"{}")
+    except ValueError:
+        return {}
+    out = {}
+    for key, value in data.items():
+        if isinstance(value, list):
+            value = ", ".join(str(v) for v in value)
+        elif isinstance(value, bool):
+            value = "True" if value else ""
+        out[key] = "" if value is None else str(value)
+    return out
 
 
 class MatchDetailView(LoginRequiredMixin, View):
     def get(self, request, pk):
-        match = get_object_or_404(
+        m = get_object_or_404(
             Match.objects.select_related("player_a", "player_b", "created_by"), pk=pk
         )
-        sides = []
-        for side in ("a", "b"):
-            pid = getattr(match, f"player_{side}_id")
-            sides.append(
-                {
-                    "player": getattr(match, f"player_{side}"),
-                    "score": getattr(match, f"score_{side}"),
-                    "won": match.winner_id == pid,
-                    "elo_before": getattr(match, f"elo_before_{side}"),
-                    "elo_after": getattr(match, f"elo_after_{side}"),
-                    "elo_change": getattr(match, f"elo_change_{side}"),
-                    "n180": getattr(match, f"{side}_180s"),
-                    "hf": getattr(match, f"{side}_high_finishes") or [],
-                    "ld": getattr(match, f"{side}_low_darts") or [],
-                    "average": getattr(match, f"{side}_average"),
-                }
-            )
-        return render(
+        pics = avatars_for([m.player_a_id, m.player_b_id])
+
+        def side(s):
+            pid = getattr(m, f"player_{s}_id")
+            return {
+                "id": pid,
+                "name": getattr(m, f"player_{s}").name,
+                "avatar": pics.get(pid, ""),
+                "score": getattr(m, f"score_{s}") if getattr(m, f"score_{s}") is not None else 0,
+                "won": m.winner_id == pid,
+                "eloBefore": round(getattr(m, f"elo_before_{s}"), 1),
+                "eloAfter": round(getattr(m, f"elo_after_{s}"), 1),
+                "eloChange": round(getattr(m, f"elo_change_{s}"), 1),
+                "n180": getattr(m, f"{s}_180s"),
+                "hf": getattr(m, f"{s}_high_finishes") or [],
+                "ld": getattr(m, f"{s}_low_darts") or [],
+                "average": getattr(m, f"{s}_average"),
+            }
+
+        creator = m.created_by
+        return inertia_render(
             request,
-            "elo/match_detail.html",
-            {
-                "match": match,
-                "a": sides[0],
-                "b": sides[1],
-                "is_admin": user_is_admin(request.user),
-                "nav_section": "elo",
+            "Elo/MatchDetail",
+            props={
+                "match": {
+                    "id": m.pk,
+                    "date": m.date.isoformat(),
+                    "bestOf": m.best_of_legs,
+                    "kFactor": m.k_factor,
+                    "createdAt": timezone.localtime(m.created_at).strftime("%d.%m.%Y %H:%M"),
+                    "createdBy": (creator.full_name or creator.email) if creator else "",
+                },
+                "a": side("a"),
+                "b": side("b"),
+                "canEdit": user_is_admin(request.user),
             },
         )
 
 
 class MatchUpdateView(LoginRequiredMixin, EloAdminMixin, View):
-    template_name = "elo/match_edit.html"
+    def _props(self, m, form=None, duplicate=False):
+        return {
+            "match": {
+                "id": m.pk,
+                "a": m.player_a.name,
+                "b": m.player_b.name,
+                "date": m.date.isoformat(),
+                "bestOf": m.best_of_legs,
+                "scoreA": m.score_a or 0,
+                "scoreB": m.score_b or 0,
+                "stats": {k: getattr(m, k) for k in MatchEditForm.STAT_KEYS},
+            },
+            "bestOfChoices": list(VALID_BEST_OF),
+            "today": timezone.localdate().isoformat(),
+            "duplicate": duplicate,
+            "errors": form_errors(form) if form is not None else {},
+            "limits": _limits(),
+        }
 
     def get(self, request, pk):
-        match = get_object_or_404(Match, pk=pk)
-        return render(
-            request,
-            self.template_name,
-            {"form": MatchEditForm(match=match), "match": match, "nav_section": "elo"},
-        )
+        m = get_object_or_404(Match.objects.select_related("player_a", "player_b"), pk=pk)
+        return inertia_render(request, "Elo/MatchEdit", props=self._props(m))
 
     def post(self, request, pk):
-        match = get_object_or_404(Match, pk=pk)
-        form = MatchEditForm(request.POST, match=match)
+        m = get_object_or_404(Match.objects.select_related("player_a", "player_b"), pk=pk)
+        form = MatchEditForm(request.POST or _json(request), match=m)
         duplicate = False
         if form.is_valid():
             d = form.cleaned_data
             try:
-                match = match_service.update_match(
-                    match,
+                m = match_service.update_match(
+                    m,
                     user=request.user,
                     force=d.get("force", False),
                     match_date=d["match_date"],
@@ -288,20 +439,17 @@ class MatchUpdateView(LoginRequiredMixin, EloAdminMixin, View):
                 for msg in _errors(exc):
                     form.add_error(None, msg)
             else:
-                notify.match_changed(match, actor=request.user, action="updated", request=request)
+                notify.match_changed(m, actor=request.user, action="updated", request=request)
                 messages.success(request, _("Match updated - the ranking was recalculated."))
-                return redirect("elo:match_detail", pk=match.pk)
-        return render(
-            request,
-            self.template_name,
-            {"form": form, "match": match, "duplicate": duplicate, "nav_section": "elo"},
-        )
+                return redirect("elo:match_detail", pk=m.pk)
+        return inertia_render(request, "Elo/MatchEdit", props=self._props(m, form, duplicate))
 
 
 class MatchDeleteView(LoginRequiredMixin, EloAdminMixin, View):
+    """POST only - the confirmation is a dialog on the match page."""
+
     def get(self, request, pk):
-        match = get_object_or_404(Match.objects.select_related("player_a", "player_b"), pk=pk)
-        return render(request, "elo/match_delete.html", {"match": match, "nav_section": "elo"})
+        return redirect("elo:match_detail", pk=pk)
 
     def post(self, request, pk):
         match = get_object_or_404(Match.objects.select_related("player_a", "player_b"), pk=pk)
@@ -325,63 +473,122 @@ class PlayerDetailView(LoginRequiredMixin, View):
         recent = list(
             ranking_service.player_matches(pk).order_by("-date", "-created_at", "-id")[:10]
         )
-        for m in recent:
-            m.me_won = m.winner_id == pk
-            m.me_score = m.legs(pk)
-            m.opp = m.player_b if m.player_a_id == pk else m.player_a
-            m.opp_score = m.score_b if m.player_a_id == pk else m.score_a
-            m.me_change = m.elo_change(pk)
-        return render(
+        opponents = h2h_service.opponents(pk)
+        pics = avatars_for({pk} | {o["player_id"] for o in opponents})
+        ath = ranking_service.all_time_high_elo(profile)
+        best = ranking_service.best_rank(pk)
+        return inertia_render(
             request,
-            "elo/player_detail.html",
-            {
-                "profile": profile,
-                "player": profile.player,
-                "period": period,
-                "stats": stats,
+            "Elo/PlayerDetail",
+            props={
+                "player": {
+                    "id": pk,
+                    "name": profile.player.name,
+                    "avatar": pics.get(pk, ""),
+                    "elo": round(profile.current_elo, 1),
+                    "entryDate": profile.entry_date.isoformat(),
+                    "disabled": profile.disabled,
+                },
                 "rank": positions.get(pk),
-                "field_size": len(positions),
-                "ath": ranking_service.all_time_high_elo(profile),
-                "best": ranking_service.best_rank(pk),
-                "opponents": h2h_service.opponents(pk),
-                "recent": recent,
-                "elo_history": ranking_service.elo_history(pk),
-                "avg_history": ranking_service.average_history(pk),
-                "is_admin": user_is_admin(request.user),
-                "nav_section": "elo",
+                "fieldSize": len(positions),
+                "ath": {
+                    "elo": round(ath["max_elo"], 1),
+                    "date": ath["date_reached"].isoformat() if ath["date_reached"] else None,
+                },
+                "best": {
+                    "rank": best["best_rank"],
+                    "date": best["date_reached"].isoformat() if best["date_reached"] else None,
+                },
+                "period": period_props(period),
+                "today": timezone.localdate().isoformat(),
+                "stats": stats,
+                "eloHistory": ranking_service.elo_history(pk),
+                "avgHistory": ranking_service.average_history(pk),
+                "opponents": [
+                    {
+                        "id": o["player_id"],
+                        "name": o["name"],
+                        "wins": o["wins"],
+                        "losses": o["losses"],
+                        "matches": o["matches"],
+                    }
+                    for o in opponents
+                ],
+                "recent": [
+                    {
+                        "id": m.pk,
+                        "date": m.date.isoformat(),
+                        "won": m.winner_id == pk,
+                        "me": m.legs(pk) or 0,
+                        "opp": (m.score_b if m.player_a_id == pk else m.score_a) or 0,
+                        "oppName": (m.player_b if m.player_a_id == pk else m.player_a).name,
+                        "change": round(m.elo_change(pk), 1),
+                    }
+                    for m in recent
+                ],
+                "canEdit": user_is_admin(request.user),
             },
         )
 
 
 class HeadToHeadView(LoginRequiredMixin, View):
     def get(self, request):
-        profiles = list(EloProfile.objects.select_related("player").order_by("player__name"))
         a = request.GET.get("a")
         b = request.GET.get("b")
-        ctx = {"profiles": profiles, "a_id": None, "b_id": None, "nav_section": "elo"}
+        props = {
+            "players": elo_players(True),
+            "aId": None,
+            "bId": None,
+            "opponents": [],
+            "h2h": None,
+        }
         if a and a.isdigit():
-            ctx["a_id"] = int(a)
-            ctx["opponents"] = h2h_service.opponents(int(a))
+            props["aId"] = int(a)
+            props["opponents"] = [
+                {"id": o["player_id"], "name": o["name"], "matches": o["matches"]}
+                for o in h2h_service.opponents(int(a))
+            ]
         if a and b and a.isdigit() and b.isdigit():
-            ctx["b_id"] = int(b)
+            props["bId"] = int(b)
             try:
-                ctx["h2h"] = h2h_service.head_to_head(int(a), int(b))
+                res = h2h_service.head_to_head(int(a), int(b))
             except ValidationError as exc:
                 messages.error(request, " ".join(_errors(exc)))
-        return render(request, "elo/h2h.html", ctx)
+            else:
+                pics = avatars_for([int(a), int(b)])
+                for key in ("a", "b"):
+                    res[key]["avatar"] = pics.get(res[key]["player_id"], "")
+                res["recent"] = [
+                    {
+                        "id": r["match"].pk,
+                        "date": r["date"].isoformat(),
+                        "winnerId": r["winner_id"],
+                        "scoreA": r["score_a"] or 0,
+                        "scoreB": r["score_b"] or 0,
+                        "eloChangeA": round(r["elo_change_a"], 1),
+                        "avgA": r["average_a"],
+                        "avgB": r["average_b"],
+                    }
+                    for r in res["recent"]
+                ]
+                for key in ("first_meeting", "last_meeting"):
+                    res[key] = res[key].isoformat() if res[key] else None
+                props["h2h"] = res
+        return inertia_render(request, "Elo/HeadToHead", props=props)
 
 
 # ---------------------------------------------------------------- admin
 class ManageView(LoginRequiredMixin, EloAdminMixin, View):
     def get(self, request):
-        profiles = list(EloProfile.objects.select_related("player").order_by("player__name"))
-        return render(
+        return inertia_render(
             request,
-            "elo/manage.html",
-            {
-                "profiles": profiles,
-                "match_total": Match.objects.count(),
-                "nav_section": "elo_admin",
+            "Elo/Manage",
+            props={
+                "players": [
+                    {**p, "startElo": EloProfile.objects.get(player_id=p["id"]).start_elo}
+                    for p in elo_players(True)
+                ],
+                "matchTotal": Match.objects.count(),
             },
         )
 
@@ -398,25 +605,33 @@ class RecalculateView(LoginRequiredMixin, EloAdminMixin, View):
 
 
 class PlayerAddView(LoginRequiredMixin, EloAdminMixin, View):
+    def _props(self, form=None):
+        return {
+            "mode": "add",
+            "persons": [
+                {"id": p.pk, "name": p.name}
+                for p in Player.objects.filter(elo__isnull=True).order_by("name")
+            ],
+            "defaults": {
+                "startElo": elo_setting("DEFAULT_ELO"),
+                "entryDate": timezone.localdate().isoformat(),
+            },
+            "today": timezone.localdate().isoformat(),
+            "errors": form_errors(form) if form is not None else {},
+        }
+
     def get(self, request):
-        return render(
-            request,
-            "elo/player_form.html",
-            {"form": EloPlayerAddForm(), "nav_section": "elo_admin"},
-        )
+        return inertia_render(request, "Elo/PlayerForm", props=self._props())
 
     def post(self, request):
-        form = EloPlayerAddForm(request.POST)
+        form = EloPlayerAddForm(request.POST or _json(request))
         if form.is_valid():
             d = form.cleaned_data
             try:
                 profile = player_service.add_to_ranking(
-                    player=d["existing"],
-                    name=d["name"],
-                    start_elo=d["start_elo"],
-                    entry_date=d["entry_date"],
-                    user=request.user,
-                )
+                    player=d["existing"], name=d["name"], start_elo=d["start_elo"],
+                    entry_date=d["entry_date"], user=request.user,
+                )  # fmt: skip
             except ValidationError as exc:
                 for msg in _errors(exc):
                     form.add_error(None, msg)
@@ -425,46 +640,47 @@ class PlayerAddView(LoginRequiredMixin, EloAdminMixin, View):
                     request, _("%(name)s is now in the Elo ranking.") % {"name": profile.name}
                 )
                 return redirect("elo:manage")
-        return render(request, "elo/player_form.html", {"form": form, "nav_section": "elo_admin"})
+        return inertia_render(request, "Elo/PlayerForm", props=self._props(form))
 
 
 class PlayerEditView(LoginRequiredMixin, EloAdminMixin, View):
+    def _props(self, profile, form=None):
+        first = player_service.first_match_date(profile.player_id)
+        return {
+            "mode": "edit",
+            "player": {
+                "id": profile.player_id,
+                "name": profile.player.name,
+                "avatar": avatars_for([profile.player_id]).get(profile.player_id, ""),
+                "startElo": profile.start_elo,
+                "entryDate": profile.entry_date.isoformat(),
+                "firstMatch": first.isoformat() if first else None,
+            },
+            "today": timezone.localdate().isoformat(),
+            "errors": form_errors(form) if form is not None else {},
+        }
+
     def get(self, request, pk):
         profile = get_object_or_404(EloProfile.objects.select_related("player"), player_id=pk)
-        return render(
-            request,
-            "elo/player_form.html",
-            {
-                "form": EloPlayerEditForm(profile=profile),
-                "profile": profile,
-                "nav_section": "elo_admin",
-            },
-        )
+        return inertia_render(request, "Elo/PlayerForm", props=self._props(profile))
 
     def post(self, request, pk):
         profile = get_object_or_404(EloProfile.objects.select_related("player"), player_id=pk)
-        form = EloPlayerEditForm(request.POST, profile=profile)
+        form = EloPlayerEditForm(request.POST or _json(request), profile=profile)
         if form.is_valid():
             d = form.cleaned_data
             try:
                 player_service.update_profile(
-                    profile,
-                    name=d["name"],
-                    start_elo=d["start_elo"],
-                    entry_date=d["entry_date"],
-                    user=request.user,
-                )
+                    profile, name=d["name"], start_elo=d["start_elo"],
+                    entry_date=d["entry_date"], user=request.user,
+                )  # fmt: skip
             except ValidationError as exc:
                 for msg in _errors(exc):
                     form.add_error(None, msg)
             else:
                 messages.success(request, _("Player saved."))
                 return redirect("elo:manage")
-        return render(
-            request,
-            "elo/player_form.html",
-            {"form": form, "profile": profile, "nav_section": "elo_admin"},
-        )
+        return inertia_render(request, "Elo/PlayerForm", props=self._props(profile, form))
 
 
 class PlayerToggleView(LoginRequiredMixin, EloAdminMixin, View):

@@ -2622,3 +2622,63 @@ msgstr ""
 
 msgid "picture"
 msgstr ""
+
+msgid "Team management"
+msgstr ""
+
+msgid "Account"
+msgstr ""
+
+msgid "Dark mode"
+msgstr ""
+
+msgid "Light mode"
+msgstr ""
+
+msgid "Menu"
+msgstr ""
+
+msgid "Switch colour scheme"
+msgstr ""
+
+msgid "Who may do what?"
+msgstr ""
+
+msgid "Logo saved."
+msgstr ""
+
+msgid "Logo removed."
+msgstr ""
+
+msgid "The picture is too large (max. 5 MB)."
+msgstr ""
+
+msgid "Club logo"
+msgstr ""
+
+msgid "Choose both players and the result."
+msgstr ""
+
+msgid "Choose player"
+msgstr ""
+
+msgid "Choose two players who have played each other."
+msgstr ""
+
+msgid "Logo for dark mode"
+msgstr ""
+
+msgid "Logo for light mode"
+msgstr ""
+
+msgid "No logo yet"
+msgstr ""
+
+msgid "Remove"
+msgstr ""
+
+msgid "Shown in the header. Without a logo the dart badge is shown."
+msgstr ""
+
+msgid "Tip: importing the Elo backup ZIP takes the old logos over automatically."
+msgstr ""

@@ -24,6 +24,27 @@ def pytest_configure():
     settings.STORAGES["staticfiles"]["BACKEND"] = (
         "django.contrib.staticfiles.storage.StaticFilesStorage"
     )
+    # Tests never need the built frontend (no Vite manifest required).
+    settings.DJANGO_VITE["default"]["dev_mode"] = True
+
+
+def inertia_props(response) -> dict:
+    """Props of an Inertia page (full HTML visit or X-Inertia JSON visit)."""
+    import html
+    import json
+    import re
+
+    if response.get("X-Inertia"):
+        return response.json()["props"]
+    text = response.content.decode()
+    match = re.search(
+        r'<script data-page="app" type="application/json">(.*?)</script>', text, re.DOTALL
+    )
+    if match:
+        return json.loads(match.group(1))["props"]
+    match = re.search(r'data-page="([^"]*)"', text)
+    assert match, "not an Inertia page"
+    return json.loads(html.unescape(match.group(1)))["props"]
 
 
 @pytest.fixture(autouse=True)

@@ -3601,6 +3601,66 @@ msgstr "Das Bild ist zu groß (max. 8 MB)."
 msgid "picture"
 msgstr "Bild"
 
+msgid "Team management"
+msgstr "Mannschaftsverwaltung"
+
+msgid "Account"
+msgstr "Konto"
+
+msgid "Dark mode"
+msgstr "Dunkles Design"
+
+msgid "Light mode"
+msgstr "Helles Design"
+
+msgid "Menu"
+msgstr "Menü"
+
+msgid "Switch colour scheme"
+msgstr "Farbschema wechseln"
+
+msgid "Who may do what?"
+msgstr "Wer darf was?"
+
+msgid "Logo saved."
+msgstr "Logo gespeichert."
+
+msgid "Logo removed."
+msgstr "Logo entfernt."
+
+msgid "The picture is too large (max. 5 MB)."
+msgstr "Das Bild ist zu groß (max. 5 MB)."
+
+msgid "Club logo"
+msgstr "Vereinslogo"
+
+msgid "Choose both players and the result."
+msgstr "Wähle beide Spieler und das Ergebnis."
+
+msgid "Choose player"
+msgstr "Spieler wählen"
+
+msgid "Choose two players who have played each other."
+msgstr "Wähle zwei Spieler, die schon gegeneinander gespielt haben."
+
+msgid "Logo for dark mode"
+msgstr "Logo für dunkles Design"
+
+msgid "Logo for light mode"
+msgstr "Logo für helles Design"
+
+msgid "No logo yet"
+msgstr "Noch kein Logo"
+
+msgid "Remove"
+msgstr "Entfernen"
+
+msgid "Shown in the header. Without a logo the dart badge is shown."
+msgstr "Wird oben in der Kopfzeile angezeigt. Ohne Logo erscheint das Dart-Symbol."
+
+msgid "Tip: importing the Elo backup ZIP takes the old logos over automatically."
+msgstr "Tipp: Beim Import des Elo-Backup-ZIPs werden die alten Logos automatisch übernommen."
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 
