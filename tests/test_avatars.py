@@ -8,6 +8,7 @@ from django.urls import reverse
 from PIL import Image
 
 from app.players.models import Player
+from tests.conftest import inertia_props
 
 
 def _png(w=400, h=300):
@@ -32,8 +33,8 @@ def test_member_uploads_own_picture_and_it_is_served(player_client, player_user)
     assert me.avatar.endswith(".jpg")
     img = player_client.get(reverse("player_avatar", args=[me.avatar]))
     assert img.status_code == 200 and img["Content-Type"] == "image/jpeg"
-    html = player_client.get(reverse("accounts:settings")).content.decode()
-    assert "avatar-map" in html and me.avatar in html
+    props = inertia_props(player_client.get(reverse("accounts:settings")))
+    assert me.avatar in props["player"]["avatar"]
     player_client.post(reverse("avatar_upload"), {"remove": "1"})
     me.refresh_from_db()
     assert me.avatar == ""

@@ -53,6 +53,7 @@ from app.notifications.services import (
     prune_outbox,
 )
 from app.penalties.services import assign_penalty, record_payment, soft_delete_penalty
+from tests.conftest import inertia_props
 
 pytestmark = pytest.mark.django_db
 
@@ -428,12 +429,14 @@ def test_club_news_recipients_follow_the_subscription(db):
 # Settings page
 # ---------------------------------------------------------------------------
 def test_settings_page_renders_the_notification_card(admin_client):
-    html = admin_client.get(reverse("accounts:settings")).content.decode()
-    assert 'name="penalty_notify_mode"' in html
-    assert 'name="penalty_notify_time"' in html
-    assert 'name="repayment_notify"' in html
-    assert 'name="club_news_optin"' in html
-    assert 'id="digest-time-row"' in html
+    fields = inertia_props(admin_client.get(reverse("accounts:settings")))["fields"]
+    for name in (
+        "penalty_notify_mode",
+        "penalty_notify_time",
+        "repayment_notify",
+        "club_news_optin",
+    ):
+        assert name in fields
 
 
 # ---------------------------------------------------------------------------

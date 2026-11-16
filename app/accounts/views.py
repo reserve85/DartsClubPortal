@@ -15,11 +15,12 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse_lazy
-from django.utils import timezone
+from django.urls import reverse, reverse_lazy
+from django.utils import timezone, translation
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic import CreateView, FormView, ListView, UpdateView
+from inertia import render as inertia_render
 
 from app.accounts.forms import (
     InvitationAcceptForm,
@@ -39,6 +40,7 @@ from app.accounts.services import (
     resend_invitation,
 )
 from app.core.choices import ThemeChoice
+from app.core.inertia_utils import form_errors, request_data
 from app.core.models import AuditAction
 from app.core.permissions import GROUP_ADMIN, GROUP_PLAYER, GroupRequiredMixin
 from app.core.services import log_action
@@ -461,40 +463,73 @@ class InviteAcceptView(View):
 
 
 class SettingsView(LoginRequiredMixin, View):
-    """Language + theme preferences (password change lives in django-allauth:
-    ``account_change_password``)."""
+    """Display, start page and e-mail preferences (password change: allauth)."""
 
-    template_name = "accounts/settings.html"
+    def _props(self, request, form):
+        from app.players.avatars import avatars_for
+
+        user = request.user
+        player = user.player_link
+        fields = form.fields
+        def choice(name):
+            return [{"value": str(v), "label": str(lbl)} for v, lbl in fields[name].choices]
+        values = {}
+        for name in fields:
+            value = form[name].value()
+            if hasattr(value, "strftime"):
+                value = value.strftime("%H:%M")
+            values[name] = value
+        return {
+            "values": values,
+            "fields": list(fields),
+            "choices": {
+                "preferred_language": choice("preferred_language"),
+                "preferred_theme": choice("preferred_theme"),
+                "start_page": choice("start_page"),
+                **(
+                    {"penalty_notify_mode": choice("penalty_notify_mode")}
+                    if "penalty_notify_mode" in fields
+                    else {}
+                ),
+            },
+            "player": (
+                {
+                    "id": player.pk,
+                    "name": player.name,
+                    "avatar": avatars_for([player.pk]).get(player.pk, ""),
+                }
+                if player
+                else None
+            ),
+            "passwordUrl": reverse("account_change_password"),
+            "errors": form_errors(form) if form.is_bound else {},
+        }
 
     def get(self, request):
-        return render(request, self.template_name, {"form": SettingsForm(instance=request.user)})
+        return inertia_render(
+            request,
+            "Account/Settings",
+            props=self._props(request, SettingsForm(instance=request.user)),
+        )
 
     def post(self, request):
-        form = SettingsForm(request.POST, instance=request.user)
+        form = SettingsForm(request_data(request), instance=request.user)
         if form.is_valid():
             form.save()
             if {"penalty_notify_mode", "penalty_notify_time"} & set(form.changed_data):
-                # Already-queued outbox rows were scheduled under the OLD
-                # mode/time — bring them to the new due time. Without this a
-                # switch to "Quick (collected)" (or a moved digest time) never
-                # touched a row that was already waiting: it kept its old slot
-                # (typically tomorrow's digest) and no mail arrived.
                 reschedule_pending(request.user)
             log_action(AuditAction.USER_UPDATED, user=request.user, target=request.user)
             messages.success(request, _("Settings saved."))
             response = redirect("accounts:settings")
-            # The navbar language switcher is gone for signed-in users, so the
-            # Settings page is the ONLY place to change the language. Without
-            # refreshing the cookie, a previously set one would keep beating the
-            # stored preference (UserLanguageMiddleware precedence).
             response.set_cookie(
                 settings.LANGUAGE_COOKIE_NAME,
                 form.cleaned_data["preferred_language"],
                 max_age=settings.LANGUAGE_COOKIE_AGE,
                 samesite="Lax",
             )
+            translation.activate(form.cleaned_data["preferred_language"])
             return response
-        return render(request, self.template_name, {"form": form})
+        return inertia_render(request, "Account/Settings", props=self._props(request, form))
 
 
 class ThemeUpdateView(LoginRequiredMixin, View):

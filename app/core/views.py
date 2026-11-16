@@ -44,9 +44,11 @@ class OverviewView(LoginRequiredMixin, View):
     """ "My overview": one card per module the user may use."""
 
     def get(self, request):
+        from inertia import render as inertia_render
+
         from app.core.overview import build_overview
 
-        return render(request, "core/overview.html", build_overview(request.user))
+        return inertia_render(request, "Overview", props=build_overview(request.user))
 
 
 class ImprintView(View):

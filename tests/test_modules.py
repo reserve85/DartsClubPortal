@@ -8,6 +8,7 @@ from django.test import override_settings
 from django.urls import clear_url_caches, reverse
 
 from app.core.modules import parse_modules
+from tests.conftest import inertia_props
 
 
 def _reload_urls():
@@ -80,11 +81,12 @@ class TestModuleAccess:
         assert player_client.get("/").headers["Location"] == reverse("elo:ranking")
         assert player_client.get(reverse("elo:ranking")).status_code == 200
         assert player_client.get(reverse("dashboard:financial_overview")).status_code == 403
-        html = player_client.get(reverse("elo:ranking")).content.decode()
-        assert reverse("dashboard:financial_overview") not in html
-        settings_html = player_client.get(reverse("accounts:settings")).content.decode()
-        assert 'name="penalty_notify_mode"' not in settings_html
-        assert 'name="elo_match_notify"' in settings_html
+        nav = inertia_props(player_client.get(reverse("elo:ranking")))["nav"]
+        hrefs = [i["href"] for g in nav for i in g["items"]]
+        assert reverse("dashboard:financial_overview") not in hrefs
+        fields = inertia_props(player_client.get(reverse("accounts:settings")))["fields"]
+        assert "penalty_notify_mode" not in fields
+        assert "elo_match_notify" in fields
 
     def test_penalty_only_account(self, player_client, player_user):
         player_user.elo_access = False

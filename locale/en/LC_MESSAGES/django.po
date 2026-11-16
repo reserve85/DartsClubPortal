@@ -2682,3 +2682,6 @@ msgstr ""
 
 msgid "Tip: importing the Elo backup ZIP takes the old logos over automatically."
 msgstr ""
+
+msgid "Colour scheme"
+msgstr ""

@@ -23,6 +23,7 @@ from django.utils.translation import gettext as _
 from django.views import View
 from inertia import render as inertia_render
 
+from app.core.inertia_utils import form_errors, request_data
 from app.core.permissions import user_is_admin
 from app.elo import notify
 from app.elo.conf import elo_setting
@@ -214,13 +215,6 @@ def _limits() -> dict:
     }
 
 
-def form_errors(form) -> dict:
-    out = {}
-    for field, errs in form.errors.items():
-        out["form" if field == "__all__" else field] = " ".join(str(e) for e in errs)
-    return out
-
-
 # ---------------------------------------------------------------- matches
 class MatchListView(LoginRequiredMixin, View):
     def get(self, request):
@@ -285,7 +279,7 @@ class MatchCreateView(LoginRequiredMixin, View):
         )
 
     def post(self, request):
-        form = MatchForm(request.POST or _json(request))
+        form = MatchForm(request_data(request))
         duplicate = False
         if form.is_valid():
             d = form.cleaned_data
@@ -328,24 +322,6 @@ class MatchCreateView(LoginRequiredMixin, View):
         return inertia_render(
             request, "Elo/MatchCreate", props=self._props(request, form, duplicate, initial)
         )
-
-
-def _json(request) -> dict:
-    """Inertia posts JSON; Django forms want a flat dict of strings."""
-    import json as _j
-
-    try:
-        data = _j.loads(request.body or b"{}")
-    except ValueError:
-        return {}
-    out = {}
-    for key, value in data.items():
-        if isinstance(value, list):
-            value = ", ".join(str(v) for v in value)
-        elif isinstance(value, bool):
-            value = "True" if value else ""
-        out[key] = "" if value is None else str(value)
-    return out
 
 
 class MatchDetailView(LoginRequiredMixin, View):
@@ -418,7 +394,7 @@ class MatchUpdateView(LoginRequiredMixin, EloAdminMixin, View):
 
     def post(self, request, pk):
         m = get_object_or_404(Match.objects.select_related("player_a", "player_b"), pk=pk)
-        form = MatchEditForm(request.POST or _json(request), match=m)
+        form = MatchEditForm(request_data(request), match=m)
         duplicate = False
         if form.is_valid():
             d = form.cleaned_data
@@ -624,7 +600,7 @@ class PlayerAddView(LoginRequiredMixin, EloAdminMixin, View):
         return inertia_render(request, "Elo/PlayerForm", props=self._props())
 
     def post(self, request):
-        form = EloPlayerAddForm(request.POST or _json(request))
+        form = EloPlayerAddForm(request_data(request))
         if form.is_valid():
             d = form.cleaned_data
             try:
@@ -666,7 +642,7 @@ class PlayerEditView(LoginRequiredMixin, EloAdminMixin, View):
 
     def post(self, request, pk):
         profile = get_object_or_404(EloProfile.objects.select_related("player"), player_id=pk)
-        form = EloPlayerEditForm(request.POST or _json(request), profile=profile)
+        form = EloPlayerEditForm(request_data(request), profile=profile)
         if form.is_valid():
             d = form.cleaned_data
             try:

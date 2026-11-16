@@ -3661,6 +3661,9 @@ msgstr "Wird oben in der Kopfzeile angezeigt. Ohne Logo erscheint das Dart-Symbo
 msgid "Tip: importing the Elo backup ZIP takes the old logos over automatically."
 msgstr "Tipp: Beim Import des Elo-Backup-ZIPs werden die alten Logos automatisch übernommen."
 
+msgid "Colour scheme"
+msgstr "Farbschema"
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 

@@ -11,6 +11,7 @@ from django.urls import reverse
 
 from app.core.models import AuditAction, AuditLog
 from app.core.permissions import GROUP_ADMIN, GROUP_CAPTAIN, GROUP_PLAYER
+from tests.conftest import inertia_props
 
 pytestmark = pytest.mark.django_db
 
@@ -480,7 +481,7 @@ def test_settings_notification_defaults_and_digest_time(captain_client, captain_
         },
     )
     assert response.status_code == 200
-    assert response.context["form"].errors["penalty_notify_time"]
+    assert inertia_props(response)["errors"]["penalty_notify_time"]
 
     # … and the digest time is stored when it is supplied.
     response = captain_client.post(
