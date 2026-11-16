@@ -8,7 +8,7 @@
     {# Colour scheme before the first paint: account choice, else the device setting. #}
     <script>
         (function () {
-            var pref = "{{ request.user.preferred_theme|default:'auto' }}";
+            var pref = "{% if request.user.is_authenticated %}{{ request.user.preferred_theme|default:'auto' }}{% else %}{% with c=request.COOKIES.dpm_theme %}{% if c == 'light' or c == 'dark' %}{{ c }}{% else %}auto{% endif %}{% endwith %}{% endif %}";
             var dark = pref === "dark" || (pref !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
             var root = document.documentElement;
             root.setAttribute("data-mantine-color-scheme", dark ? "dark" : "light");

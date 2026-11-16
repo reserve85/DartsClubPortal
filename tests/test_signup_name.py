@@ -14,6 +14,7 @@ from django.urls import reverse
 from app.accounts.models import ApprovalStatus
 from app.accounts.services import _normalize_person_name, match_player_for_name
 from app.players.models import Player
+from tests.conftest import inertia_props
 
 pytestmark = pytest.mark.django_db
 
@@ -115,14 +116,21 @@ def test_match_empty_input_returns_none(db, pending_user):
 # Signup flow
 # ---------------------------------------------------------------------------
 def test_signup_renders_name_field_label_help_and_order(db):
-    content = Client().get(reverse("account_signup")).content.decode()
-    assert EN_LABEL in content or DE_LABEL in content
+    fields = inertia_props(Client().get(reverse("account_signup")))["fields"]
+    name = next(f for f in fields if f["name"] == "full_name")
+    assert name["label"] in (EN_LABEL, DE_LABEL)
     assert (
-        "Required to assign your account" in content
-        or "Wird für die Zuordnung des Spielers benötigt." in content
+        name["help"]
+        in (
+            "Required to assign your account to your player.",
+            "Wird für die Zuordnung des Spielers benötigt.",
+        )
+        or "Required to assign your account" in name["help"]
+        or "Zuordnung" in name["help"]
     )
     # Render order: the name sits between e-mail and the passwords.
-    assert content.index('name="full_name"') < content.index('name="password1"')
+    order = [f["name"] for f in fields]
+    assert order.index("email") < order.index("full_name") < order.index("password1")
 
 
 def test_signup_without_the_name_is_rejected(db):

@@ -25,7 +25,12 @@ export interface AuthUser {
   theme: "auto" | "light" | "dark";
 }
 export interface SharedProps {
-  site: { name: string; language: string; logo: { light: string; dark: string } };
+  site: {
+    name: string;
+    language: string;
+    logo: { light: string; dark: string };
+    build?: { version: string; commit: string; date: string; github: string; release: string };
+  };
   auth: { user: AuthUser | null };
   nav: NavGroup[];
   i18n: Record<string, string>;

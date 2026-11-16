@@ -32,6 +32,7 @@ export interface FieldDef {
   value: unknown;
   error: string;
   placeholder?: string;
+  autocomplete?: string;
   maxLength?: number;
   choices?: { value: string; label: string }[];
   min?: number | string;
@@ -113,7 +114,7 @@ export function Field({
         <PasswordInput
           {...common}
           value={String(value ?? "")}
-          autoComplete="new-password"
+          autoComplete={field.autocomplete ?? "new-password"}
           onChange={(e) => onChange(e.currentTarget.value)}
         />
       );
@@ -222,6 +223,7 @@ export function Field({
         <TextInput
           {...common}
           type={field.type === "email" ? "email" : "text"}
+          autoComplete={field.autocomplete}
           placeholder={field.placeholder}
           maxLength={field.maxLength}
           value={String(value ?? "")}

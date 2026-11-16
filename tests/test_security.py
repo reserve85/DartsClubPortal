@@ -99,14 +99,15 @@ def test_forwarded_proto_marks_request_secure():
 
 
 def test_signup_page_renders_invisible_honeypot_field(db):
-    """allauth's honeypot is an off-screen input WITHOUT a label (no hint for bots)."""
+    """allauth's honeypot stays server-side: never offered to the page (no hint for bots)."""
     from allauth.account import app_settings
 
+    from tests.conftest import inertia_props
+
     assert app_settings.SIGNUP_FORM_HONEYPOT_FIELD == "website"
-    content = Client().get(reverse("account_signup")).content.decode()
-    assert 'name="website"' in content
-    assert "right: -99999px" in content  # off-screen for humans
-    assert '<label for="id_website"' not in content
+    props = inertia_props(Client().get(reverse("account_signup")))
+    assert "website" not in {f["name"] for f in props["fields"]}
+    assert "full_name" in {f["name"] for f in props["fields"]}
 
 
 def test_signup_with_filled_honeypot_creates_no_account(db):

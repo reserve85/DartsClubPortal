@@ -24,6 +24,13 @@ logger = logging.getLogger("app.accounts")
 class AccountAdapter(DefaultAccountAdapter):
     """Default allauth behaviour + fault-tolerant e-mail delivery + audit."""
 
+    def is_ajax(self, request) -> bool:
+        # Inertia visits carry X-Requested-With but want the normal
+        # redirects/pages, not allauth's JSON answers.
+        if request.headers.get("X-Inertia"):
+            return False
+        return super().is_ajax(request)
+
     @staticmethod
     def _audit_subject(template_prefix: str, email: str, context: dict) -> str:
         """Best-effort subject for the audit row (rendered like allauth does)."""

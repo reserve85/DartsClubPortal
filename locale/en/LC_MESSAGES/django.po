@@ -3180,3 +3180,12 @@ msgstr ""
 
 msgid "you"
 msgstr ""
+
+msgid "Account inactive"
+msgstr ""
+
+msgid "Privacy policy"
+msgstr ""
+
+msgid "This account is inactive."
+msgstr ""

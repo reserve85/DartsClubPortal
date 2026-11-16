@@ -27,7 +27,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core import signing
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.crypto import salted_hmac
 from django.utils.translation import gettext as _
@@ -134,7 +134,14 @@ class QrLoginView(View):
     legacy = False
 
     def get(self, request):
-        return render(request, "account/qr_login.html", {"legacy": self.legacy})
+        from app.accounts.entrance import entrance_response
+
+        return entrance_response(
+            request,
+            "qr_login",
+            {"legacy": self.legacy},
+            qr={"postUrl": reverse("accounts:qr_login"), "legacy": bool(self.legacy)},
+        )
 
     def post(self, request):
         token = (request.POST.get("token") or "").strip()

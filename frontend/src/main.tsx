@@ -35,7 +35,10 @@ createInertiaApp({
     const shared = props.initialPage.props as unknown as SharedProps;
     const language = shared.site?.language === "en" ? "en" : "de";
     dayjs.locale(language);
-    const pref = (shared.auth?.user?.theme ?? "auto") as MantineColorScheme;
+    // Account choice; anonymous visitors keep their toggle in the dpm_theme cookie.
+    const cookie = document.cookie.split("; ").find((c) => c.startsWith("dpm_theme="))?.split("=")[1];
+    const anon = cookie === "light" || cookie === "dark" ? cookie : "auto";
+    const pref = (shared.auth?.user?.theme ?? anon) as MantineColorScheme;
     createRoot(el!).render(
       <MantineProvider theme={theme} defaultColorScheme={pref}>
         <DatesProvider settings={{ locale: language, firstDayOfWeek: 1 }}>

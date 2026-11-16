@@ -19,6 +19,20 @@ from app.core.modules import ELO, PENALTY, enabled_modules
 from app.core.permissions import user_is_admin, user_is_captain
 
 
+def _build_info() -> dict:
+    """Version line of the footer (APP_VERSION / GIT_COMMIT / BUILD_DATE)."""
+    from app.core.version import get_version_info
+
+    info = get_version_info(getattr(settings, "TIME_ZONE", "UTC"))
+    return {
+        "version": info["version"],
+        "commit": info["git_commit"],
+        "date": info["build_date"],
+        "github": info["github_url"],
+        "release": info["release_url"],
+    }
+
+
 def _url(name, *args):
     try:
         return reverse(name, args=args)
@@ -130,7 +144,12 @@ class InertiaShareMiddleware:
         language = translation.get_language() or settings.LANGUAGE_CODE
         share(
             request,
-            site=lambda: {"name": settings.SITE_NAME, "language": language, "logo": logo_urls()},
+            site=lambda: {
+                "name": settings.SITE_NAME,
+                "language": language,
+                "logo": logo_urls(),
+                "build": _build_info(),
+            },
             auth=lambda: {"user": user_payload(user)},
             nav=lambda: navigation(user) if user.is_authenticated else [],
             i18n=lambda: _catalog(language),
@@ -143,6 +162,8 @@ class InertiaShareMiddleware:
                 "imprint": _url("imprint"),
                 "privacy": _url("privacy"),
                 "rights": _url("rights"),
+                # Signed-in users switch the language on the settings page only.
+                "setLanguage": None if user.is_authenticated else _url("set_language"),
             },
             counts=lambda: _counts(user),
         )

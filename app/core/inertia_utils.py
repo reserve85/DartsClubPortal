@@ -159,6 +159,23 @@ def _is_integer(field) -> bool:
     return isinstance(field, forms.IntegerField)
 
 
+def _plain_help(text) -> str:
+    """Help text as plain text: lists become "a · b", links (e.g. allauth's
+    "forgot password" hint next to the field) are dropped - the pages show
+    those actions as real buttons/links."""
+    import re
+
+    from django.utils.html import strip_tags
+
+    text = str(text or "")
+    if "<a " in text:
+        return ""
+    items = re.findall(r"<li>(.*?)</li>", text, flags=re.DOTALL)
+    if items:
+        return " · ".join(strip_tags(i).strip() for i in items)
+    return " ".join(strip_tags(text).split())
+
+
 def form_schema(form, exclude=()) -> list[dict]:
     """Describe every field of a Django form for the React ``FormFields``."""
     fields = []
@@ -171,7 +188,7 @@ def form_schema(form, exclude=()) -> list[dict]:
             "name": bound.name,
             "type": kind,
             "label": str(bound.label or ""),
-            "help": str(field.help_text or ""),
+            "help": _plain_help(field.help_text),
             "required": bool(field.required) and kind != "switch",
             "disabled": bool(field.disabled),
             "value": _field_value(bound, kind),
@@ -180,6 +197,10 @@ def form_schema(form, exclude=()) -> list[dict]:
         attrs = widget.attrs or {}
         if attrs.get("placeholder"):
             item["placeholder"] = str(attrs["placeholder"])
+        if attrs.get("autocomplete"):
+            item["autocomplete"] = str(attrs["autocomplete"])
+        if kind == "text" and getattr(widget, "input_type", "") == "email":
+            item["type"] = "email"
         if getattr(field, "max_length", None):
             item["maxLength"] = field.max_length
         if kind in ("select", "multiselect", "radio"):

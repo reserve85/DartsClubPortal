@@ -13,6 +13,7 @@ from django.urls import reverse
 from notifications.models import Notification
 
 from app.core.permissions import GROUP_ADMIN
+from tests.conftest import inertia_props
 
 pytestmark = pytest.mark.django_db
 
@@ -78,8 +79,9 @@ def test_missing_admin_recipients_never_break_signup(db):
 
 
 def test_anonymous_visitor_never_sees_the_bell(db):
-    content = Client().get(reverse("account_login")).content.decode()
-    assert reverse("notifications:unread") not in content
+    props = inertia_props(Client().get(reverse("account_login")))
+    assert props["auth"]["user"] is None and props["kind"] == "login"
+    assert props["counts"] == {"notifications": 0} or not props["counts"].get("notifications")
 
 
 def test_notification_list_shows_request_with_review_shortcut(db, admin_client, admin_user):

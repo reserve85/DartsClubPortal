@@ -271,6 +271,7 @@ MIDDLEWARE = [
     "inertia.middleware.InertiaMiddleware",
     "app.core.inertia_share.InertiaShareMiddleware",
     "app.core.inertia_share.InertiaFallbackMiddleware",
+    "app.accounts.entrance.InertiaEntranceMiddleware",
     # django-allauth (requires sessions + auth; see allauth docs)
     "allauth.account.middleware.AccountMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",

@@ -65,19 +65,20 @@ def test_german_signup_page(db):
     """The registration page must be fully German (template strings + button)."""
     client = Client()
     _switch_language(client, "de")
-    content = client.get(reverse("account_signup")).content.decode()
-    assert "Konto erstellen" in content
-    assert "Create an account" not in content
-    assert "Registrieren" in content  # submit button
-    # The new name field: label (language-tolerant — the local .mo is stale).
-    assert "Vorname + Name" in content or "First and last name" in content
-    assert "Already have an account?" not in content
-    # Regression: the approval notice used to be untranslated (empty msgstr),
-    # leaving the page half German / half English.
-    assert "muss ein Administrator Ihr Konto freigeben" in content
-    assert "After registration, an administrator must release" not in content
-    assert "Wurdest du eingeladen" in content
-    assert "Were you invited?" not in content
+    props = inertia_props(client.get(reverse("account_signup")))
+    i18n = props["i18n"]
+    assert props["kind"] == "signup"
+    assert i18n["Create an account"] == "Konto erstellen"
+    assert i18n["Register"] == "Registrieren"  # submit button
+    labels = {f["name"]: f["label"] for f in props["fields"]}
+    assert labels["full_name"] in ("Vorname + Name", "First and last name")
+    assert i18n["Already have an account?"] != "Already have an account?"
+    # Regression: the approval notice used to be untranslated (empty msgstr).
+    notice = "After registration, an administrator must release your account before you can log in. You will receive an e-mail as soon as your account is active."
+    assert "muss ein Administrator Ihr Konto freigeben" in i18n[notice]
+    assert i18n["Were you invited? Use the link in your invitation e-mail."].startswith(
+        "Wurdest du eingeladen"
+    )
 
 
 @needs_catalog

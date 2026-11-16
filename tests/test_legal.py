@@ -5,6 +5,7 @@ from django.test import Client, override_settings
 from django.urls import reverse
 
 from app.core.version import GITHUB_REPO_URL, get_version_info
+from tests.conftest import inertia_props
 
 pytestmark = pytest.mark.django_db
 
@@ -66,14 +67,13 @@ def test_privacy_shows_responsible_party_and_rights():
 
 
 def test_footer_links_imprint_privacy_and_github():
-    content = Client().get(reverse("account_login")).content.decode()
-    assert reverse("imprint") in content
-    assert "Impressum" in content or "Imprint" in content
-    assert reverse("privacy") in content
-    assert GITHUB_REPO_URL in content
+    props = inertia_props(Client().get(reverse("account_login")))
+    assert props["urls"]["imprint"] == reverse("imprint")
+    assert props["urls"]["privacy"] == reverse("privacy")
+    build = props["site"]["build"]
+    assert build["github"] == GITHUB_REPO_URL
     # default build metadata for local development
-    assert "v0.1.0" in content
-    assert "(dev)" in content
+    assert build["version"] == "0.1.0" and build["commit"] == "dev"
 
 
 def test_footer_version_reflects_build_env(monkeypatch):
@@ -81,11 +81,11 @@ def test_footer_version_reflects_build_env(monkeypatch):
     monkeypatch.setenv("GIT_COMMIT", "a718e32c9d1f4b2e8a11")
     monkeypatch.setenv("BUILD_DATE", "2026-09-11T08:11:34+02:00")
 
-    content = Client().get(reverse("account_login")).content.decode()
-    assert "v1.0.38" in content
-    assert "(a718e32)" in content
-    assert "2026-09-11" in content
-    assert GITHUB_REPO_URL in content
+    build = inertia_props(Client().get(reverse("account_login")))["site"]["build"]
+    assert build["version"] == "1.0.38"
+    assert build["commit"] == "a718e32"
+    assert "2026-09-11" in build["date"]
+    assert build["release"].startswith(GITHUB_REPO_URL)
 
 
 def test_version_info_strips_tag_and_truncates_commit(monkeypatch):

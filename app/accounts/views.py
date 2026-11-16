@@ -14,7 +14,7 @@ from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone, translation
 from django.utils.translation import gettext_lazy as _
@@ -564,10 +564,20 @@ class InviteAcceptView(View):
     template_name = "account/invite_accept.html"
 
     def _render(self, request, invitation, form=None, error=None):
-        return render(
+        from app.accounts.entrance import entrance_response
+
+        return entrance_response(
             request,
-            self.template_name,
+            "invite_accept",
             {"invitation": invitation, "form": form, "error": error},
+            invitation={
+                "email": invitation.user.email if invitation.user_id else "",
+                "role": str(invitation.get_role_display()),
+                "team": invitation.team.name if invitation.team_id else "",
+                "player": invitation.player.name if invitation.player_id else "",
+                "expires": _when(invitation.expires_at),
+                "error": str(error) if error else None,
+            },
         )
 
     def get(self, request, token):

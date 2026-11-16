@@ -4159,6 +4159,15 @@ msgstr "nur eigene Mannschaft"
 msgid "you"
 msgstr "du"
 
+msgid "Account inactive"
+msgstr "Konto inaktiv"
+
+msgid "Privacy policy"
+msgstr "Datenschutzerklärung"
+
+msgid "This account is inactive."
+msgstr "Dieses Konto ist inaktiv."
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 

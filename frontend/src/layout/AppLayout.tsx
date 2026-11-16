@@ -42,7 +42,7 @@ function getCookie(name: string): string {
   return document.cookie.split("; ").find((c) => c.startsWith(`${name}=`))?.split("=")[1] ?? "";
 }
 
-function useFlashToasts() {
+export function useFlashToasts() {
   const { flash } = usePage<SharedProps>().props;
   useEffect(() => {
     for (const m of flash?.messages ?? []) {
