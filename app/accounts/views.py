@@ -40,7 +40,7 @@ from app.accounts.services import (
     resend_invitation,
 )
 from app.core.choices import ThemeChoice
-from app.core.inertia_utils import form_errors, request_data
+from app.core.inertia_utils import InertiaFormMixin, form_errors, form_schema, request_data
 from app.core.models import AuditAction
 from app.core.permissions import GROUP_ADMIN, GROUP_PLAYER, GroupRequiredMixin
 from app.core.services import log_action
@@ -51,6 +51,17 @@ from app.notifications.inapp import (
 )
 from app.notifications.services import notification_service, reschedule_pending
 from app.players.models import Player
+
+
+def _when(value):
+    return timezone.localtime(value).isoformat() if value else None
+
+
+def _page_props(context) -> dict:
+    page = context.get("page_obj")
+    if page is None:
+        return {"page": 1, "pages": 1}
+    return {"page": page.number, "pages": page.paginator.num_pages}
 
 
 class UserListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
@@ -75,6 +86,48 @@ class UserListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
         context["invite_count"] = Invitation.objects.filter(accepted_at__isnull=True).count()
         return context
 
+    def render_to_response(self, context, **response_kwargs):
+        from app.players.avatars import avatar_url
+
+        def row(user):
+            invite = user.pending_invitation
+            player = user.player_link
+            invited_player = invite.player.name if invite and invite.player else ""
+            invited_team = invite.team.name if invite and invite.team else ""
+            requested = user.approval_status == ApprovalStatus.REQUESTED
+            return {
+                "id": user.pk,
+                "email": user.email,
+                "name": user.full_name,
+                "avatar": avatar_url(player) if player else "",
+                "player": player.name if player else invited_player,
+                "playerUrl": reverse("players:player_detail", args=[player.pk]) if player else None,
+                "role": user.role or "",
+                "team": user.team.name if user.team else invited_team,
+                "status": user.approval_status,
+                "active": user.is_active,
+                "lastLogin": _when(user.last_login),
+                "editUrl": None if requested else reverse("accounts:user_update", args=[user.pk]),
+                "reviewUrl": (
+                    reverse("accounts:approval", args=[user.pk])
+                    if user.approval_status == ApprovalStatus.PENDING
+                    else None
+                ),
+                "qrUrl": (
+                    reverse("accounts:user_qr", args=[user.pk])
+                    if not user.is_admin and user.is_active and not requested
+                    else None
+                ),
+            }
+
+        props = {
+            "users": [row(u) for u in context["users"]],
+            "pendingCount": context["pending_count"],
+            "inviteCount": context["invite_count"],
+            **_page_props(context),
+        }
+        return inertia_render(self.request, "Admin/Users", props=props, template_data=context)
+
 
 class PendingUserListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
     """All self-registered accounts waiting for the admin decision."""
@@ -90,6 +143,21 @@ class PendingUserListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
             .select_related("player_link")
             .order_by("-date_joined")
         )
+
+    def render_to_response(self, context, **response_kwargs):
+        props = {
+            "users": [
+                {
+                    "id": u.pk,
+                    "email": u.email,
+                    "name": u.full_name,
+                    "joined": _when(u.date_joined),
+                    "reviewUrl": reverse("accounts:approval", args=[u.pk]),
+                }
+                for u in context["pending_users"]
+            ]
+        }
+        return inertia_render(self.request, "Admin/Pending", props=props, template_data=context)
 
 
 class UserApprovalView(GroupRequiredMixin, LoginRequiredMixin, View):
@@ -113,10 +181,26 @@ class UserApprovalView(GroupRequiredMixin, LoginRequiredMixin, View):
         # player against the form queryset as before.
         matched = match_player_for_name(user.full_name)
         initial = {"player": matched.pk} if matched is not None else {}
-        return render(
+        return self._render(request, user, UserApprovalForm(initial=initial))
+
+    def _render(self, request, user, form):
+        props = {
+            "pendingUser": {
+                "id": user.pk,
+                "email": user.email,
+                "name": user.full_name,
+                "joined": _when(user.date_joined),
+            },
+            "fields": form_schema(form),
+            "errors": form_errors(form) if form.is_bound else {},
+            "action": reverse("accounts:approval", args=[user.pk]),
+            "backUrl": reverse("accounts:approval_list"),
+        }
+        return inertia_render(
             request,
-            self.template_name,
-            {"pending_user": user, "form": UserApprovalForm(initial=initial)},
+            "Admin/Approval",
+            props=props,
+            template_data={"pending_user": user, "form": form},
         )
 
     def post(self, request, pk):
@@ -141,15 +225,11 @@ class UserApprovalView(GroupRequiredMixin, LoginRequiredMixin, View):
 
         if action != "approve":
             messages.error(request, _("Please choose an action."))
-            return render(
-                request,
-                self.template_name,
-                {"pending_user": user, "form": UserApprovalForm()},
-            )
+            return self._render(request, user, UserApprovalForm())
 
         form = UserApprovalForm(request.POST)
         if not form.is_valid():
-            return render(request, self.template_name, {"pending_user": user, "form": form})
+            return self._render(request, user, form)
 
         player = form.cleaned_data.get("player")
         new_player_name = (form.cleaned_data.get("new_player_name") or "").strip()
@@ -190,12 +270,23 @@ class UserApprovalView(GroupRequiredMixin, LoginRequiredMixin, View):
         return redirect("accounts:approval_list")
 
 
-class UserCreateView(GroupRequiredMixin, LoginRequiredMixin, CreateView):
+class UserCreateView(GroupRequiredMixin, LoginRequiredMixin, InertiaFormMixin, CreateView):
     groups: ClassVar[list] = [GROUP_ADMIN]
     model = User
     form_class = UserCreateForm
     template_name = "accounts/user_form.html"
     success_url = reverse_lazy("accounts:user_list")
+
+    def form_page_props(self, form):
+        return {
+            "title": str(_("New user")),
+            "subtitle": str(
+                _("Usually an invitation is the better way: the person sets the password.")
+            ),
+            "submitLabel": str(_("Create user")),
+            "cancelUrl": reverse("accounts:user_list"),
+            "rows": [["password1", "password2"]],
+        }
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -216,7 +307,7 @@ def _invite_guard(request, pk):
     return None
 
 
-class UserUpdateView(GroupRequiredMixin, LoginRequiredMixin, UpdateView):
+class UserUpdateView(GroupRequiredMixin, LoginRequiredMixin, InertiaFormMixin, UpdateView):
     groups: ClassVar[list] = [GROUP_ADMIN]
     model = User
     form_class = UserUpdateForm
@@ -228,6 +319,21 @@ class UserUpdateView(GroupRequiredMixin, LoginRequiredMixin, UpdateView):
 
     def post(self, request, *args, **kwargs):
         return _invite_guard(request, kwargs.get("pk")) or super().post(request, *args, **kwargs)
+
+    def form_page_props(self, form):
+        return {
+            "title": str(_("Edit user")),
+            "subtitle": self.object.email,
+            "badge": self.object.full_name or self.object.email,
+            "submitLabel": str(_("Save changes")),
+            "cancelUrl": reverse("accounts:user_list"),
+            "notice": str(
+                _(
+                    "Accounts are never deleted: switch off active to lock the login. "
+                    "Captain and cashier are assignments any role can hold."
+                )
+            ),
+        }
 
     def _other_admins_exist(self) -> bool:
         """True when another account could still manage the system."""
@@ -300,8 +406,36 @@ class InviteListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
     def get_queryset(self):
         return Invitation.objects.select_related("user", "player", "team", "invited_by")
 
+    def render_to_response(self, context, **response_kwargs):
+        base = f"{self.request.scheme}://{self.request.get_host()}"
 
-class InviteCreateView(GroupRequiredMixin, LoginRequiredMixin, FormView):
+        def row(inv):
+            open_ = not inv.accepted_at
+            return {
+                "id": inv.pk,
+                "email": inv.user.email if inv.user_id else "",
+                "role": str(inv.get_role_display()),
+                "team": inv.team.name if inv.team_id else "",
+                "player": inv.player.name if inv.player_id else "",
+                "invitedBy": inv.invited_by.email if inv.invited_by_id else "",
+                "created": _when(inv.created_at),
+                "accepted": _when(inv.accepted_at),
+                "expires": _when(inv.expires_at),
+                "status": inv.status,
+                "link": (
+                    base + reverse("accounts:invite_accept", args=[inv.token])
+                    if inv.is_open
+                    else None
+                ),
+                "resendUrl": reverse("accounts:invite_resend", args=[inv.pk]) if open_ else None,
+                "cancelUrl": reverse("accounts:invite_cancel", args=[inv.pk]) if open_ else None,
+            }
+
+        props = {"invitations": [row(i) for i in context["invitations"]], **_page_props(context)}
+        return inertia_render(self.request, "Admin/Invites", props=props, template_data=context)
+
+
+class InviteCreateView(GroupRequiredMixin, LoginRequiredMixin, InertiaFormMixin, FormView):
     """Send an invitation — spans two models, hence FormView (no CreateView)."""
 
     groups: ClassVar[list] = [GROUP_ADMIN]
@@ -314,6 +448,20 @@ class InviteCreateView(GroupRequiredMixin, LoginRequiredMixin, FormView):
         # The form template documents the link validity (env-configurable).
         context["invite_expire_days"] = settings.INVITE_EXPIRE_DAYS
         return context
+
+    def form_page_props(self, form):
+        return {
+            "title": str(_("New invitation")),
+            "subtitle": str(
+                _(
+                    "The person gets an e-mail with a link to set the password "
+                    "(valid %(days)s days)."
+                )
+                % {"days": settings.INVITE_EXPIRE_DAYS}
+            ),
+            "submitLabel": str(_("Send invitation")),
+            "cancelUrl": reverse("accounts:invite_list"),
+        }
 
     def form_valid(self, form):
         data = form.cleaned_data

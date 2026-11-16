@@ -109,24 +109,29 @@ def test_user_list_permissions(admin_client, captain_client, player_client, clie
 
 
 def test_user_list_team_column_is_labelled_captain(admin_client, team):
-    """The user table's team column is a CAPTAINCY — header reads 'Kapitän'."""
-    content = admin_client.get(reverse("accounts:user_list")).content.decode()
-    header = content[content.index("<thead>") : content.index("</thead>")]
-    assert "<th>Kapitän</th>" in header  # de is the default language
-    assert "<th>Team</th>" not in header
+    """The team of a user is a CAPTAINCY — the row shows 'Kapitän: <team>'."""
+    from django.contrib.auth import get_user_model
+
+    captain = get_user_model().objects.filter(team=team).first()
+    props = inertia_props(admin_client.get(reverse("accounts:user_list")))
+    if captain is not None:
+        row = next(u for u in props["users"] if u["id"] == captain.pk)
+        assert row["team"] == team.name
+    assert props["i18n"]["Captain"] == "Kapitän"  # de is the default language
 
 
 def test_user_list_shows_linked_player(admin_client, player_user, player):
-    """Column 'Verknüpfter Spieler' — player name + detail link, dash if none."""
-    content = admin_client.get(reverse("accounts:user_list")).content.decode()
-    assert "Verknüpfter Spieler" in content  # header (de is the default language)
-    assert player.name not in content  # not linked yet
+    """Each row shows the linked player with a link to the player page."""
 
+    def row():
+        props = inertia_props(admin_client.get(reverse("accounts:user_list")))
+        return next(u for u in props["users"] if u["id"] == player_user.pk)
+
+    assert row()["player"] == "" and row()["playerUrl"] is None  # not linked yet
     player_user.player_link = player
     player_user.save(update_fields=["player_link"])
-    content = admin_client.get(reverse("accounts:user_list")).content.decode()
-    assert player.name in content
-    assert reverse("players:player_detail", args=[player.pk]) in content
+    assert row()["player"] == player.name
+    assert row()["playerUrl"] == reverse("players:player_detail", args=[player.pk])
 
 
 def test_admin_creates_team_admin(admin_client):
@@ -300,7 +305,8 @@ def test_edit_form_team_dropdown_disabled_for_player(admin_client, player_user):
     attrs = response.context["form"].fields["team"].widget.attrs
     assert attrs["data-team-roles"] == "Admin,Captain,Player"
     assert "disabled" not in attrs  # every role may lead a team
-    assert "disabled" not in _team_select_tag(response.content.decode())
+    team = next(f for f in inertia_props(response)["fields"] if f["name"] == "team")
+    assert team["disabled"] is False
 
 
 def test_edit_form_team_dropdown_enabled_for_captain_and_admin(
@@ -312,7 +318,8 @@ def test_edit_form_team_dropdown_enabled_for_captain_and_admin(
         attrs = response.context["form"].fields["team"].widget.attrs
         assert attrs["data-team-roles"] == "Admin,Captain,Player"
         assert "disabled" not in attrs
-        assert "disabled" not in _team_select_tag(response.content.decode())
+        team = next(f for f in inertia_props(response)["fields"] if f["name"] == "team")
+    assert team["disabled"] is False
 
 
 def test_create_form_renames_team_to_captaincy(admin_client):

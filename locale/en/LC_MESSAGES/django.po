@@ -2931,3 +2931,87 @@ msgstr ""
 
 msgid "Per team"
 msgstr ""
+
+msgid "Usually an invitation is the better way: the person sets the password."
+msgstr ""
+
+msgid "Accounts are never deleted: switch off active to lock the login. Captain and cashier are assignments any role can hold."
+msgstr ""
+
+msgid "Create user"
+msgstr ""
+
+msgid "The person gets an e-mail with a link to set the password (valid %(days)s days)."
+msgstr ""
+
+msgid "Approvals"
+msgstr ""
+
+msgid "Cancel invitation"
+msgstr ""
+
+msgid "Cancel the invitation for %(email)s? The prepared account is deleted."
+msgstr ""
+
+msgid "Copied"
+msgstr ""
+
+msgid "Invited people set their own password via the link in the e-mail."
+msgstr ""
+
+msgid "Last login"
+msgstr ""
+
+msgid "Link the account to an existing player, create a new player, or leave both empty for an account without player."
+msgstr ""
+
+msgid "No account is waiting for approval."
+msgstr ""
+
+msgid "Reject %(name)s? The person is informed by e-mail and cannot log in."
+msgstr ""
+
+msgid "Reject account"
+msgstr ""
+
+msgid "Review account"
+msgstr ""
+
+msgid "Roles: System, Admin, User. Captain and cashier are assignments on top."
+msgstr ""
+
+msgid "Self-registered accounts can only log in after an admin approved them."
+msgstr ""
+
+msgid "System"
+msgstr ""
+
+msgid "accepted"
+msgstr ""
+
+msgid "expired"
+msgstr ""
+
+msgid "expires soon"
+msgstr ""
+
+msgid "invited"
+msgstr ""
+
+msgid "no role"
+msgstr ""
+
+msgid "open"
+msgstr ""
+
+msgid "registered"
+msgstr ""
+
+msgid "rejected"
+msgstr ""
+
+msgid "valid until"
+msgstr ""
+
+msgid "waiting for approval"
+msgstr ""

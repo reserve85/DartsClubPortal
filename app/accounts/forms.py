@@ -137,7 +137,9 @@ def inviteable_players_queryset():
 
 
 class UserCreateForm(forms.ModelForm):
-    role = forms.ChoiceField(choices=ROLE_CHOICES, label=_("Role"))
+    role = forms.ChoiceField(
+        choices=ROLE_CHOICES, label=_("Role"), initial=RoleChoice.PLAYER.value
+    )
     password1 = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
     password2 = forms.CharField(label=_("Password confirmation"), widget=forms.PasswordInput)
 
@@ -220,7 +222,9 @@ class InviteCreateForm(forms.ModelForm):
     OPEN invitation.
     """
 
-    role = forms.ChoiceField(choices=ROLE_CHOICES, label=_("Role"))
+    role = forms.ChoiceField(
+        choices=ROLE_CHOICES, label=_("Role"), initial=RoleChoice.PLAYER.value
+    )
     player = forms.ModelChoiceField(
         queryset=inviteable_players_queryset(),
         required=False,
@@ -350,7 +354,9 @@ class UserApprovalForm(forms.Form):
 
 
 class UserUpdateForm(forms.ModelForm):
-    role = forms.ChoiceField(choices=ROLE_CHOICES, label=_("Role"))
+    role = forms.ChoiceField(
+        choices=ROLE_CHOICES, label=_("Role"), initial=RoleChoice.PLAYER.value
+    )
 
     class Meta:
         model = User

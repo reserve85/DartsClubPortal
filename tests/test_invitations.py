@@ -31,6 +31,7 @@ from app.accounts.models import ApprovalStatus, Invitation
 from app.accounts.services import create_invitation, resend_invitation
 from app.core.models import AuditAction, AuditLog
 from app.core.permissions import GROUP_PLAYER
+from tests.conftest import inertia_props
 
 pytestmark = pytest.mark.django_db
 
@@ -216,15 +217,19 @@ def test_preassigned_player_still_offered_by_user_create_and_approval(
 def test_copy_link_for_open_rows_hidden_for_expired(admin_client, admin_user):
     invitation = _invite(invited_by=admin_user)
     accept_path = _accept_url(invitation)
-    content = admin_client.get(reverse("accounts:invite_list")).content.decode()
-    assert accept_path in content  # link incl. token for open rows
+
+    def row():
+        props = inertia_props(admin_client.get(reverse("accounts:invite_list")))
+        return next(i for i in props["invitations"] if i["id"] == invitation.pk)
+
+    assert row()["link"].endswith(accept_path)  # link incl. token for open rows
 
     Invitation.objects.filter(pk=invitation.pk).update(
         expires_at=timezone.now() - timedelta(days=1)
     )
-    content = admin_client.get(reverse("accounts:invite_list")).content.decode()
-    assert accept_path not in content  # expired: no dead link
-    assert "Resend first to get a new link." in content or "Zuerst erneut senden" in content
+    expired = row()
+    assert expired["link"] is None and expired["status"] == "expired"  # no dead link
+    assert expired["resendUrl"]  # "Resend first to get a new link."
 
 
 def test_expiring_soon_and_accepted_badges(admin_client, admin_user, role_groups):
@@ -232,12 +237,15 @@ def test_expiring_soon_and_accepted_badges(admin_client, admin_user, role_groups
     Invitation.objects.filter(pk=invitation.pk).update(
         expires_at=timezone.now() + timedelta(days=2)
     )
-    content = admin_client.get(reverse("accounts:invite_list")).content.decode()
-    assert "Expires soon" in content or "Läuft bald ab" in content
+
+    def status():
+        props = inertia_props(admin_client.get(reverse("accounts:invite_list")))
+        return next(i for i in props["invitations"] if i["id"] == invitation.pk)["status"]
+
+    assert status() == "expiring"
 
     _accept(Client(), invitation)  # -> accepted
-    content = admin_client.get(reverse("accounts:invite_list")).content.decode()
-    assert "Accepted" in content or "Angenommen" in content
+    assert status() == "accepted"
     invitation.refresh_from_db()
     assert invitation.status == "accepted"
 
@@ -639,12 +647,11 @@ def test_user_list_renders_mixed_users_without_related_errors(admin_client, pend
 
     response = admin_client.get(reverse("accounts:user_list"))
     assert response.status_code == 200
-    content = response.content.decode()
-    assert INVITEE in content
-    assert pending_user.email in content
+    rows = {u["email"]: u for u in inertia_props(response)["users"]}
+    assert INVITEE in rows and pending_user.email in rows
     # invited row: pre-assigned player visible, no Edit link, Invited badge
-    assert player.name in content
-    assert reverse("accounts:user_update", args=[invited.user_id]) not in content
-    assert "Invited" in content or "Eingeladen" in content
-    # the invitations entry point is on the list header
-    assert reverse("accounts:invite_list") in content
+    invited_row = rows[INVITEE]
+    assert invited_row["id"] == invited.user_id
+    assert invited_row["player"] == player.name
+    assert invited_row["editUrl"] is None and invited_row["status"] == "requested"
+    assert inertia_props(response)["inviteCount"] >= 2  # header entry point

@@ -3910,6 +3910,90 @@ msgstr "Die Mannschaften ordnest du danach in der Mannschaftszuordnung zu."
 msgid "Per team"
 msgstr "Je Mannschaft"
 
+msgid "Usually an invitation is the better way: the person sets the password."
+msgstr "Meist ist eine Einladung der bessere Weg: Die Person setzt ihr Passwort selbst."
+
+msgid "Accounts are never deleted: switch off active to lock the login. Captain and cashier are assignments any role can hold."
+msgstr "Konten werden nie gelöscht: Schalte „aktiv“ aus, um die Anmeldung zu sperren. Kapitän und Kassier sind Zuweisungen, die jede Rolle haben kann."
+
+msgid "Create user"
+msgstr "Nutzer anlegen"
+
+msgid "The person gets an e-mail with a link to set the password (valid %(days)s days)."
+msgstr "Die Person bekommt eine E-Mail mit einem Link zum Setzen des Passworts (%(days)s Tage gültig)."
+
+msgid "Approvals"
+msgstr "Freigaben"
+
+msgid "Cancel invitation"
+msgstr "Einladung zurückziehen"
+
+msgid "Cancel the invitation for %(email)s? The prepared account is deleted."
+msgstr "Die Einladung für %(email)s zurückziehen? Das vorbereitete Konto wird gelöscht."
+
+msgid "Copied"
+msgstr "Kopiert"
+
+msgid "Invited people set their own password via the link in the e-mail."
+msgstr "Eingeladene setzen ihr Passwort selbst über den Link in der E-Mail."
+
+msgid "Last login"
+msgstr "Letzte Anmeldung"
+
+msgid "Link the account to an existing player, create a new player, or leave both empty for an account without player."
+msgstr "Verknüpfe das Konto mit einem bestehenden Spieler, lege einen neuen Spieler an oder lass beides leer für ein Konto ohne Spieler."
+
+msgid "No account is waiting for approval."
+msgstr "Kein Konto wartet auf Freigabe."
+
+msgid "Reject %(name)s? The person is informed by e-mail and cannot log in."
+msgstr "%(name)s ablehnen? Die Person wird per E-Mail informiert und kann sich nicht anmelden."
+
+msgid "Reject account"
+msgstr "Konto ablehnen"
+
+msgid "Review account"
+msgstr "Konto prüfen"
+
+msgid "Roles: System, Admin, User. Captain and cashier are assignments on top."
+msgstr "Rollen: System, Admin, User. Kapitän und Kassier sind zusätzliche Zuweisungen."
+
+msgid "Self-registered accounts can only log in after an admin approved them."
+msgstr "Selbst registrierte Konten können sich erst nach der Freigabe durch einen Admin anmelden."
+
+msgid "System"
+msgstr "System"
+
+msgid "accepted"
+msgstr "angenommen"
+
+msgid "expired"
+msgstr "abgelaufen"
+
+msgid "expires soon"
+msgstr "läuft bald ab"
+
+msgid "invited"
+msgstr "eingeladen"
+
+msgid "no role"
+msgstr "keine Rolle"
+
+msgid "open"
+msgstr "offen"
+
+msgid "registered"
+msgstr "registriert"
+
+msgid "rejected"
+msgstr "abgelehnt"
+
+msgid "valid until"
+msgstr "gültig bis"
+
+msgid "waiting for approval"
+msgstr "wartet auf Freigabe"
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 
