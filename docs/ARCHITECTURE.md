@@ -60,9 +60,9 @@ DartsClubPortal (Django, 1 container, 1 SQLite database, 1 volume)
   SQLAlchemy to the Django ORM.
 - **Port the tests:** The Elo tests for calculation, recalculation, ranking and
   statistics move to Django, so no fixed rule is lost.
-- **Keep the JSON API:** With django-ninja (pydantic schemas, FastAPI-like)
-  paths and response formats stay the same, so the new UI (dashboard,
-  statistics, head-to-head, admin) carries over largely unchanged.
+- **UI:** server-rendered Django pages on the shared club UI kit (decided
+  during phase 3 instead of porting the JSON API: one look, one permission
+  system, no second frontend).
 - **Permissions:**
   - Members enter matches and see ranking and statistics.
   - Admins manage matches, players, exports and backups.
@@ -158,10 +158,10 @@ import → verification report**.
 |---|---|---|
 | **0** | Base: fork, name/branding, module switch `MODULES`, menu, tests green | ✅ portal = today's penalty app, modules switchable |
 | **1** | Design: new base template + UI kit, penalty pages restyled, screenshots | ✅ target design in place |
-| **2** | Elo core: models, Elo calculation, recalculation, ranking, statistics, head-to-head + ported tests | calculation identical to Elo |
-| **3** | Elo UI + API: dashboard, match entry, statistics, head-to-head, administration, PDF/CSV, QR login, German/English | Elo module usable |
-| **4** | Import: `import_elo` + `import_penalty` with preview, matching, transaction, verification report; admin upload | data of both systems importable |
-| **5** | "My overview" (Elo + penalty), club accounts, role polish, per-module access (Elo-only users) | portal start page |
+| **2** | Elo core: models, Elo calculation, recalculation, ranking, statistics, head-to-head + ported tests | ✅ calculation identical to Elo |
+| **3** | Elo UI: ranking, match entry, statistics, head-to-head, administration, PDF/CSV, QR login, messaging, German/English | ✅ Elo module usable |
+| **4** | Import: `import_elo` + `import_penalty` with preview, matching, transaction, verification report; admin upload | ✅ data of both systems importable |
+| **5** | "My overview" (Elo + penalty), club accounts, role polish, per-module access (Elo-only users) | ✅ see docs/ROLES.md |
 | **6** | One image, Compose/Portainer example, switch-over guide, end-to-end test with real copies of both databases | ready to switch |
 
 Every phase ends with tests and screenshots for approval.

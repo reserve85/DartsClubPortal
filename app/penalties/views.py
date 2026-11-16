@@ -166,7 +166,9 @@ class CatalogDeleteView(LoginRequiredMixin, View):
     """
 
     def post(self, request, pk):
-        assert_admin_or_captain(request.user)
+        # Deleting removes the item for EVERY team: admins only.
+        if not user_is_admin(request.user):
+            raise PermissionDenied
         item = get_object_or_404(PenaltyCatalogItem, pk=pk)
         if Penalty.all_objects().filter(catalog_item=item).exists():
             messages.error(

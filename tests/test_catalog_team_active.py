@@ -330,12 +330,11 @@ def test_delete_blocked_even_for_soft_deleted_penalty(
     assert PenaltyCatalogItem.objects.filter(pk=catalog_normal.pk).exists()  # still blocked
 
 
-def test_captain_deletes_unused_item(captain_client, catalog_normal):
+def test_captain_cannot_delete_items(captain_client, catalog_normal):
+    """Deleting removes the item for every team: admins only (role rule)."""
     url = reverse("penalties:catalog_delete", args=[catalog_normal.pk])
-    response = captain_client.post(url)
-    assert response.status_code == 302
-    assert not PenaltyCatalogItem.objects.filter(pk=catalog_normal.pk).exists()
-    assert AuditLog.objects.filter(action=AuditAction.CATALOG_ITEM_DELETED).count() == 1
+    assert captain_client.post(url).status_code == 403
+    assert PenaltyCatalogItem.objects.filter(pk=catalog_normal.pk).exists()
 
 
 def test_player_forbidden_and_get_not_served(player_client, catalog_normal):

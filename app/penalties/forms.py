@@ -87,6 +87,11 @@ class CatalogItemForm(forms.ModelForm):
                 widget=forms.NumberInput(attrs={"step": "0.01", "min": "0"}),
             )
 
+        # The item itself (name, default fee, type) is shared by every team:
+        # once it exists, only admins may change it.
+        if not self._admin_scope and not is_create:
+            for name in ("description", "amount_eur", "type", "affects_both_players"):
+                self.fields[name].disabled = True
         # BoundFields consumed by the template (model fields vs. team table).
         self.core_fields = [
             self[name] for name in ("description", "amount_eur", "type", "affects_both_players")
@@ -101,9 +106,12 @@ class CatalogItemForm(forms.ModelForm):
         ]
 
     def _editable_teams(self):
-        # Admins AND captains work on every team's fee/active flags (decision);
-        # only the CREATE defaults differ (see __init__).
-        return Team.objects.all().order_by("name")
+        # Role rule: admins edit every team's fee/active flag, a captain only
+        # the row of the OWN team (captains are no full admins).
+        if self._admin_scope:
+            return Team.objects.all().order_by("name")
+        team_id = getattr(self.user, "team_id", None)
+        return Team.objects.filter(pk=team_id).order_by("name")
 
     def clean_amount_eur(self):
         amount = self.cleaned_data.get("amount_eur")
@@ -143,8 +151,15 @@ class CatalogItemForm(forms.ModelForm):
         item = super().save(commit=commit)
         if not commit:
             return item
-        # One row per team — admins and captains both edit ALL teams; the
-        # create-time checkbox defaults decide active/inactive per team.
+        # One row per editable team (admins: all, captains: their own).
+        if not self._admin_scope:
+            # A captain's NEW item stays inactive for every other team.
+            for other in Team.objects.exclude(pk__in=[t.pk for t in self._teams]):
+                TeamCatalogAmount.objects.get_or_create(
+                    team=other,
+                    catalog_item=item,
+                    defaults={"active": False, "amount_eur": item.amount_eur, "updated_by": self.user},
+                )
         for team in self._teams:
             TeamCatalogAmount.objects.update_or_create(
                 team=team,

@@ -52,7 +52,7 @@
         <a class="btn btn-outline-secondary" href="{% url 'penalties:catalog_list' %}">{% translate "Cancel" %}</a>
     </div>
 </form>
-{% if view.object.pk %}
+{% if view.object.pk and request.user.is_admin %}
     {# Deleting a catalog item lives here (the list only shows "Edit"). #}
     <div class="mt-3">
         <form method="post" action="{% url 'penalties:catalog_delete' view.object.pk %}" class="d-inline"

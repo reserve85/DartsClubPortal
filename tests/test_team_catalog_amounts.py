@@ -153,52 +153,55 @@ def test_admin_sees_all_teams_on_edit_form(admin_client, catalog_normal, team, o
     assert "active" not in form.fields  # the global switch is gone
 
 
-def test_captain_sees_and_edits_all_teams(captain_client, catalog_normal, team, other_team):
-    """Captains have the same catalog scope as admins: every team.
-
-    Only the CREATE defaults differ (own team active, others pre-unchecked).
-    """
+def test_captain_edits_only_the_own_team(captain_client, catalog_normal, team, other_team):
+    """Captains are no full admins: only their team's fee/flag is editable,
+    the shared item fields (name, default fee, type) are read-only."""
     TeamCatalogAmount.objects.create(team=other_team, catalog_item=catalog_normal, amount_eur=4)
     url = reverse("penalties:catalog_update", args=[catalog_normal.pk])
-
-    response = captain_client.get(url)
-    assert response.status_code == 200
-    form = response.context["form"]
-    # EVERY team is visible/editable for a captain …
-    for pk in (team.pk, other_team.pk):
-        assert f"team_active_{pk}" in form.fields
-        assert f"team_amount_{pk}" in form.fields
-
-    # … and the captain may edit fees + flags for every team.
+    form = captain_client.get(url).context["form"]
+    assert f"team_amount_{team.pk}" in form.fields
+    assert f"team_amount_{other_team.pk}" not in form.fields
+    assert form.fields["description"].disabled
     response = captain_client.post(
         url,
         {
-            "description": catalog_normal.description,
-            "amount_eur": "5.00",
+            "description": "Hacked",
+            "amount_eur": "99.00",
             "type": "NORMAL",
             f"team_active_{team.pk}": "on",
             f"team_amount_{team.pk}": "1",
-            f"team_amount_{other_team.pk}": "3",  # foreign fee edited too
-            # other team's active flag intentionally not posted -> inactive
+            f"team_amount_{other_team.pk}": "3",
         },
     )
     assert response.status_code == 302
-    own = TeamCatalogAmount.objects.get(catalog_item=catalog_normal, team=team)
-    assert own.amount_eur == Decimal(1)
-    assert own.active is True
-    foreign = TeamCatalogAmount.objects.get(catalog_item=catalog_normal, team=other_team)
-    assert foreign.amount_eur == Decimal(3)  # captain may edit other teams
-    assert foreign.active is False
+    catalog_normal.refresh_from_db()
+    assert catalog_normal.description != "Hacked"
+    assert TeamCatalogAmount.objects.get(catalog_item=catalog_normal, team=team).amount_eur == 1
+    assert (
+        TeamCatalogAmount.objects.get(catalog_item=catalog_normal, team=other_team).amount_eur == 4
+    )
 
 
-def test_captain_create_form_defaults_other_teams_inactive(captain_client, team, other_team):
-    """On create a captain sees ALL teams: own pre-checked, others pre-unchecked."""
-    response = captain_client.get(reverse("penalties:catalog_create"))
-    assert response.status_code == 200
-    form = response.context["form"]
+def test_captain_creates_item_active_only_for_the_own_team(captain_client, team, other_team):
+    form = captain_client.get(reverse("penalties:catalog_create")).context["form"]
     assert form.fields[f"team_active_{team.pk}"].initial is True
-    assert form.fields[f"team_active_{other_team.pk}"].initial is False
-    assert f"team_amount_{other_team.pk}" in form.fields  # still visible + required
+    assert f"team_amount_{other_team.pk}" not in form.fields
+    response = captain_client.post(
+        reverse("penalties:catalog_create"),
+        {
+            "description": "Team special",
+            "amount_eur": "2.00",
+            "type": "NORMAL",
+            f"team_active_{team.pk}": "on",
+            f"team_amount_{team.pk}": "2",
+        },
+    )
+    assert response.status_code == 302
+    rows = {
+        r.team_id: r
+        for r in TeamCatalogAmount.objects.filter(catalog_item__description="Team special")
+    }
+    assert rows[team.pk].active and not rows[other_team.pk].active
 
 
 def test_admin_create_form_defaults_all_teams_active(admin_client, team, other_team):
