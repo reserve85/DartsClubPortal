@@ -69,6 +69,7 @@ urlpatterns += i18n_patterns(
     *(PENALTY_URLS if PENALTY in _MODULES else []),
     *([path("elo/", include("app.elo.urls"))] if ELO in _MODULES else []),
     path("audit/", core_views.AuditLogListView.as_view(), name="audit_list"),
+    path("import/", include("app.importer.urls")),
     path("imprint/", core_views.ImprintView.as_view(), name="imprint"),
     path("privacy/", core_views.PrivacyView.as_view(), name="privacy"),
     prefix_default_language=False,

@@ -2520,3 +2520,75 @@ msgstr ""
 
 msgid "Previous page"
 msgstr ""
+
+msgid "Import"
+msgstr ""
+
+msgid "Options for the Elo import"
+msgstr ""
+
+msgid "— create a new account —"
+msgstr ""
+
+msgid "Matched with existing entries (%(n)s)"
+msgstr ""
+
+msgid "Import the data now?"
+msgstr ""
+
+msgid "Preview – nothing has been saved yet"
+msgstr ""
+
+msgid "Elo system (database.db)"
+msgstr ""
+
+msgid "Database"
+msgstr ""
+
+msgid "Take over the data of the old Elo and penalty systems."
+msgstr ""
+
+msgid "Penalty system (db.sqlite3)"
+msgstr ""
+
+msgid "E-mail domain for new accounts"
+msgstr ""
+
+msgid "File"
+msgstr ""
+
+msgid "Import now"
+msgstr ""
+
+msgid "Show preview"
+msgstr ""
+
+msgid "Replace existing Elo data"
+msgstr ""
+
+msgid "Elo accounts"
+msgstr ""
+
+msgid "Import another file"
+msgstr ""
+
+msgid "Result"
+msgstr ""
+
+msgid "Recommended order: penalty database first (it has the e-mail addresses), then the Elo database. You always see a preview first."
+msgstr ""
+
+msgid "Elo logins have no e-mail address. Link them to an existing portal account, or a new account is created (login name kept for old QR codes)."
+msgstr ""
+
+msgid "The file is too large."
+msgstr ""
+
+msgid "Import finished."
+msgstr ""
+
+msgid "Choose the kind of database and a file."
+msgstr ""
+
+msgid "The upload has expired. Please upload the file again."
+msgstr ""

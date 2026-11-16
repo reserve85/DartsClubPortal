@@ -33,6 +33,8 @@ def _nav_section(request) -> str:
 
     if namespace == "elo":
         return "elo"
+    if namespace == "importer":
+        return _ADMIN_AREA
     if not namespace and name == "overview":
         return "overview"
 

@@ -3499,6 +3499,78 @@ msgstr "Nächste Seite"
 msgid "Previous page"
 msgstr "Vorherige Seite"
 
+msgid "Import"
+msgstr "Import"
+
+msgid "Options for the Elo import"
+msgstr "Optionen für den Elo-Import"
+
+msgid "— create a new account —"
+msgstr "— neues Konto anlegen —"
+
+msgid "Matched with existing entries (%(n)s)"
+msgstr "Mit vorhandenen Einträgen zusammengeführt (%(n)s)"
+
+msgid "Import the data now?"
+msgstr "Die Daten jetzt importieren?"
+
+msgid "Preview – nothing has been saved yet"
+msgstr "Vorschau – noch wurde nichts gespeichert"
+
+msgid "Elo system (database.db)"
+msgstr "Elo-System (database.db)"
+
+msgid "Database"
+msgstr "Datenbank"
+
+msgid "Take over the data of the old Elo and penalty systems."
+msgstr "Daten aus dem alten Elo- und Penalty-System übernehmen."
+
+msgid "Penalty system (db.sqlite3)"
+msgstr "Penalty-System (db.sqlite3)"
+
+msgid "E-mail domain for new accounts"
+msgstr "E-Mail-Domain für neue Konten"
+
+msgid "File"
+msgstr "Datei"
+
+msgid "Import now"
+msgstr "Jetzt importieren"
+
+msgid "Show preview"
+msgstr "Vorschau anzeigen"
+
+msgid "Replace existing Elo data"
+msgstr "Vorhandene Elo-Daten ersetzen"
+
+msgid "Elo accounts"
+msgstr "Elo-Konten"
+
+msgid "Import another file"
+msgstr "Weitere Datei importieren"
+
+msgid "Result"
+msgstr "Ergebnis"
+
+msgid "Recommended order: penalty database first (it has the e-mail addresses), then the Elo database. You always see a preview first."
+msgstr "Empfohlene Reihenfolge: zuerst die Penalty-Datenbank (sie enthält die E-Mail-Adressen), dann die Elo-Datenbank. Du siehst immer zuerst eine Vorschau."
+
+msgid "Elo logins have no e-mail address. Link them to an existing portal account, or a new account is created (login name kept for old QR codes)."
+msgstr "Elo-Logins haben keine E-Mail-Adresse. Verknüpfe sie mit einem vorhandenen Portal-Konto, sonst wird ein neues Konto angelegt (der Login-Name bleibt für alte QR-Codes erhalten)."
+
+msgid "The file is too large."
+msgstr "Die Datei ist zu groß."
+
+msgid "Import finished."
+msgstr "Import abgeschlossen."
+
+msgid "Choose the kind of database and a file."
+msgstr "Bitte Art der Datenbank und eine Datei wählen."
+
+msgid "The upload has expired. Please upload the file again."
+msgstr "Der Upload ist abgelaufen. Bitte die Datei erneut hochladen."
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 
