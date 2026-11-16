@@ -1,4 +1,19 @@
 # syntax=docker/dockerfile:1
+
+# ---------------------------------------------------------------------------
+# Stage 1: the React/Mantine frontend (Vite) -> app/static/dist
+# ---------------------------------------------------------------------------
+FROM node:24-alpine AS frontend
+WORKDIR /build/frontend
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci --no-audit --no-fund
+COPY frontend/ ./
+# vite.config.ts writes to ../app/static/dist (type check + bundle).
+RUN npm run build
+
+# ---------------------------------------------------------------------------
+# Stage 2: the Django app
+# ---------------------------------------------------------------------------
 FROM python:3.11-slim
 
 # Build metadata — injected by CI / docker compose build args (see version.py)
@@ -25,6 +40,8 @@ COPY requirements.txt ./
 RUN pip install -r requirements.txt
 
 COPY . .
+# The built frontend (hashed assets + Vite manifest) from stage 1.
+COPY --from=frontend /build/app/static/dist /app/app/static/dist
 
 # Static files + message catalogs are prepared at build time.
 # sed: strip CRLF just in case the build context came from a Windows checkout.

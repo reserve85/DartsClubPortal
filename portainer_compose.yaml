@@ -1,5 +1,5 @@
 # ============================================================================
-# Portainer Stack - Darts Penalty Manager
+# Portainer Stack - Darts Club Portal (Elo ranking + penalty cash box)
 # ============================================================================
 #
 # Purpose:
@@ -10,7 +10,7 @@
 # How to use in Portainer:
 #   1. Open Portainer web UI
 #   2. Go to Stacks > Add Stack
-#   3. Name the stack (e.g. "darts-penalty")
+#   3. Name the stack (e.g. "darts-club-portal")
 #   4. Paste the contents of this file into the "Web editor" field
 #   5. Replace ALL placeholder values marked with "CHANGE_ME" before deploying
 #   6. Click "Deploy the stack"
@@ -48,8 +48,14 @@ services:
       - MODULES=elo,penalty                         # Enabled modules: elo, penalty (comma separated) | Default: elo,penalty
       - DEFAULT_START_PAGE=elo                      # Start page: elo, penalty, overview | Default: elo
       # - PUBLIC_SITE_URL=https://darts.example.com # Address used in e-mail links (unsubscribe, match mails)
+      # - ELO_DEFAULT_ELO=1200                      # Start Elo of new players | Default: 1200
       # - ELO_K_FACTOR=32                           # Elo K-factor | Default: 32
       # - ELO_INACTIVITY_MONTHS=3                   # Months without a match -> inactive | Default: 3
+      # - ELO_BEST_OF_LEGS=5                        # Default match format (best of N legs) | Default: 5
+      # - ELO_HIGH_FINISH_MIN=100                   # Smallest checkout counted as high finish | Default: 100
+      # - ELO_HIGH_FINISH_MAX=170                   # Highest possible checkout | Default: 170
+      # - ELO_LOW_DARTS_MIN=9                       # Fewest darts for a leg (nine-darter) | Default: 9
+      # - ELO_LOW_DARTS_MAX=21                      # Most darts still counted as "low darts" | Default: 21
       # - ELO_LEGACY_JWT_SECRET=...                 # JWT_SECRET of the old Elo system (old QR codes keep working)
       # - ELO_LEGACY_QR_LOGIN=true                  # Oldest QR codes with password in the URL | Default: true
       # ── Django core ────────────────────────────────────────────────────
@@ -63,6 +69,7 @@ services:
       - DJANGO_LANGUAGE_CODE=de                       # Default language | de, en | Default: de
       - DJANGO_TIME_ZONE=Europe/Berlin                # IANA timezone | Default: Europe/Berlin
       - SQLITE_PATH=data/db.sqlite3                   # SQLite path inside the container | Default: data/db.sqlite3
+      # - MEDIA_ROOT=/app/data/media                  # Club logo + player pictures | Default: next to the database (data/media)
       # Owner of the data dir on the HOST (linuxserver convention — the
       # entrypoint chowns data/ and drops privileges to it). Get the ids with:
       #   stat -c '%u %g' <data-dir>     (Synology "reserve" user e.g. 1026 100)
@@ -92,7 +99,7 @@ services:
       # - NOTIFICATIONS_ASYNC=True                     # send in a background thread | Default: True
       # - NOTIFICATION_COALESCE_SECONDS=90             # Quick-mode batch window (s) | Default: 90
       # - NOTIFICATIONS_SCHEDULER=True                 # in-process outbox flusher (no cron) | Default: True
-      # - NOTIFICATION_SCHEDULER_INTERVAL=30           # flusher tick (s) | Default: 30
+      # - NOTIFICATIONS_SCHEDULER_INTERVAL=30          # flusher tick (s): penalty outbox, Elo daily summary, monthly Elo report | Default: 30
       # - NOTIFICATION_QUIET_HOURS=22:00-07:00         # Quick-mode night window, empty = off | Default: (empty)
 
       # ── Optional tuning ─────────────────────────────────────────────────
