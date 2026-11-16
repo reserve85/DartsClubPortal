@@ -66,3 +66,43 @@ python manage.py import_elo /app/data/old/database.db --map-account Dennis=denni
 - penalty: 25 of 25 penalties, 42 of 42 matchdays, 6 accounts copied,
 - Elo: 35 players (34 matched to penalty people), 479 matches,
   recalculation identical to the old system (largest difference 0.0000).
+
+## Environment variables of the old containers
+
+**DartsPenaltySystem:** every variable keeps its name and meaning in the
+portal – the old `environment:` block can be copied as it is.
+
+**EloRankingSystem:** the old names are still read (the portal name wins
+when both are set), so the old block can be copied too:
+
+| Old Elo container | Portal name | Note |
+|---|---|---|
+| `DEFAULT_ELO` | `ELO_DEFAULT_ELO` | |
+| `K_FACTOR` | `ELO_K_FACTOR` | |
+| `INACTIVITY_MONTHS` | `ELO_INACTIVITY_MONTHS` | |
+| `HIGH_FINISH_MIN` / `_MAX` | `ELO_HIGH_FINISH_MIN` / `_MAX` | |
+| `LOW_DARTS_MIN` / `_MAX` | `ELO_LOW_DARTS_MIN` / `_MAX` | |
+| `BEST_OF_LEGS` | `ELO_BEST_OF_LEGS` | |
+| `JWT_SECRET` | `ELO_LEGACY_JWT_SECRET` | keeps old printed QR codes working |
+| `LEGACY_QR_LOGIN_ENABLED` | `ELO_LEGACY_QR_LOGIN` | |
+| `APP_BASE_URL` | `PUBLIC_SITE_URL` | links in e-mails and QR codes |
+| `CLUB_NAME` | `SITE_NAME` | |
+| `TIMEZONE` | `DJANGO_TIME_ZONE` | |
+| `LOG_LEVEL` | `DJANGO_LOG_LEVEL` | |
+| `APP_DEBUG` | `DJANGO_DEBUG` | |
+| `COOKIE_SECURE` | `DJANGO_SESSION_COOKIE_SECURE` | |
+| `CONTACT_*` | `CONTACT_*` | same names |
+| `APP_VERSION`, `GIT_COMMIT`, `BUILD_DATE` | same | baked into the image |
+
+Not needed any more (the portal solves it differently):
+`SYSTEM_USER_USERNAME` / `SYSTEM_USER_PASSWORD` → the admin is
+`DJANGO_SUPERUSER_EMAIL` / `DJANGO_SUPERUSER_PASSWORD` (login by e-mail);
+`DATABASE_URL`, `DATA_DIR`, `UPLOAD_DIR` → `SQLITE_PATH` / `MEDIA_ROOT`
+in the `/app/data` volume; `JWT_ALGORITHM`, `ACCESS_TOKEN_LIFETIME_MINUTES`,
+`COOKIE_HTTPONLY`, `COOKIE_SAMESITE`, `CSRF_ENABLED`, `RATE_LIMIT_ENABLED`
+→ session login with secure defaults, CSRF and rate limits are always on;
+`TRUSTED_PROXIES` → `ALLAUTH_TRUSTED_PROXY_COUNT` (number of proxies) and
+`DJANGO_SECURE_PROXY_SSL_HEADER`; `DATE_FORMAT` → follows the language;
+`APP_NAME`, `APP_ENV`, `CONFIG_PATH`, `AUDIT_RETENTION_DAYS` → not used
+(the audit log is kept completely). Settings that lived only in the old
+`config.yaml` must be written as environment variables.

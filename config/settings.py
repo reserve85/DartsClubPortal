@@ -19,6 +19,32 @@ def env(key: str, default: str | None = None) -> str | None:
     return os.environ.get(key, default)
 
 
+# Names of the old EloRankingSystem container keep working, so its
+# environment can be copied over 1:1. The portal name always wins.
+LEGACY_ELO_ENV = {
+    "ELO_DEFAULT_ELO": "DEFAULT_ELO",
+    "ELO_K_FACTOR": "K_FACTOR",
+    "ELO_INACTIVITY_MONTHS": "INACTIVITY_MONTHS",
+    "ELO_HIGH_FINISH_MIN": "HIGH_FINISH_MIN",
+    "ELO_HIGH_FINISH_MAX": "HIGH_FINISH_MAX",
+    "ELO_LOW_DARTS_MIN": "LOW_DARTS_MIN",
+    "ELO_LOW_DARTS_MAX": "LOW_DARTS_MAX",
+    "ELO_BEST_OF_LEGS": "BEST_OF_LEGS",
+    "ELO_LEGACY_JWT_SECRET": "JWT_SECRET",
+    "ELO_LEGACY_QR_LOGIN": "LEGACY_QR_LOGIN_ENABLED",
+    "PUBLIC_SITE_URL": "APP_BASE_URL",
+    "SITE_NAME": "CLUB_NAME",
+    "DJANGO_TIME_ZONE": "TIMEZONE",
+    "DJANGO_LOG_LEVEL": "LOG_LEVEL",
+    "DJANGO_DEBUG": "APP_DEBUG",
+    "DJANGO_SESSION_COOKIE_SECURE": "COOKIE_SECURE",
+}
+for _new, _old in LEGACY_ELO_ENV.items():
+    if not os.environ.get(_new) and os.environ.get(_old):
+        _value = os.environ[_old]
+        os.environ[_new] = _value.upper() if _new == "DJANGO_LOG_LEVEL" else _value
+
+
 def env_list(key: str, default: str = "") -> list[str]:
     """Read a comma-separated environment variable into a list."""
     raw = env(key, default) or ""

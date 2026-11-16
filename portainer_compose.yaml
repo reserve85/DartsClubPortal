@@ -43,6 +43,9 @@ services:
       # Example for generic Linux:  /opt/docker/darts/data:/app/data
       - dart_data:/app/data
     environment:
+      # Coming from the old containers? Penalty variables work unchanged, the old
+      # Elo names (K_FACTOR, JWT_SECRET, APP_BASE_URL, ...) are still read - see
+      # docs/SWITCH_OVER.md for the list.
       # ── Club portal ────────────────────────────────────────────────────
       - SITE_NAME=Darts Club Portal                 # Name in navbar, page titles and e-mails
       - MODULES=elo,penalty                         # Enabled modules: elo, penalty (comma separated) | Default: elo,penalty
