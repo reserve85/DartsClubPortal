@@ -1929,3 +1929,594 @@ msgstr ""
 
 msgid "The format must be best of %(values)s legs."
 msgstr ""
+
+msgid "This QR code is no longer valid. Please log in manually."
+msgstr ""
+
+msgid "QR login"
+msgstr ""
+
+msgid "Logging you in…"
+msgstr ""
+
+msgid "Log in manually"
+msgstr ""
+
+msgid "E-mail notifications"
+msgstr ""
+
+msgid "Display"
+msgstr ""
+
+msgid "On the 1st of each month: your position, Elo change and matches, plus the club's top 5."
+msgstr ""
+
+msgid "Invitations, approval decisions, password and verification mails are always sent. Every other mail has an unsubscribe link."
+msgstr ""
+
+msgid "When a match of yours is entered, corrected or deleted."
+msgstr ""
+
+msgid "Access"
+msgstr ""
+
+msgid "A QR code is only possible for active, approved accounts that are not admins and have a password."
+msgstr ""
+
+msgid "QR code for the login"
+msgstr ""
+
+msgid "Scanning this code logs in this account without a password – print it only for shared club accounts (e.g. the tablet at the board)."
+msgstr ""
+
+msgid "Changing the account's password makes every printed code invalid."
+msgstr ""
+
+msgid "Print"
+msgstr ""
+
+msgid "All-time Elo"
+msgstr ""
+
+msgid "Matches"
+msgstr ""
+
+msgid "Elo administration"
+msgstr ""
+
+msgid "Enter match"
+msgstr ""
+
+msgid "Head-to-head"
+msgstr ""
+
+msgid "Ranking"
+msgstr ""
+
+msgid "This month"
+msgstr ""
+
+msgid "L"
+msgstr ""
+
+msgid "Hello %(name)s"
+msgstr ""
+
+msgid "Top of the month"
+msgstr ""
+
+msgid "W"
+msgstr ""
+
+msgid "No module is available for your account. Please contact an administrator."
+msgstr ""
+
+msgid "vs %(opp)s"
+msgstr ""
+
+msgid "My statistics"
+msgstr ""
+
+msgid "Position"
+msgstr ""
+
+msgid "From"
+msgstr ""
+
+msgid "Period"
+msgstr ""
+
+msgid "All time"
+msgstr ""
+
+msgid "Custom"
+msgstr ""
+
+msgid "Last month"
+msgstr ""
+
+msgid "Show"
+msgstr ""
+
+msgid "To"
+msgstr ""
+
+msgid "This year"
+msgstr ""
+
+msgid "High finishes 100–170 (one per won leg), low darts 9–21 darts per won leg, several values separated by commas."
+msgstr ""
+
+msgid "Average"
+msgstr ""
+
+msgid "High finishes"
+msgstr ""
+
+msgid "Statistics (optional)"
+msgstr ""
+
+msgid "The highest Elo every player ever reached."
+msgstr ""
+
+msgid "Show inactive and disabled players"
+msgstr ""
+
+msgid "%(n)s match"
+msgstr ""
+
+msgid "%(n)s wins in a row"
+msgstr ""
+
+msgid "Elo won"
+msgstr ""
+
+msgid "%(n)s matches"
+msgstr ""
+
+msgid "This player has no direct match yet."
+msgstr ""
+
+msgid "Win chance in the next match (Elo)"
+msgstr ""
+
+msgid "Legs"
+msgstr ""
+
+msgid "Best finish"
+msgstr ""
+
+msgid "Compare"
+msgstr ""
+
+msgid "Last meetings"
+msgstr ""
+
+msgid "Comparison"
+msgstr ""
+
+msgid "Elo balance from %(name)s's view"
+msgstr ""
+
+msgid "Disable this player? They stay in the ranking but cannot play new matches."
+msgstr ""
+
+msgid "Players (CSV)"
+msgstr ""
+
+msgid "Replays the complete match history from scratch. Only needed after data repairs – entering, editing and deleting matches recalculate automatically."
+msgstr ""
+
+msgid "Exports"
+msgstr ""
+
+msgid "Disable"
+msgstr ""
+
+msgid "Enable"
+msgstr ""
+
+msgid "Matches (CSV)"
+msgstr ""
+
+msgid "Start"
+msgstr ""
+
+msgid "Ranking (PDF)"
+msgstr ""
+
+msgid "Ranking exports use the current month; open the ranking for other periods."
+msgstr ""
+
+msgid "Add player"
+msgstr ""
+
+msgid "Recalculate"
+msgstr ""
+
+msgid "since %(d)s"
+msgstr ""
+
+msgid "No players yet – add the first one."
+msgstr ""
+
+msgid "%(n)s players"
+msgstr ""
+
+msgid "now"
+msgstr ""
+
+msgid "%(n)s player"
+msgstr ""
+
+msgid "Allow this player to play again?"
+msgstr ""
+
+msgid "Recalculate the complete Elo history now?"
+msgstr ""
+
+msgid "Recalculate everything"
+msgstr ""
+
+msgid "Ranking (CSV)"
+msgstr ""
+
+msgid "Delete match"
+msgstr ""
+
+msgid "The match is removed and the Elo of every later match of both players is recalculated. Both players are notified."
+msgstr ""
+
+msgid "Delete match?"
+msgstr ""
+
+msgid "K-factor"
+msgstr ""
+
+msgid "Match"
+msgstr ""
+
+msgid "Best of %(n)s"
+msgstr ""
+
+msgid "Statistics"
+msgstr ""
+
+msgid "entered by %(who)s"
+msgstr ""
+
+msgid "Edit match"
+msgstr ""
+
+msgid "Save anyway"
+msgstr ""
+
+msgid "Saving recalculates the Elo of every later match of both players."
+msgstr ""
+
+msgid "Save match"
+msgstr ""
+
+msgid "Show matches"
+msgstr ""
+
+msgid "Legs player B"
+msgstr ""
+
+msgid "Legs B plus one"
+msgstr ""
+
+msgid "Legs A minus one"
+msgstr ""
+
+msgid "Legs player A"
+msgstr ""
+
+msgid "a match with the same result on the same day already exists."
+msgstr ""
+
+msgid "Legs B minus one"
+msgstr ""
+
+msgid "Legs A plus one"
+msgstr ""
+
+msgid "Possible duplicate"
+msgstr ""
+
+msgid "First to %(n)s legs wins."
+msgstr ""
+
+msgid "Save + next"
+msgstr ""
+
+msgid "All players"
+msgstr ""
+
+msgid "Pages"
+msgstr ""
+
+msgid "No matches found."
+msgstr ""
+
+msgid "Matches as CSV"
+msgstr ""
+
+msgid "Newer"
+msgstr ""
+
+msgid "Older"
+msgstr ""
+
+msgid "Page %(n)s of %(total)s"
+msgstr ""
+
+msgid "Average (last 100)"
+msgstr ""
+
+msgid "All matches"
+msgstr ""
+
+msgid "Not enough matches yet."
+msgstr ""
+
+msgid "No direct match yet."
+msgstr ""
+
+msgid "Average history"
+msgstr ""
+
+msgid "Last matches"
+msgstr ""
+
+msgid "Win rate"
+msgstr ""
+
+msgid "Best low darts"
+msgstr ""
+
+msgid "Best rank"
+msgstr ""
+
+msgid "Elo history"
+msgstr ""
+
+msgid "No matches yet."
+msgstr ""
+
+msgid "Best Elo"
+msgstr ""
+
+msgid "Best rank reached"
+msgstr ""
+
+msgid "Best Elo reached"
+msgstr ""
+
+msgid "Add player to the Elo ranking"
+msgstr ""
+
+msgid "Edit Elo player"
+msgstr ""
+
+msgid "won"
+msgstr ""
+
+msgid "no match in this period"
+msgstr ""
+
+msgid "Positions count the full field of %(n)s players (inactive and disabled included)."
+msgstr ""
+
+msgid "Top three"
+msgstr ""
+
+msgid "No players in the ranking for this period yet."
+msgstr ""
+
+msgid "E-mail settings"
+msgstr ""
+
+msgid "Unsubscribe from \"%(kind)s\""
+msgstr ""
+
+msgid "New Elo match"
+msgstr ""
+
+msgid "Something wrong? Please tell an admin - only admins can correct matches."
+msgstr ""
+
+msgid "a match of yours was entered:"
+msgstr ""
+
+msgid "Hi %(name)s,"
+msgstr ""
+
+msgid "Elo match corrected"
+msgstr ""
+
+msgid "Open the match"
+msgstr ""
+
+msgid "Open the ranking"
+msgstr ""
+
+msgid "this match was deleted - the ranking was recalculated:"
+msgstr ""
+
+msgid "this match was corrected - the ranking was recalculated:"
+msgstr ""
+
+msgid "%(n)s matches played in the club."
+msgstr ""
+
+msgid "Your Elo month: %(month)s"
+msgstr ""
+
+msgid "Climber of the month: %(name)s (%(change)s)."
+msgstr ""
+
+msgid "won – lost"
+msgstr ""
+
+msgid "of %(n)s"
+msgstr ""
+
+msgid "No match this month - see you at the board!"
+msgstr ""
+
+msgid "Hi %(name)s, here is your month in the Elo ranking:"
+msgstr ""
+
+msgid "%(n)s match played in the club."
+msgstr ""
+
+msgid "Top 5 of the club"
+msgstr ""
+
+msgid "This link is invalid. Change your e-mail settings after logging in."
+msgstr ""
+
+msgid "Done – you will no longer receive \"%(label)s\" e-mails."
+msgstr ""
+
+msgid "You can switch it on again at any time in your settings."
+msgstr ""
+
+msgid "Stop receiving \"%(label)s\" e-mails?"
+msgstr ""
+
+msgid "Unsubscribe"
+msgstr ""
+
+msgid "Elo match results"
+msgstr ""
+
+msgid "Monthly Elo summary"
+msgstr ""
+
+msgid "Ranking, statistics and entering matches."
+msgstr ""
+
+msgid "Penalties, payments and the financial overview."
+msgstr ""
+
+msgid "Penalty access"
+msgstr ""
+
+msgid "Elo access"
+msgstr ""
+
+msgid "Elo login name"
+msgstr ""
+
+msgid "Where you land after login."
+msgstr ""
+
+msgid "Your Elo month at a glance, sent on the first of each month."
+msgstr ""
+
+msgid "start page"
+msgstr ""
+
+msgid "monthly Elo summary"
+msgstr ""
+
+msgid "E-mail when a match of yours is entered, edited or deleted."
+msgstr ""
+
+msgid "My overview"
+msgstr ""
+
+msgid "Club default"
+msgstr ""
+
+msgid "Changing it recalculates every match of this player."
+msgstr ""
+
+msgid "e.g. 120, 100"
+msgstr ""
+
+msgid "Format"
+msgstr ""
+
+msgid "180s"
+msgstr ""
+
+msgid "Entry date"
+msgstr ""
+
+msgid "Existing person"
+msgstr ""
+
+msgid "Only numbers separated by commas."
+msgstr ""
+
+msgid "Pick a person who is already in the club portal (e.g. from the penalty module)."
+msgstr ""
+
+msgid "Start Elo"
+msgstr ""
+
+msgid "— new person —"
+msgstr ""
+
+msgid "Pick an existing person or enter a name."
+msgstr ""
+
+msgid "The player is part of the ranking from this day on."
+msgstr ""
+
+msgid "Elo match deleted: you vs %(opp)s %(m)s:%(t)s"
+msgstr ""
+
+msgid "Corrected: "
+msgstr ""
+
+msgid "Elo match vs %(opp)s: %(m)s:%(t)s (%(c)s Elo)"
+msgstr ""
+
+msgid "Your Elo month %(month)s"
+msgstr ""
+
+msgid "Pos."
+msgstr ""
+
+msgid "created"
+msgstr ""
+
+msgid "%(name)s can play again."
+msgstr ""
+
+msgid "Match saved: %(a)s %(sa)s:%(sb)s %(b)s"
+msgstr ""
+
+msgid "Match updated - the ranking was recalculated."
+msgstr ""
+
+msgid "%(name)s is now in the Elo ranking."
+msgstr ""
+
+msgid "%(name)s is disabled: stays in the ranking, cannot play new matches."
+msgstr ""
+
+msgid "Match deleted - the ranking was recalculated."
+msgstr ""
+
+msgid "Player saved."
+msgstr ""
+
+msgid "Recalculated %(m)s matches of %(p)s players."
+msgstr ""
+
+msgid "Payment confirmations"
+msgstr ""
+
+msgid "Winner"
+msgstr ""
+
+msgid "Next page"
+msgstr ""
+
+msgid "Previous page"
+msgstr ""

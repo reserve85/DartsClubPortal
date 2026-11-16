@@ -32,22 +32,21 @@ class HealthView(View):
 
 
 class HomeView(LoginRequiredMixin, View):
-    """Portal start page: one tile per enabled module.
-
-    With the penalty module on, "/" is the financial overview (as before) and
-    this view is only reached via the name "home" - it then forwards there.
-    """
+    """ "/" forwards to the user's start page (Elo ranking by default)."""
 
     def get(self, request):
-        from app.core.modules import KNOWN_MODULES, PENALTY, enabled_modules
+        from app.core.access import start_url
 
-        modules = enabled_modules()
-        if PENALTY in modules:
-            return redirect("dashboard:index")
-        tiles = [
-            {"key": key, "label": label} for key, label in KNOWN_MODULES.items() if key in modules
-        ]
-        return render(request, "core/home.html", {"tiles": tiles})
+        return redirect(start_url(request.user))
+
+
+class OverviewView(LoginRequiredMixin, View):
+    """ "My overview": one card per module the user may use."""
+
+    def get(self, request):
+        from app.core.overview import build_overview
+
+        return render(request, "core/overview.html", build_overview(request.user))
 
 
 class ImprintView(View):

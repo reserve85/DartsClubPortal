@@ -1,0 +1,21 @@
+{% extends "emails/base_email.html" %}{% load i18n %}
+{% block subject %}{% if action == "deleted" %}{% translate "Elo match deleted" %}{% elif action == "updated" %}{% translate "Elo match corrected" %}{% else %}{% translate "New Elo match" %}{% endif %}{% endblock %}
+{% block content %}
+<p>{% blocktranslate with name=player.name %}Hi {{ name }},{% endblocktranslate %}</p>
+<p>{% if action == "deleted" %}{% translate "this match was deleted - the ranking was recalculated:" %}{% elif action == "updated" %}{% translate "this match was corrected - the ranking was recalculated:" %}{% else %}{% translate "a match of yours was entered:" %}{% endif %}</p>
+<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;background:#f4f6fa;border-radius:8px;">
+    <tr>
+        <td style="padding:14px;font-size:15px;"><strong>{{ player.name }}</strong></td>
+        <td style="padding:14px;font-size:22px;font-weight:bold;text-align:center;white-space:nowrap;">{{ mine }} : {{ theirs }}</td>
+        <td style="padding:14px;font-size:15px;text-align:right;"><strong>{{ opponent.name }}</strong></td>
+    </tr>
+    <tr>
+        <td colspan="3" style="padding:0 14px 14px;color:#6c757d;font-size:13px;">
+            {{ match.date|date:"d.m.Y" }} · {% blocktranslate with n=match.best_of_legs %}Best of {{ n }}{% endblocktranslate %}
+            {% if action != "deleted" %} · {% translate "Elo" %} <strong style="color:{% if change >= 0 %}#2fb344{% else %}#d63939{% endif %};">{{ change|floatformat:"+1" }}</strong> → {{ elo_after|floatformat:0 }}{% endif %}
+        </td>
+    </tr>
+</table>
+<p style="margin-top:16px;"><a href="{{ match_url }}" style="background:#206bc4;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none;display:inline-block;">{% if action == "deleted" %}{% translate "Open the ranking" %}{% else %}{% translate "Open the match" %}{% endif %}</a></p>
+<p style="font-size:13px;color:#6c757d;">{% translate "Something wrong? Please tell an admin - only admins can correct matches." %}</p>
+{% endblock %}

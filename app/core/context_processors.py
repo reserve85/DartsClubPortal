@@ -15,6 +15,7 @@ from app.notifications.inapp import unread_count
 _FINANCIAL = "financial"
 _MATCHDAYS = "matchdays"
 _ADMIN_AREA = "admin"
+_PENALTY_ADMIN = "penalty_admin"
 
 
 def _nav_section(request) -> str:
@@ -30,6 +31,11 @@ def _nav_section(request) -> str:
     namespace = match.namespace or ""
     name = match.url_name or ""
 
+    if namespace == "elo":
+        return "elo"
+    if not namespace and name == "overview":
+        return "overview"
+
     if namespace == "dashboard":
         # The dashboard namespace serves ONLY the financial overview now
         # (index + financial_overview) — the Dashboard/Übersicht is gone.
@@ -37,10 +43,10 @@ def _nav_section(request) -> str:
     if namespace == "matchdays":
         return _MATCHDAYS
     if namespace in ("teams", "players"):
-        return _ADMIN_AREA
+        return _PENALTY_ADMIN
     if namespace == "penalties":
         if name.startswith("catalog"):
-            return _ADMIN_AREA
+            return _PENALTY_ADMIN
         if name.startswith("payment"):
             return _FINANCIAL
         # penalty assign/edit belongs to the matchday it was opened from
@@ -49,6 +55,8 @@ def _nav_section(request) -> str:
         # user_list/user_create/… + invite_list/invite_create/… + approval_list
         # all live in the Administration dropdown (same highlight).
         return _ADMIN_AREA
+    if name.startswith("season"):
+        return _PENALTY_ADMIN
     if name in {
         "audit_list",
         "season_list",
@@ -59,6 +67,13 @@ def _nav_section(request) -> str:
     }:
         return _ADMIN_AREA
     return ""
+
+
+def _penalty_page(request) -> bool:
+    """True on pages of the penalty module (the season picker belongs there)."""
+    from app.core.access import module_of
+
+    return module_of(getattr(request, "resolver_match", None)) == PENALTY
 
 
 def _unread_notifications(request) -> int:
@@ -113,24 +128,31 @@ def site_context(request):
     theme = _theme_choice(request)
     seasons = []
     active_season = None
-    penalty_on = PENALTY in enabled_modules()
-    if penalty_on and getattr(request, "user", None) is not None and request.user.is_authenticated:
+    from app.core.access import has_module
+
+    user = getattr(request, "user", None)
+    if user is not None and user.is_authenticated and has_module(user, PENALTY):
         # ONE query for the dropdown; the active season resolves from the same
         # list (session id -> default flag -> newest) without extra queries.
         seasons = list(Season.objects.order_by("-name"))
         active_season = season_for_request(request, seasons=seasons)
 
-    modules = enabled_modules()
+    from app.core.access import user_modules
+
+    user = getattr(request, "user", None)
+    modules = user_modules(user) if user is not None and user.is_authenticated else {}
     return {
         "site_name": settings.SITE_NAME,
         # {"penalty": True, "elo": False} - drives menus and tiles.
-        "modules": {name: name in modules for name in KNOWN_MODULES},
+        "modules": {name: bool(modules.get(name)) for name in KNOWN_MODULES},
+        "modules_enabled": {name: name in enabled_modules() for name in KNOWN_MODULES},
         "current_year": timezone.now().year,
         "current_theme": theme,
         "site_languages": settings.LANGUAGES,
         "seasons": seasons,
         "active_season": active_season,
         "nav_section": _nav_section(request),
+        "penalty_page": _penalty_page(request),
         "unread_notification_count": _unread_notifications(request),
         "pending_approval_count": _pending_approval_count(request),
         "cookie_consent_enabled": True,

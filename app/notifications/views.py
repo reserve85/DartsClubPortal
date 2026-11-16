@@ -10,7 +10,7 @@ never GET. ``?next=`` (POST field ``next``) is validated with
 from typing import ClassVar
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
@@ -56,3 +56,29 @@ class NotificationDeleteReadView(LoginRequiredMixin, View):
     def post(self, request):
         request.user.notifications.filter(unread=False).delete()
         return _redirect_after(request, "notifications:all")
+
+
+class UnsubscribeView(View):
+    """One-click unsubscribe from a single mail kind (signed link, no login)."""
+
+    def get(self, request, token):
+        from app.notifications.unsubscribe import KINDS, read_token
+
+        user, kind = read_token(token)
+        return render(
+            request,
+            "notifications/unsubscribe.html",
+            {"valid": user is not None, "label": KINDS[kind][0] if kind else "", "done": False},
+        )
+
+    def post(self, request, token):
+        from app.notifications.unsubscribe import KINDS, read_token, unsubscribe
+
+        user, kind = read_token(token)
+        if user is not None:
+            unsubscribe(user, kind)
+        return render(
+            request,
+            "notifications/unsubscribe.html",
+            {"valid": user is not None, "label": KINDS[kind][0] if kind else "", "done": True},
+        )

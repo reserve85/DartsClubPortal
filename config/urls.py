@@ -19,8 +19,9 @@ from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
 from django.urls import include, path
 
+from app.accounts.qr import LegacyAutoLoginView, QrLoginView
 from app.core import views as core_views
-from app.core.modules import PENALTY, enabled_modules
+from app.core.modules import ELO, PENALTY, enabled_modules
 
 _MODULES = enabled_modules()
 
@@ -28,6 +29,9 @@ urlpatterns = [
     path("i18n/", include("django.conf.urls.i18n")),
     path("admin/", admin.site.urls),
     path("health/", core_views.HealthView.as_view(), name="health"),
+    # Old printed QR codes of the Elo system (paths unchanged on purpose).
+    path("ui/qr-login", QrLoginView.as_view(legacy=True), name="legacy_qr_login"),
+    path("auth/auto-login", LegacyAutoLoginView.as_view(), name="legacy_auto_login"),
 ]
 
 PENALTY_URLS = [
@@ -58,12 +62,12 @@ urlpatterns += i18n_patterns(
     # Custom mailbox actions (delete one / delete read) — mounted AFTER the
     # package include so the package keeps owning every notifications:* name.
     path("notifications/actions/", include("app.notifications.urls")),
-    # Module "penalty" (penalties): routed only when enabled. Its "" index then
-    # stays the start page, so an upgraded penalty install behaves as before.
-    *(PENALTY_URLS if PENALTY in _MODULES else []),
-    # Portal start page. With "penalty" on, "/" is served by the financial
-    # overview above and this route only provides the name "home".
+    # "/" forwards to the user's start page (Elo, penalty or overview - see
+    # app/core/access.py); modules are routed only when enabled.
     path("", core_views.HomeView.as_view(), name="home"),
+    path("overview/", core_views.OverviewView.as_view(), name="overview"),
+    *(PENALTY_URLS if PENALTY in _MODULES else []),
+    *([path("elo/", include("app.elo.urls"))] if ELO in _MODULES else []),
     path("audit/", core_views.AuditLogListView.as_view(), name="audit_list"),
     path("imprint/", core_views.ImprintView.as_view(), name="imprint"),
     path("privacy/", core_views.PrivacyView.as_view(), name="privacy"),

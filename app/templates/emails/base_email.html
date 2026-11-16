@@ -19,6 +19,8 @@
                         <p style="font-size:12px;color:#6c757d;margin:0;">
                             {% blocktranslate with site=site_name %}This is an automated message from {{ site }}.{% endblocktranslate %}
                             {% if support_email %}<br>{% translate "Support" %}: {{ support_email }}{% endif %}
+                            {% if unsubscribe_url %}<br><a href="{{ unsubscribe_url }}" style="color:#6c757d;">{% blocktranslate with kind=unsubscribe_label %}Unsubscribe from "{{ kind }}"{% endblocktranslate %}</a>{% endif %}
+                            {% if settings_url %} · <a href="{{ settings_url }}" style="color:#6c757d;">{% translate "E-mail settings" %}</a>{% endif %}
                         </p>
                     </td>
                 </tr>

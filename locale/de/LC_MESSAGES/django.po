@@ -2908,6 +2908,597 @@ msgstr "%(label)s: nur ganze Zahlen."
 msgid "The format must be best of %(values)s legs."
 msgstr "Das Format muss Best of %(values)s Legs sein."
 
+msgid "This QR code is no longer valid. Please log in manually."
+msgstr "Dieser QR-Code ist nicht mehr gültig. Bitte manuell anmelden."
+
+msgid "QR login"
+msgstr "QR-Login"
+
+msgid "Logging you in…"
+msgstr "Du wirst angemeldet …"
+
+msgid "Log in manually"
+msgstr "Manuell anmelden"
+
+msgid "E-mail notifications"
+msgstr "E-Mail-Benachrichtigungen"
+
+msgid "Display"
+msgstr "Anzeige"
+
+msgid "On the 1st of each month: your position, Elo change and matches, plus the club's top 5."
+msgstr "Am 1. jedes Monats: deine Platzierung, Elo-Veränderung und Matches, dazu die Top 5 des Vereins."
+
+msgid "Invitations, approval decisions, password and verification mails are always sent. Every other mail has an unsubscribe link."
+msgstr "Einladungen, Freigabe-Entscheidungen, Passwort- und Bestätigungs-Mails werden immer verschickt. Jede andere Mail hat einen Abmelde-Link."
+
+msgid "When a match of yours is entered, corrected or deleted."
+msgstr "Wenn ein Match von dir eingetragen, korrigiert oder gelöscht wird."
+
+msgid "Access"
+msgstr "Zugriff"
+
+msgid "A QR code is only possible for active, approved accounts that are not admins and have a password."
+msgstr "Ein QR-Code ist nur für aktive, freigegebene Konten ohne Admin-Rolle mit Passwort möglich."
+
+msgid "QR code for the login"
+msgstr "QR-Code für die Anmeldung"
+
+msgid "Scanning this code logs in this account without a password – print it only for shared club accounts (e.g. the tablet at the board)."
+msgstr "Wer diesen Code scannt, ist ohne Passwort mit diesem Konto angemeldet – nur für gemeinsame Vereinskonten drucken (z. B. das Tablet am Board)."
+
+msgid "Changing the account's password makes every printed code invalid."
+msgstr "Ändert man das Passwort des Kontos, werden alle gedruckten Codes ungültig."
+
+msgid "Print"
+msgstr "Drucken"
+
+msgid "All-time Elo"
+msgstr "Ewige Elo-Bestenliste"
+
+msgid "Matches"
+msgstr "Matches"
+
+msgid "Elo administration"
+msgstr "Elo-Verwaltung"
+
+msgid "Enter match"
+msgstr "Match eintragen"
+
+msgid "Head-to-head"
+msgstr "Direktvergleich"
+
+msgid "Ranking"
+msgstr "Rangliste"
+
+msgid "This month"
+msgstr "Dieser Monat"
+
+msgid "L"
+msgstr "N"
+
+msgid "Hello %(name)s"
+msgstr "Hallo %(name)s"
+
+msgid "Top of the month"
+msgstr "Top des Monats"
+
+msgid "W"
+msgstr "S"
+
+msgid "No module is available for your account. Please contact an administrator."
+msgstr "Für dein Konto ist kein Bereich freigeschaltet. Bitte wende dich an einen Admin."
+
+msgid "vs %(opp)s"
+msgstr "gegen %(opp)s"
+
+msgid "My statistics"
+msgstr "Meine Statistik"
+
+msgid "Position"
+msgstr "Platz"
+
+msgid "From"
+msgstr "Von"
+
+msgid "Period"
+msgstr "Zeitraum"
+
+msgid "All time"
+msgstr "Gesamt"
+
+msgid "Custom"
+msgstr "Eigener"
+
+msgid "Last month"
+msgstr "Letzter Monat"
+
+msgid "Show"
+msgstr "Anzeigen"
+
+msgid "To"
+msgstr "Bis"
+
+msgid "This year"
+msgstr "Dieses Jahr"
+
+msgid "High finishes 100–170 (one per won leg), low darts 9–21 darts per won leg, several values separated by commas."
+msgstr "High Finishes 100–170 (eins pro gewonnenem Leg), Low Darts 9–21 Darts pro gewonnenem Leg, mehrere Werte mit Komma trennen."
+
+msgid "Average"
+msgstr "Average"
+
+msgid "High finishes"
+msgstr "High Finishes"
+
+msgid "Statistics (optional)"
+msgstr "Statistik (optional)"
+
+msgid "The highest Elo every player ever reached."
+msgstr "Die höchste Elo, die jeder Spieler je erreicht hat."
+
+msgid "Show inactive and disabled players"
+msgstr "Inaktive und gesperrte Spieler zeigen"
+
+msgid "%(n)s match"
+msgstr "%(n)s Match"
+
+msgid "%(n)s wins in a row"
+msgstr "%(n)s Siege in Folge"
+
+msgid "Elo won"
+msgstr "Elo gewonnen"
+
+msgid "%(n)s matches"
+msgstr "%(n)s Matches"
+
+msgid "This player has no direct match yet."
+msgstr "Dieser Spieler hat noch kein direktes Duell."
+
+msgid "Win chance in the next match (Elo)"
+msgstr "Siegchance im nächsten Match (Elo)"
+
+msgid "Legs"
+msgstr "Legs"
+
+msgid "Best finish"
+msgstr "Bestes Finish"
+
+msgid "Compare"
+msgstr "Vergleichen"
+
+msgid "Last meetings"
+msgstr "Letzte Duelle"
+
+msgid "Comparison"
+msgstr "Vergleich"
+
+msgid "Elo balance from %(name)s's view"
+msgstr "Elo-Bilanz aus Sicht von %(name)s"
+
+msgid "Disable this player? They stay in the ranking but cannot play new matches."
+msgstr "Diesen Spieler sperren? Er bleibt in der Rangliste, kann aber keine neuen Matches spielen."
+
+msgid "Players (CSV)"
+msgstr "Spieler (CSV)"
+
+msgid "Replays the complete match history from scratch. Only needed after data repairs – entering, editing and deleting matches recalculate automatically."
+msgstr "Spielt die komplette Match-Historie neu durch. Nur nach Datenreparaturen nötig – Eintragen, Bearbeiten und Löschen rechnen automatisch neu."
+
+msgid "Exports"
+msgstr "Exporte"
+
+msgid "Disable"
+msgstr "Sperren"
+
+msgid "Enable"
+msgstr "Freigeben"
+
+msgid "Matches (CSV)"
+msgstr "Matches (CSV)"
+
+msgid "Start"
+msgstr "Start"
+
+msgid "Ranking (PDF)"
+msgstr "Rangliste (PDF)"
+
+msgid "Ranking exports use the current month; open the ranking for other periods."
+msgstr "Die Ranglisten-Exporte nutzen den aktuellen Monat; für andere Zeiträume die Rangliste öffnen."
+
+msgid "Add player"
+msgstr "Spieler hinzufügen"
+
+msgid "Recalculate"
+msgstr "Neu berechnen"
+
+msgid "since %(d)s"
+msgstr "seit %(d)s"
+
+msgid "No players yet – add the first one."
+msgstr "Noch keine Spieler – füge den ersten hinzu."
+
+msgid "%(n)s players"
+msgstr "%(n)s Spieler"
+
+msgid "now"
+msgstr "jetzt"
+
+msgid "%(n)s player"
+msgstr "%(n)s Spieler"
+
+msgid "Allow this player to play again?"
+msgstr "Diesen Spieler wieder spielen lassen?"
+
+msgid "Recalculate the complete Elo history now?"
+msgstr "Die komplette Elo-Historie jetzt neu berechnen?"
+
+msgid "Recalculate everything"
+msgstr "Alles neu berechnen"
+
+msgid "Ranking (CSV)"
+msgstr "Rangliste (CSV)"
+
+msgid "Delete match"
+msgstr "Match löschen"
+
+msgid "The match is removed and the Elo of every later match of both players is recalculated. Both players are notified."
+msgstr "Das Match wird entfernt und die Elo aller späteren Matches beider Spieler neu berechnet. Beide Spieler werden benachrichtigt."
+
+msgid "Delete match?"
+msgstr "Match löschen?"
+
+msgid "K-factor"
+msgstr "K-Faktor"
+
+msgid "Match"
+msgstr "Match"
+
+msgid "Best of %(n)s"
+msgstr "Best of %(n)s"
+
+msgid "Statistics"
+msgstr "Statistik"
+
+msgid "entered by %(who)s"
+msgstr "eingetragen von %(who)s"
+
+msgid "Edit match"
+msgstr "Match bearbeiten"
+
+msgid "Save anyway"
+msgstr "Trotzdem speichern"
+
+msgid "Saving recalculates the Elo of every later match of both players."
+msgstr "Beim Speichern wird die Elo aller späteren Matches beider Spieler neu berechnet."
+
+msgid "Save match"
+msgstr "Match speichern"
+
+msgid "Show matches"
+msgstr "Matches anzeigen"
+
+msgid "Legs player B"
+msgstr "Legs Spieler B"
+
+msgid "Legs B plus one"
+msgstr "Legs B plus eins"
+
+msgid "Legs A minus one"
+msgstr "Legs A minus eins"
+
+msgid "Legs player A"
+msgstr "Legs Spieler A"
+
+msgid "a match with the same result on the same day already exists."
+msgstr "am selben Tag gibt es bereits ein Match mit demselben Ergebnis."
+
+msgid "Legs B minus one"
+msgstr "Legs B minus eins"
+
+msgid "Legs A plus one"
+msgstr "Legs A plus eins"
+
+msgid "Possible duplicate"
+msgstr "Mögliches Duplikat"
+
+msgid "First to %(n)s legs wins."
+msgstr "Wer zuerst %(n)s Legs hat, gewinnt."
+
+msgid "Save + next"
+msgstr "Speichern + nächstes"
+
+msgid "All players"
+msgstr "Alle Spieler"
+
+msgid "Pages"
+msgstr "Seiten"
+
+msgid "No matches found."
+msgstr "Keine Matches gefunden."
+
+msgid "Matches as CSV"
+msgstr "Matches als CSV"
+
+msgid "Newer"
+msgstr "Neuer"
+
+msgid "Older"
+msgstr "Älter"
+
+msgid "Page %(n)s of %(total)s"
+msgstr "Seite %(n)s von %(total)s"
+
+msgid "Average (last 100)"
+msgstr "Average (letzte 100)"
+
+msgid "All matches"
+msgstr "Alle Matches"
+
+msgid "Not enough matches yet."
+msgstr "Noch nicht genug Matches."
+
+msgid "No direct match yet."
+msgstr "Noch kein direktes Duell."
+
+msgid "Average history"
+msgstr "Average-Verlauf"
+
+msgid "Last matches"
+msgstr "Letzte Matches"
+
+msgid "Win rate"
+msgstr "Siegquote"
+
+msgid "Best low darts"
+msgstr "Beste Low Darts"
+
+msgid "Best rank"
+msgstr "Bester Platz"
+
+msgid "Elo history"
+msgstr "Elo-Verlauf"
+
+msgid "No matches yet."
+msgstr "Noch keine Matches."
+
+msgid "Best Elo"
+msgstr "Beste Elo"
+
+msgid "Best rank reached"
+msgstr "Bester Platz erreicht am"
+
+msgid "Best Elo reached"
+msgstr "Beste Elo erreicht am"
+
+msgid "Add player to the Elo ranking"
+msgstr "Spieler in die Elo-Rangliste aufnehmen"
+
+msgid "Edit Elo player"
+msgstr "Elo-Spieler bearbeiten"
+
+msgid "won"
+msgstr "gewonnen"
+
+msgid "no match in this period"
+msgstr "kein Match in diesem Zeitraum"
+
+msgid "Positions count the full field of %(n)s players (inactive and disabled included)."
+msgstr "Die Plätze zählen das ganze Feld von %(n)s Spielern (inaktive und gesperrte eingeschlossen)."
+
+msgid "Top three"
+msgstr "Top drei"
+
+msgid "No players in the ranking for this period yet."
+msgstr "Für diesen Zeitraum ist noch niemand in der Rangliste."
+
+msgid "E-mail settings"
+msgstr "E-Mail-Einstellungen"
+
+msgid "Unsubscribe from \"%(kind)s\""
+msgstr "„%(kind)s“ abbestellen"
+
+msgid "New Elo match"
+msgstr "Neues Elo-Match"
+
+msgid "Something wrong? Please tell an admin - only admins can correct matches."
+msgstr "Stimmt etwas nicht? Bitte einem Admin Bescheid geben – nur Admins können Matches korrigieren."
+
+msgid "a match of yours was entered:"
+msgstr "ein Match von dir wurde eingetragen:"
+
+msgid "Hi %(name)s,"
+msgstr "Hallo %(name)s,"
+
+msgid "Elo match corrected"
+msgstr "Elo-Match korrigiert"
+
+msgid "Open the match"
+msgstr "Match öffnen"
+
+msgid "Open the ranking"
+msgstr "Rangliste öffnen"
+
+msgid "this match was deleted - the ranking was recalculated:"
+msgstr "dieses Match wurde gelöscht – die Rangliste wurde neu berechnet:"
+
+msgid "this match was corrected - the ranking was recalculated:"
+msgstr "dieses Match wurde korrigiert – die Rangliste wurde neu berechnet:"
+
+msgid "%(n)s matches played in the club."
+msgstr "%(n)s Matches im Verein gespielt."
+
+msgid "Your Elo month: %(month)s"
+msgstr "Dein Elo-Monat: %(month)s"
+
+msgid "Climber of the month: %(name)s (%(change)s)."
+msgstr "Aufsteiger des Monats: %(name)s (%(change)s)."
+
+msgid "won – lost"
+msgstr "gewonnen – verloren"
+
+msgid "of %(n)s"
+msgstr "von %(n)s"
+
+msgid "No match this month - see you at the board!"
+msgstr "Kein Match in diesem Monat – wir sehen uns am Board!"
+
+msgid "Hi %(name)s, here is your month in the Elo ranking:"
+msgstr "Hallo %(name)s, so lief dein Monat in der Elo-Rangliste:"
+
+msgid "%(n)s match played in the club."
+msgstr "%(n)s Match im Verein gespielt."
+
+msgid "Top 5 of the club"
+msgstr "Top 5 des Vereins"
+
+msgid "This link is invalid. Change your e-mail settings after logging in."
+msgstr "Dieser Link ist ungültig. Ändere deine E-Mail-Einstellungen nach der Anmeldung."
+
+msgid "Done – you will no longer receive \"%(label)s\" e-mails."
+msgstr "Erledigt – du erhältst keine „%(label)s“-Mails mehr."
+
+msgid "You can switch it on again at any time in your settings."
+msgstr "Du kannst es jederzeit in deinen Einstellungen wieder einschalten."
+
+msgid "Stop receiving \"%(label)s\" e-mails?"
+msgstr "Keine „%(label)s“-Mails mehr erhalten?"
+
+msgid "Unsubscribe"
+msgstr "Abbestellen"
+
+msgid "Elo match results"
+msgstr "Elo-Matchergebnisse"
+
+msgid "Monthly Elo summary"
+msgstr "Monatlicher Elo-Bericht"
+
+msgid "Ranking, statistics and entering matches."
+msgstr "Rangliste, Statistik und Matches eintragen."
+
+msgid "Penalties, payments and the financial overview."
+msgstr "Strafen, Zahlungen und Finanzübersicht."
+
+msgid "Penalty access"
+msgstr "Zugriff Penalty"
+
+msgid "Elo access"
+msgstr "Zugriff Elo"
+
+msgid "Elo login name"
+msgstr "Elo-Anmeldename"
+
+msgid "Where you land after login."
+msgstr "Wo du nach der Anmeldung landest."
+
+msgid "Your Elo month at a glance, sent on the first of each month."
+msgstr "Dein Elo-Monat auf einen Blick, am Ersten jedes Monats."
+
+msgid "start page"
+msgstr "Startseite"
+
+msgid "monthly Elo summary"
+msgstr "monatlicher Elo-Bericht"
+
+msgid "E-mail when a match of yours is entered, edited or deleted."
+msgstr "E-Mail, wenn ein Match von dir eingetragen, bearbeitet oder gelöscht wird."
+
+msgid "My overview"
+msgstr "Meine Übersicht"
+
+msgid "Club default"
+msgstr "Vereins-Standard"
+
+msgid "Changing it recalculates every match of this player."
+msgstr "Eine Änderung berechnet alle Matches dieses Spielers neu."
+
+msgid "e.g. 120, 100"
+msgstr "z. B. 120, 100"
+
+msgid "Format"
+msgstr "Format"
+
+msgid "180s"
+msgstr "180er"
+
+msgid "Entry date"
+msgstr "Eintrittsdatum"
+
+msgid "Existing person"
+msgstr "Vorhandene Person"
+
+msgid "Only numbers separated by commas."
+msgstr "Nur Zahlen, durch Komma getrennt."
+
+msgid "Pick a person who is already in the club portal (e.g. from the penalty module)."
+msgstr "Eine Person wählen, die schon im Portal ist (z. B. aus dem Penalty-Bereich)."
+
+msgid "Start Elo"
+msgstr "Start-Elo"
+
+msgid "— new person —"
+msgstr "— neue Person —"
+
+msgid "Pick an existing person or enter a name."
+msgstr "Eine vorhandene Person wählen oder einen Namen eingeben."
+
+msgid "The player is part of the ranking from this day on."
+msgstr "Ab diesem Tag ist der Spieler Teil der Rangliste."
+
+msgid "Elo match deleted: you vs %(opp)s %(m)s:%(t)s"
+msgstr "Elo-Match gelöscht: du gegen %(opp)s %(m)s:%(t)s"
+
+msgid "Corrected: "
+msgstr "Korrigiert: "
+
+msgid "Elo match vs %(opp)s: %(m)s:%(t)s (%(c)s Elo)"
+msgstr "Elo-Match gegen %(opp)s: %(m)s:%(t)s (%(c)s Elo)"
+
+msgid "Your Elo month %(month)s"
+msgstr "Dein Elo-Monat %(month)s"
+
+msgid "Pos."
+msgstr "Pl."
+
+msgid "created"
+msgstr "erstellt"
+
+msgid "%(name)s can play again."
+msgstr "%(name)s kann wieder spielen."
+
+msgid "Match saved: %(a)s %(sa)s:%(sb)s %(b)s"
+msgstr "Match gespeichert: %(a)s %(sa)s:%(sb)s %(b)s"
+
+msgid "Match updated - the ranking was recalculated."
+msgstr "Match geändert – die Rangliste wurde neu berechnet."
+
+msgid "%(name)s is now in the Elo ranking."
+msgstr "%(name)s ist jetzt in der Elo-Rangliste."
+
+msgid "%(name)s is disabled: stays in the ranking, cannot play new matches."
+msgstr "%(name)s ist gesperrt: bleibt in der Rangliste, kann aber keine neuen Matches spielen."
+
+msgid "Match deleted - the ranking was recalculated."
+msgstr "Match gelöscht – die Rangliste wurde neu berechnet."
+
+msgid "Player saved."
+msgstr "Spieler gespeichert."
+
+msgid "Recalculated %(m)s matches of %(p)s players."
+msgstr "%(m)s Matches von %(p)s Spielern neu berechnet."
+
+msgid "Payment confirmations"
+msgstr "Zahlungsbestätigungen"
+
+msgid "Winner"
+msgstr "Sieger"
+
+msgid "Next page"
+msgstr "Nächste Seite"
+
+msgid "Previous page"
+msgstr "Vorherige Seite"
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 

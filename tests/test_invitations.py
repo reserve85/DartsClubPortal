@@ -116,7 +116,7 @@ def test_accept_view_is_public(admin_client, admin_user):
     # authenticated visitors are sent to the application instead
     response = admin_client.get(_accept_url(invitation))
     assert response.status_code == 302
-    assert response.url == reverse("dashboard:index")
+    assert response.url == reverse("home")
 
 
 def test_unknown_token_is_a_plain_404(client):

@@ -42,7 +42,7 @@
                 <td>{{ entry.get_action_display }}</td>
                 <td>{{ entry.user.email|default:"–" }}</td>
                 <td><code>{{ entry.target_type }}#{{ entry.target_id }}</code>
-                    {% if entry.metadata %}<span class="text-muted small">{{ entry.metadata }}</span>{% endif %}
+                    {% if entry.metadata %}<span class="audit-meta">{{ entry.metadata }}</span>{% endif %}
                 </td>
             </tr>
         {% empty %}

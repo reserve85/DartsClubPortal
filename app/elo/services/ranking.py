@@ -281,12 +281,16 @@ def elo_history(player_id: int) -> list[dict]:
     ]
 
 
-def average_history(player_id: int) -> list[dict]:
+def average_history(player_id: int, window: int = 5) -> list[dict]:
+    """Averages per match plus a rolling mean over ``window`` matches (calmer chart)."""
     out = []
     for m in player_matches(player_id):
         avg = m.stat(player_id, "average")
         if avg is not None:
             out.append({"date": m.date.isoformat(), "average": avg, "match_id": m.id})
+    for i, row in enumerate(out):
+        chunk = [r["average"] for r in out[max(0, i - window + 1) : i + 1]]
+        row["rolling"] = round(sum(chunk) / len(chunk), 2)
     return out
 
 

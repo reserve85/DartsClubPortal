@@ -1,0 +1,11 @@
+{% extends "emails/base_email.txt" %}{% load i18n %}{% block content %}{% blocktranslate with name=player.name %}Hi {{ name }}, here is your month in the Elo ranking:{% endblocktranslate %}
+
+{% translate "Position" %}: #{{ me.position }} ({% blocktranslate with n=field_size %}of {{ n }}{% endblocktranslate %})
+{% translate "Elo" %}: {{ me.elo|floatformat:0 }} ({{ me.elo_change|floatformat:"+1" }})
+{% translate "Matches" %}: {{ stats.wins }}–{{ stats.losses }}
+
+{% translate "Top 5 of the club" %}
+{% for e in top %}{{ e.position }}. {{ e.name }} {{ e.elo|floatformat:0 }} ({{ e.elo_change|floatformat:"+1" }})
+{% endfor %}
+{{ ranking_url }}
+{% endblock %}

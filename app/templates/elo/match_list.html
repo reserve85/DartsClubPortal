@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Matches" %} – {{ site_name }}{% endblock %}
+{% block content %}
+<div class="ui-hero">
+    <div class="ui-hero-head">
+        <div class="min-w-0">
+            <h1 class="ui-hero-title h3">{% translate "Matches" %}</h1>
+            <div class="ui-hero-sub">{% if page.paginator.count == 1 %}{% blocktranslate with n=page.paginator.count %}{{ n }} match{% endblocktranslate %}{% else %}{% blocktranslate with n=page.paginator.count %}{{ n }} matches{% endblocktranslate %}{% endif %}</div>
+        </div>
+        <div class="ui-hero-actions">
+            <a class="btn btn-primary btn-sm" href="{% url 'elo:match_create' %}">＋ {% translate "Enter match" %}</a>
+        </div>
+    </div>
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-12 col-md-5">
+            <label class="form-label small mb-1" for="f-player">{% translate "Player" %}</label>
+            <select id="f-player" name="player" class="form-select">
+                <option value="">{% translate "All players" %}</option>
+                {% for p in players %}<option value="{{ p.pk }}"{% if p.pk == selected_player %} selected{% endif %}>{{ p.name }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small mb-1" for="f-from">{% translate "From" %}</label>
+            <input id="f-from" type="date" name="from" class="form-control" value="{{ date_from|date:'Y-m-d' }}">
+        </div>
+        <div class="col-6 col-md-3">
+            <label class="form-label small mb-1" for="f-to">{% translate "To" %}</label>
+            <input id="f-to" type="date" name="to" class="form-control" value="{{ date_to|date:'Y-m-d' }}">
+        </div>
+        <div class="col-12 col-md-1 d-grid">
+            <button type="submit" class="btn btn-outline-secondary">{% translate "Filter" %}</button>
+        </div>
+    </form>
+</div>
+
+{% if page.object_list %}
+<div class="ui-list" role="list">
+    {% for m in page.object_list %}
+    <a class="ui-row" role="listitem" href="{% url 'elo:match_detail' m.pk %}">
+        <span class="main">
+            <span class="name d-block">
+                <span{% if m.winner_id == m.player_a_id %} class="ui-gain"{% endif %}>{{ m.player_a.name }}</span>
+                <span class="text-muted fw-normal">–</span>
+                <span{% if m.winner_id == m.player_b_id %} class="ui-gain"{% endif %}>{{ m.player_b.name }}</span>
+            </span>
+            <span class="sub d-block">{{ m.date|date:"d.m.Y" }} · {% blocktranslate with n=m.best_of_legs %}Best of {{ n }}{% endblocktranslate %}{% if m.a_average or m.b_average %} · Ø {{ m.a_average|default:"–"|floatformat:1 }} / {{ m.b_average|default:"–"|floatformat:1 }}{% endif %}</span>
+        </span>
+        <span class="val"><span class="big">{{ m.score_a|default_if_none:"–" }}:{{ m.score_b|default_if_none:"–" }}</span></span>
+        <span class="chev" aria-hidden="true">›</span>
+    </a>
+    {% endfor %}
+</div>
+{% if page.has_other_pages %}
+<nav class="ui-pager" aria-label="{% translate 'Pages' %}">
+    {% if page.has_previous %}<a class="btn btn-outline-secondary btn-sm" href="?{% if query %}{{ query }}&amp;{% endif %}page={{ page.previous_page_number }}">‹ {% translate "Newer" %}</a>{% else %}<span></span>{% endif %}
+    <span class="small text-muted">{% blocktranslate with n=page.number total=page.paginator.num_pages %}Page {{ n }} of {{ total }}{% endblocktranslate %}</span>
+    {% if page.has_next %}<a class="btn btn-outline-secondary btn-sm" href="?{% if query %}{{ query }}&amp;{% endif %}page={{ page.next_page_number }}">{% translate "Older" %} ›</a>{% else %}<span></span>{% endif %}
+</nav>
+{% endif %}
+{% else %}
+<div class="ui-card text-center text-muted">{% translate "No matches found." %}</div>
+{% endif %}
+{% if is_admin %}
+<div class="ui-actions mt-3">
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'elo:export_matches' %}">⬇ {% translate "Matches as CSV" %}</a>
+</div>
+{% endif %}
+<a class="btn btn-primary ui-fab" href="{% url 'elo:match_create' %}">＋ {% translate "Match" %}</a>
+{% endblock %}

@@ -47,62 +47,57 @@
         <div class="collapse navbar-collapse" id="mainNav">
             {% if request.user.is_authenticated %}
                 <ul class="navbar-nav me-auto">
-                    {# --- header order: Finanzübersicht – Spieltage – Verwaltung --- #}
-                    {% if modules.penalty %}
+                    {% if modules.elo and modules.penalty %}
                     <li class="nav-item">
-                        <a class="nav-link{% if nav_section == 'financial' %} active{% endif %}"
-                           href="{% url 'dashboard:index' %}">{% translate "Financial overview" %}</a>
+                        <a class="nav-link{% if nav_section == 'overview' %} active{% endif %}" href="{% url 'overview' %}">{% translate "Overview" %}</a>
                     </li>
                     {% endif %}
-
-                    {# --- Spieltage + Verwaltung: captains (penalty module) and admins --- #}
-                    {% if request.user.is_admin or request.user.is_captain and modules.penalty %}
-                        {% if modules.penalty %}
-                        <li class="nav-item">
-                            <a class="nav-link{% if nav_section == 'matchdays' %} active{% endif %}"
-                               href="{% url 'matchdays:matchday_list' %}">{% translate "Matchdays" %}</a>
-                        </li>
-                        {% endif %}
-
-                        <li class="nav-item nav-sep" aria-hidden="true"></li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle{% if nav_section == 'admin' %} active{% endif %}"
-                               href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                {% translate "Administration" %}
-                            </a>
-                            <ul class="dropdown-menu">
-                                {# teams, players and the penalty catalog live here now #}
-                                {% if modules.penalty %}
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'teams:team_list' %}">{% translate "Teams & Players" %}</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'penalties:catalog_list' %}">{% translate "Penalty catalog" %}</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'teams:cashier_list' %}">{% translate "Cash box" %}</a>
-                                </li>
-                                {% endif %}
-                                {% if request.user.is_admin %}
-                                    {% if modules.penalty %}
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <a class="dropdown-item" href="{% url 'season_list' %}">{% translate "Seasons" %}</a>
-                                    </li>
-                                    {% endif %}
-                                    <li>
-                                        <a class="dropdown-item" href="{% url 'accounts:user_list' %}">{% translate "Users" %}</a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="{% url 'audit_list' %}">{% translate "Audit" %}</a>
-                                    </li>
-                                {% endif %}
-                            </ul>
-                        </li>
+                    {% if modules.elo %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle{% if nav_section == 'elo' %} active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">🎯 {% translate "Elo" %}</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'elo:ranking' %}">{% translate "Ranking" %}</a></li>
+                            <li><a class="dropdown-item" href="{% url 'elo:match_create' %}">{% translate "Enter match" %}</a></li>
+                            <li><a class="dropdown-item" href="{% url 'elo:match_list' %}">{% translate "Matches" %}</a></li>
+                            <li><a class="dropdown-item" href="{% url 'elo:h2h' %}">{% translate "Head-to-head" %}</a></li>
+                            <li><a class="dropdown-item" href="{% url 'elo:all_time' %}">{% translate "All-time Elo" %}</a></li>
+                            {% if request.user.is_admin %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'elo:manage' %}">{% translate "Elo administration" %}</a></li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                    {% endif %}
+                    {% if modules.penalty %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle{% if nav_section == 'financial' or nav_section == 'matchdays' or nav_section == 'penalty_admin' %} active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">💶 Penalty</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'dashboard:financial_overview' %}">{% translate "Financial overview" %}</a></li>
+                            {% if request.user.is_admin or request.user.is_captain %}
+                            <li><a class="dropdown-item" href="{% url 'matchdays:matchday_list' %}">{% translate "Matchdays" %}</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'teams:team_list' %}">{% translate "Teams & Players" %}</a></li>
+                            <li><a class="dropdown-item" href="{% url 'penalties:catalog_list' %}">{% translate "Penalty catalog" %}</a></li>
+                            <li><a class="dropdown-item" href="{% url 'teams:cashier_list' %}">{% translate "Cash box" %}</a></li>
+                            {% endif %}
+                            {% if request.user.is_admin %}
+                            <li><a class="dropdown-item" href="{% url 'season_list' %}">{% translate "Seasons" %}</a></li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                    {% endif %}
+                    {% if request.user.is_admin %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle{% if nav_section == 'admin' %} active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">⚙️ {% translate "Administration" %}</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'accounts:user_list' %}">{% translate "Users" %}</a></li>
+                            <li><a class="dropdown-item" href="{% url 'audit_list' %}">{% translate "Audit" %}</a></li>
+                        </ul>
+                    </li>
                     {% endif %}
                 </ul>
             {% endif %}
-            {% if seasons %}
+            {% if seasons and penalty_page %}
                 <form method="post" action="{% url 'season_set' %}" class="d-flex align-items-center gap-1 me-lg-3 mb-2 mb-lg-0">
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{{ request.get_full_path }}">
@@ -130,7 +125,7 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'notifications:unread' %}"
                            title="{% translate 'Notifications' %}">
-                            🔔 {% translate "Notifications" %}
+                            <span class="nav-icon" aria-hidden="true">🔔</span><span class="d-lg-none"> {% translate "Notifications" %}</span>
                             {% if unread_notification_count %}<span class="badge text-bg-warning">{{ unread_notification_count }}</span>{% endif %}
                         </a>
                     </li>
@@ -144,9 +139,9 @@
                         </li>
                     {% endif %}
                     <li class="nav-item">
-                        <a class="nav-link nav-user" href="{% url 'accounts:settings' %}">
+                        <a class="nav-link nav-user" href="{% url 'accounts:settings' %}" title="{% translate 'Settings' %}">
                             <span class="ui-avatar xs" data-name="{{ request.user.full_name|default:request.user.email }}" aria-hidden="true"></span>
-                            {% translate "Settings" %}
+                            <span class="d-lg-none">{% translate "Settings" %}</span>
                         </a>
                     </li>
                     <li class="nav-item">

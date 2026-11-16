@@ -1,0 +1,50 @@
+{% extends "emails/base_email.html" %}{% load i18n %}
+{% block subject %}{% blocktranslate with month=month|date:"F Y" %}Your Elo month: {{ month }}{% endblocktranslate %}{% endblock %}
+{% block content %}
+<p>{% blocktranslate with name=player.name %}Hi {{ name }}, here is your month in the Elo ranking:{% endblocktranslate %}</p>
+<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:separate;border-spacing:6px;">
+    <tr>
+        <td style="background:#f4f6fa;border-radius:8px;padding:12px;text-align:center;width:33%;">
+            <div style="font-size:11px;color:#6c757d;text-transform:uppercase;">{% translate "Position" %}</div>
+            <div style="font-size:22px;font-weight:bold;">#{{ me.position }}</div>
+            <div style="font-size:12px;color:#6c757d;">{% blocktranslate with n=field_size %}of {{ n }}{% endblocktranslate %}{% if me.position_change %} · {{ me.position_change|stringformat:"+d" }}{% endif %}</div>
+        </td>
+        <td style="background:#f4f6fa;border-radius:8px;padding:12px;text-align:center;width:33%;">
+            <div style="font-size:11px;color:#6c757d;text-transform:uppercase;">{% translate "Elo" %}</div>
+            <div style="font-size:22px;font-weight:bold;">{{ me.elo|floatformat:0 }}</div>
+            <div style="font-size:12px;font-weight:bold;color:{% if me.elo_change >= 0 %}#2fb344{% else %}#d63939{% endif %};">{{ me.elo_change|floatformat:"+1" }}</div>
+        </td>
+        <td style="background:#f4f6fa;border-radius:8px;padding:12px;text-align:center;width:33%;">
+            <div style="font-size:11px;color:#6c757d;text-transform:uppercase;">{% translate "Matches" %}</div>
+            <div style="font-size:22px;font-weight:bold;">{{ stats.wins }}–{{ stats.losses }}</div>
+            <div style="font-size:12px;color:#6c757d;">{% translate "won – lost" %}</div>
+        </td>
+    </tr>
+</table>
+{% if stats.matches %}
+<p style="font-size:14px;">
+    {% translate "Legs" %}: {{ stats.legs_won }}:{{ stats.legs_lost }}
+    {% if stats.total_180s %} · 180er: {{ stats.total_180s }}{% endif %}
+    {% if stats.high_finishes %} · {% translate "Best finish" %}: {{ stats.high_finishes.0 }}{% endif %}
+    {% if stats.low_darts %} · {% translate "Low darts" %}: {{ stats.low_darts.0 }}{% endif %}
+    {% if stats.average %} · {% translate "Average" %}: {{ stats.average|floatformat:2 }}{% endif %}
+</p>
+{% else %}
+<p style="font-size:14px;color:#6c757d;">{% translate "No match this month - see you at the board!" %}</p>
+{% endif %}
+<h2 style="font-size:16px;margin:20px 0 8px;">{% translate "Top 5 of the club" %}</h2>
+<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;">
+    {% for e in top %}
+    <tr>
+        <td style="padding:6px 0;border-bottom:1px solid #e9ecef;width:32px;font-weight:bold;">{{ e.position }}.</td>
+        <td style="padding:6px 0;border-bottom:1px solid #e9ecef;">{{ e.name }}</td>
+        <td style="padding:6px 0;border-bottom:1px solid #e9ecef;text-align:right;white-space:nowrap;">{{ e.elo|floatformat:0 }} <span style="color:{% if e.elo_change >= 0 %}#2fb344{% else %}#d63939{% endif %};font-size:12px;">{{ e.elo_change|floatformat:"+1" }}</span></td>
+    </tr>
+    {% endfor %}
+</table>
+<p style="font-size:14px;margin-top:12px;">
+    {% if month_matches == 1 %}{% blocktranslate with n=month_matches %}{{ n }} match played in the club.{% endblocktranslate %}{% else %}{% blocktranslate with n=month_matches %}{{ n }} matches played in the club.{% endblocktranslate %}{% endif %}
+    {% if mover and mover.elo_change > 0 %}{% blocktranslate with name=mover.name change=mover.elo_change|floatformat:"+1" %}Climber of the month: {{ name }} ({{ change }}).{% endblocktranslate %}{% endif %}
+</p>
+<p style="margin-top:16px;"><a href="{{ ranking_url }}" style="background:#206bc4;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none;display:inline-block;">{% translate "Open the ranking" %}</a></p>
+{% endblock %}

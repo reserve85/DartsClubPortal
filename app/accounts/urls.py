@@ -7,12 +7,14 @@ application-specific pages live here.
 
 from django.urls import path
 
-from app.accounts import views
+from app.accounts import qr, views
 
 app_name = "accounts"
 
 urlpatterns = [
     path("settings/", views.SettingsView.as_view(), name="settings"),
+    path("qr/", qr.QrLoginView.as_view(), name="qr_login"),
+    path("users/<int:pk>/qr/", qr.UserQrCodeView.as_view(), name="user_qr"),
     path("settings/theme/", views.ThemeUpdateView.as_view(), name="settings_theme"),
     path("users/", views.UserListView.as_view(), name="user_list"),
     path("users/create/", views.UserCreateView.as_view(), name="user_create"),

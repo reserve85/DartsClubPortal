@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "QR login" %} – {{ site_name }}{% endblock %}
+{% block content %}
+<div class="ui-hero">
+    <div class="ui-hero-head">
+        <span class="ui-avatar lg" data-name="{{ target.full_name|default:target.email }}"></span>
+        <div class="min-w-0">
+            <h1 class="ui-hero-title h3">{% translate "QR login" %}</h1>
+            <div class="ui-hero-sub text-truncate">{{ target.email }}</div>
+        </div>
+    </div>
+</div>
+{% if allowed %}
+<div class="ui-card text-center">
+    <img src="{{ png }}" alt="{% translate 'QR code for the login' %}" class="img-fluid" style="max-width: 320px; image-rendering: pixelated;">
+    <p class="small text-muted mt-3 mb-1">{% translate "Scanning this code logs in this account without a password – print it only for shared club accounts (e.g. the tablet at the board)." %}</p>
+    <p class="small text-muted mb-0">{% translate "Changing the account's password makes every printed code invalid." %}</p>
+    <div class="ui-actions justify-content-center mt-3">
+        <button type="button" class="btn btn-primary" data-print>{% translate "Print" %}</button>
+        <a class="btn btn-outline-secondary" href="{% url 'accounts:user_list' %}">{% translate "Back" %}</a>
+    </div>
+</div>
+{% else %}
+<div class="ui-card">
+    <p class="mb-2">{% translate "A QR code is only possible for active, approved accounts that are not admins and have a password." %}</p>
+    <a class="btn btn-outline-secondary" href="{% url 'accounts:user_list' %}">{% translate "Back" %}</a>
+</div>
+{% endif %}
+{% endblock %}
+{% block extra_js %}<script>document.querySelectorAll("[data-print]").forEach(function (b) { b.addEventListener("click", function () { window.print(); }); });</script>{% endblock %}

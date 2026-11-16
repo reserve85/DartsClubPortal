@@ -6,14 +6,7 @@
 <form method="post" novalidate class="card card-body">
     {% csrf_token %}
     {% include "includes/_form_errors.html" with form=form %}
-    {% for field in form %}
-        <div class="mb-3">
-            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-            {{ field }}
-            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
-            {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
-        </div>
-    {% endfor %}
+    {% for field in form %}{% include "includes/_field.html" %}{% endfor %}
     <div class="d-flex gap-2">
         <button type="submit" class="btn btn-primary">{% translate "Save" %}</button>
         <a class="btn btn-outline-secondary" href="{% url 'accounts:user_list' %}">{% translate "Cancel" %}</a>

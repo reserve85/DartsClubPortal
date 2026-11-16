@@ -17,7 +17,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from app.accounts.managers import UserManager
-from app.core.choices import PenaltyNotifyChoice, RoleChoice, ThemeChoice
+from app.core.choices import PenaltyNotifyChoice, RoleChoice, StartPageChoice, ThemeChoice
 from app.core.permissions import (
     _invalidate_role_cache,
     user_is_admin,
@@ -122,6 +122,33 @@ class User(AbstractUser):
         default=True,
         help_text=_("One e-mail per recorded repayment (receipt)."),
     )
+    elo_match_notify = models.BooleanField(
+        _("Elo match results"),
+        default=True,
+        help_text=_("E-mail when a match of yours is entered, edited or deleted."),
+    )
+    elo_monthly_summary = models.BooleanField(
+        _("monthly Elo summary"),
+        default=True,
+        help_text=_("Your Elo month at a glance, sent on the first of each month."),
+    )
+    # -- module access: an account can be limited to single modules (e.g. an
+    # Elo-only account that only enters matches). Admins always see all.
+    elo_access = models.BooleanField(_("Elo access"), default=True)
+    penalty_access = models.BooleanField(_("Penalty access"), default=True)
+    start_page = models.CharField(
+        _("start page"),
+        max_length=16,
+        choices=StartPageChoice.choices,
+        default=StartPageChoice.AUTO,
+        help_text=_("Where you land after login."),
+    )
+    # Login name of an account imported from the Elo system: keeps old
+    # printed QR codes (username + password) working.
+    legacy_username = models.CharField(
+        _("Elo login name"), max_length=100, unique=True, null=True, blank=True
+    )
+    legacy_elo_id = models.PositiveIntegerField(null=True, blank=True, unique=True, editable=False)
     club_news_optin = models.BooleanField(
         _("club news"),
         default=True,

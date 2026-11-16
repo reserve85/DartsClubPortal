@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Edit match" %} – {{ site_name }}{% endblock %}
+{% block content %}
+<form method="post" novalidate>
+    {% csrf_token %}
+    <div class="ui-hero is-duo">
+        <h1 class="ui-hero-title mb-1 h3">{% translate "Edit match" %}</h1>
+        <div class="ui-hero-sub mb-3">{{ match.player_a.name }} – {{ match.player_b.name }}</div>
+        {% include "includes/_form_errors.html" with form=form %}
+        {% if duplicate %}
+        <div class="alert alert-warning" role="alert">
+            {% translate "A match with the same result on the same day already exists." %}
+            <div class="mt-2"><button type="submit" name="force" value="True" class="btn btn-warning btn-sm">{% translate "Save anyway" %}</button></div>
+        </div>
+        {% endif %}
+        <div class="row g-2">
+            <div class="col-6">
+                <label class="form-label small mb-1" for="{{ form.score_a.id_for_label }}">{% translate "Legs" %} {{ match.player_a.name }}</label>
+                {{ form.score_a }}
+                {% for e in form.score_a.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="col-6">
+                <label class="form-label small mb-1" for="{{ form.score_b.id_for_label }}">{% translate "Legs" %} {{ match.player_b.name }}</label>
+                {{ form.score_b }}
+                {% for e in form.score_b.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="col-6">
+                <label class="form-label small mb-1" for="{{ form.match_date.id_for_label }}">{{ form.match_date.label }}</label>
+                {{ form.match_date }}
+                {% for e in form.match_date.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="col-6">
+                <label class="form-label small mb-1" for="{{ form.best_of_legs.id_for_label }}">{{ form.best_of_legs.label }}</label>
+                {{ form.best_of_legs }}
+            </div>
+        </div>
+    </div>
+    <div class="ui-card">
+        {% include "elo/_stats_fields.html" %}
+    </div>
+    <p class="text-muted small mt-2">{% translate "Saving recalculates the Elo of every later match of both players." %}</p>
+    <div class="ui-actions">
+        <button type="submit" class="btn btn-primary">{% translate "Save changes" %}</button>
+        <a class="btn btn-outline-secondary" href="{% url 'elo:match_detail' match.pk %}">{% translate "Cancel" %}</a>
+    </div>
+</form>
+{% endblock %}

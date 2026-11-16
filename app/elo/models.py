@@ -64,6 +64,16 @@ class EloDisablePeriod(models.Model):
         ordering: ClassVar[list] = ["disabled_from"]
 
 
+class EloMonthlyReport(models.Model):
+    """Marks a month whose summary mails went out (never twice)."""
+
+    month = models.DateField(unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.month.strftime("%Y-%m")
+
+
 class Match(models.Model):
     """One singles match with its result, Elo snapshots and dart statistics."""
 

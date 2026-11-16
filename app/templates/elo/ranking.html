@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Elo ranking" %} – {{ site_name }}{% endblock %}
+{% block content %}
+<div class="ui-hero is-brand">
+    <div class="ui-hero-head">
+        <div class="min-w-0">
+            <h1 class="ui-hero-title h3">{% translate "Elo ranking" %}</h1>
+            <div class="ui-hero-sub">{{ period.from|date:"d.m.Y" }} – {{ period.to|date:"d.m.Y" }} · {% if match_count == 1 %}{% blocktranslate with n=match_count %}{{ n }} match{% endblocktranslate %}{% else %}{% blocktranslate with n=match_count %}{{ n }} matches{% endblocktranslate %}{% endif %}</div>
+        </div>
+        <div class="ui-hero-actions d-none d-lg-flex">
+            <a class="btn btn-primary" href="{% url 'elo:match_create' %}">＋ {% translate "Enter match" %}</a>
+        </div>
+    </div>
+    {% include "elo/_period.html" %}
+    <div class="form-check form-switch mb-0">
+        <input class="form-check-input" type="checkbox" role="switch" id="inactive-switch" data-toggle-param="inactive"{% if include_inactive %} checked{% endif %}>
+        <label class="form-check-label small" for="inactive-switch">{% translate "Show inactive and disabled players" %}</label>
+    </div>
+</div>
+
+{% if podium %}
+<div class="ui-podium" aria-label="{% translate 'Top three' %}">
+    {% with p=podium.1 %}<a class="step p2" href="{% url 'elo:player_detail' p.player_id %}"><span class="ui-avatar lg is-ring" data-name="{{ p.name }}"></span><div class="nm">{{ p.name }}</div><div class="block"><span class="medal" aria-hidden="true">🥈</span> {{ p.elo|floatformat:0 }}</div></a>{% endwith %}
+    {% with p=podium.0 %}<a class="step p1" href="{% url 'elo:player_detail' p.player_id %}"><span class="ui-avatar xl is-ring" data-name="{{ p.name }}"></span><div class="nm">{{ p.name }}</div><div class="block"><span class="medal" aria-hidden="true">🥇</span> {{ p.elo|floatformat:0 }}</div></a>{% endwith %}
+    {% with p=podium.2 %}<a class="step p3" href="{% url 'elo:player_detail' p.player_id %}"><span class="ui-avatar lg is-ring" data-name="{{ p.name }}"></span><div class="nm">{{ p.name }}</div><div class="block"><span class="medal" aria-hidden="true">🥉</span> {{ p.elo|floatformat:0 }}</div></a>{% endwith %}
+</div>
+{% endif %}
+
+{% if entries %}
+<div class="ui-list" role="list">
+    {% for e in entries %}
+    <a class="ui-row{% if e.player_id == my_player_id %} is-me{% endif %}{% if e.disabled or e.inactive and not e.matches %} is-muted{% endif %}" role="listitem"
+       href="{% url 'elo:player_detail' e.player_id %}?period={{ period.key }}{% if period.key == 'custom' %}&amp;from={{ period.from|date:'Y-m-d' }}&amp;to={{ period.to|date:'Y-m-d' }}{% endif %}">
+        <span class="pos">{{ e.position }}</span>
+        <span class="ui-avatar sm{% if e.disabled %} is-off{% endif %}" data-name="{{ e.name }}"></span>
+        <span class="main">
+            <span class="name d-block{% if e.disabled %} ui-strike{% endif %}">{{ e.name }}</span>
+            <span class="sub d-block">{% if e.matches %}{% if e.matches == 1 %}{% blocktranslate with n=e.matches %}{{ n }} match{% endblocktranslate %}{% else %}{% blocktranslate with n=e.matches %}{{ n }} matches{% endblocktranslate %}{% endif %} · {{ e.wins }} {% translate "won" %}{% else %}{% translate "no match in this period" %}{% endif %}{% if e.total_180s %} · {{ e.total_180s }}×180{% endif %}{% if e.best_high_finish %} · HF {{ e.best_high_finish }}{% endif %}{% if e.inactive %} · {% translate "inactive" %}{% endif %}{% if e.disabled %} · {% translate "disabled" %}{% endif %}</span>
+        </span>
+        <span class="val">
+            <span class="big d-block">{{ e.elo|floatformat:0 }}</span>
+            {% include "elo/_delta.html" with value=e.elo_change %}{% if e.position_change %}<span class="ui-delta {% if e.position_change > 0 %}up{% else %}down{% endif %} ms-1">{% if e.position_change > 0 %}↑{{ e.position_change }}{% else %}↓{{ e.position_change|cut:"-" }}{% endif %}</span>{% endif %}
+        </span>
+    </a>
+    {% endfor %}
+</div>
+<p class="text-muted small mt-2">{% blocktranslate with n=field_size %}Positions count the full field of {{ n }} players (inactive and disabled included).{% endblocktranslate %}</p>
+{% else %}
+<div class="ui-card text-center text-muted">{% translate "No players in the ranking for this period yet." %}</div>
+{% endif %}
+
+<div class="ui-actions mt-3">
+    <a class="btn btn-outline-secondary" href="{% url 'elo:h2h' %}">⚔️ {% translate "Head-to-head" %}</a>
+    <a class="btn btn-outline-secondary" href="{% url 'elo:all_time' %}">🏆 {% translate "All-time Elo" %}</a>
+    <a class="btn btn-outline-secondary" href="{% url 'elo:match_list' %}">📋 {% translate "Matches" %}</a>
+</div>
+<a class="btn btn-primary ui-fab" href="{% url 'elo:match_create' %}">＋ {% translate "Match" %}</a>
+{% endblock %}

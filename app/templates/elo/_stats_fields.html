@@ -1,0 +1,18 @@
+{% load i18n %}
+{# Optional dart statistics, side by side for player A / B. Needs: form #}
+<details class="ui-more"{% if form.a_180s.value or form.b_180s.value or form.a_high_finishes.value or form.b_high_finishes.value or form.a_low_darts.value or form.b_low_darts.value or form.a_average.value or form.b_average.value %} open{% endif %}>
+    <summary>{% translate "Statistics (optional)" %}</summary>
+    <div class="row g-2">
+        <div class="col-6"><div class="small fw-bold text-truncate mb-1" data-name-of="a">{% translate "Player A" %}</div></div>
+        <div class="col-6"><div class="small fw-bold text-truncate mb-1" data-name-of="b">{% translate "Player B" %}</div></div>
+        <div class="col-6"><label class="form-label small mb-1" for="{{ form.a_180s.id_for_label }}">180er</label>{{ form.a_180s }}</div>
+        <div class="col-6"><label class="form-label small mb-1" for="{{ form.b_180s.id_for_label }}">180er</label>{{ form.b_180s }}</div>
+        <div class="col-6"><label class="form-label small mb-1" for="{{ form.a_high_finishes.id_for_label }}">{% translate "High finishes" %}</label>{{ form.a_high_finishes }}</div>
+        <div class="col-6"><label class="form-label small mb-1" for="{{ form.b_high_finishes.id_for_label }}">{% translate "High finishes" %}</label>{{ form.b_high_finishes }}</div>
+        <div class="col-6"><label class="form-label small mb-1" for="{{ form.a_low_darts.id_for_label }}">{% translate "Low darts" %}</label>{{ form.a_low_darts }}</div>
+        <div class="col-6"><label class="form-label small mb-1" for="{{ form.b_low_darts.id_for_label }}">{% translate "Low darts" %}</label>{{ form.b_low_darts }}</div>
+        <div class="col-6"><label class="form-label small mb-1" for="{{ form.a_average.id_for_label }}">{% translate "Average" %}</label>{{ form.a_average }}</div>
+        <div class="col-6"><label class="form-label small mb-1" for="{{ form.b_average.id_for_label }}">{% translate "Average" %}</label>{{ form.b_average }}</div>
+    </div>
+    <p class="form-text mb-0">{% blocktranslate %}High finishes 100–170 (one per won leg), low darts 9–21 darts per won leg, several values separated by commas.{% endblocktranslate %}</p>
+</details>

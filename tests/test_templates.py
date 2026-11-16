@@ -129,13 +129,14 @@ def test_anonymous_redirected_to_login(db):
 # Navigation: Übersicht/Finanzen | Team area | Administration
 # ---------------------------------------------------------------------------
 def test_admin_sees_all_nav_groups(admin_client):
+    """Top menu: Overview · Elo ▾ · Penalty ▾ · Administration ▾ (admin)."""
     content = admin_client.get(reverse("dashboard:index")).content.decode()
-    assert "nav-sep" in content  # group separators
-    # One single entry: the start page IS the financial overview now.
-    assert f'href="{reverse("dashboard:index")}"' in content
-    assert reverse("dashboard:financial_overview") not in content
-    assert reverse("teams:team_list") in content  # team area (combined page)
-    assert reverse("accounts:user_list") in content  # admin area
+    assert reverse("overview") in content
+    assert reverse("elo:ranking") in content
+    assert reverse("elo:manage") in content  # Elo administration (admin only)
+    assert reverse("dashboard:financial_overview") in content
+    assert reverse("teams:team_list") in content
+    assert reverse("accounts:user_list") in content
     assert reverse("season_list") in content
 
 
@@ -148,20 +149,16 @@ def test_admin_menu_order_seasons_users_audit(admin_client):
     assert seasons < users < audit
 
 
-def test_header_order_financial_matchdays_administration(admin_client):
-    """Header: Finanzübersicht – Spieltage – Verwaltung (no team folder anymore)."""
+def test_header_order_elo_penalty_administration(admin_client):
+    """Header: Overview – Elo – Penalty – Administration."""
     content = admin_client.get(reverse("dashboard:index")).content.decode()
-    financial = content.index(f'href="{reverse("dashboard:index")}"')
+    overview = content.index(f'href="{reverse("overview")}"')
+    elo = content.index(f'href="{reverse("elo:ranking")}"')
+    financial = content.index(f'href="{reverse("dashboard:financial_overview")}"')
     matchdays = content.index(f'href="{reverse("matchdays:matchday_list")}"')
-    administration = content.index(f'href="{reverse("season_list")}"')
-    assert financial < matchdays < administration
-    # Mannschaften & Spieler + Strafkatalog moved INTO the Verwaltung dropdown …
-    assert reverse("teams:team_list") in content
-    assert reverse("penalties:catalog_list") in content
-    # … and the old "Mannschaft" folder (team area dropdown) is gone:
-    # only ONE group separator remains (financial | Spieltage + Verwaltung).
-    assert content.count("nav-sep") == 1
-    assert 'href="#" role="button" data-bs-toggle="dropdown"' in content  # Verwaltung
+    users = content.index(f'href="{reverse("accounts:user_list")}"')
+    assert overview < elo < financial < matchdays < users
+    assert content.count('role="button" data-bs-toggle="dropdown"') == 3
 
 
 def test_delete_lives_on_the_edit_page_deactivation_is_the_checkbox(admin_client, team, player):
@@ -231,18 +228,20 @@ def test_delete_lives_on_the_edit_page_app_wide(
 
 def test_captain_nav_has_team_area_without_admin_area(captain_client, team):
     content = captain_client.get(reverse("dashboard:index")).content.decode()
-    assert "nav-sep" in content
     assert reverse("teams:team_list") in content  # combined Teams & Players page
+    assert reverse("matchdays:matchday_list") in content
     assert reverse("accounts:user_list") not in content
     assert reverse("season_list") not in content
+    assert reverse("elo:manage") not in content  # captains are no Elo admins
 
 
 def test_player_nav_only_shows_user_pages(player_client):
     content = player_client.get(reverse("dashboard:index")).content.decode()
-    assert f'href="{reverse("dashboard:index")}"' in content  # financial = start page
+    assert f'href="{reverse("dashboard:financial_overview")}"' in content
+    assert reverse("matchdays:matchday_list") not in content
     assert reverse("players:player_list") not in content
     assert reverse("accounts:user_list") not in content
-    assert "nav-sep" not in content
+    assert reverse("elo:manage") not in content
 
 
 def test_navbar_follows_color_mode(db):

@@ -2,74 +2,95 @@
 {% load i18n %}
 {% block title %}{% translate "Settings" %} – {{ site_name }}{% endblock %}
 {% block content %}
-<h1 class="h3 mb-3">{% translate "Settings" %}</h1>
-<div class="row g-4">
-    <div class="col-md-6">
-        <form method="post" novalidate class="card card-body">
-            <h2 class="h5 card-title">{% translate "Preferences" %}</h2>
+<div class="ui-hero">
+    <div class="ui-hero-head">
+        <span class="ui-avatar lg" data-name="{{ request.user.full_name|default:request.user.email }}"></span>
+        <div class="min-w-0">
+            <h1 class="ui-hero-title h3">{% translate "Settings" %}</h1>
+            <div class="ui-hero-sub text-truncate">{{ request.user.email }}{% if request.user.player_link %} · {{ request.user.player_link.name }}{% endif %}</div>
+        </div>
+    </div>
+</div>
+<div class="row g-3">
+    <div class="col-lg-7">
+        <form method="post" novalidate>
             {% csrf_token %}
             {% include "includes/_form_errors.html" with form=form %}
-            <div class="mb-3">
-                <label for="{{ form.preferred_language.id_for_label }}" class="form-label">{{ form.preferred_language.label }}</label>
-                {{ form.preferred_language }}
-                {% for error in form.preferred_language.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
-            </div>
-            <div class="mb-3">
-                <label for="{{ form.preferred_theme.id_for_label }}" class="form-label">{{ form.preferred_theme.label }}</label>
-                {{ form.preferred_theme }}
-                {% for error in form.preferred_theme.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
-            </div>
-
-            <hr class="my-3">
-            <h2 class="h5 card-title">{% translate "Notifications" %}</h2>
-            <p class="text-muted small">{% translate "Invitations, approval decisions, password and verification mails are always sent." %}</p>
-
-            {# 1) New penalties: Off / quick (collected) / daily digest + time #}
-            <div class="mb-3">
-                <span class="form-label d-block">{{ form.penalty_notify_mode.label }}</span>
-                <div class="radio-group">{{ form.penalty_notify_mode }}</div>
-                {% for error in form.penalty_notify_mode.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
-                <div id="digest-time-row" class="mt-2">
-                    <label for="{{ form.penalty_notify_time.id_for_label }}" class="form-label">{{ form.penalty_notify_time.label }}</label>
-                    {{ form.penalty_notify_time }}
-                    {% for error in form.penalty_notify_time.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+            <div class="ui-card">
+                <h2 class="ui-section-title h5">{% translate "Display" %}</h2>
+                <div class="row g-2">
+                    <div class="col-sm-6">
+                        <label for="{{ form.preferred_language.id_for_label }}" class="form-label">{{ form.preferred_language.label }}</label>
+                        {{ form.preferred_language }}
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="{{ form.preferred_theme.id_for_label }}" class="form-label">{{ form.preferred_theme.label }}</label>
+                        {{ form.preferred_theme }}
+                    </div>
+                    <div class="col-12">
+                        <label for="{{ form.start_page.id_for_label }}" class="form-label">{{ form.start_page.label }}</label>
+                        {{ form.start_page }}
+                        <div class="form-text">{{ form.start_page.help_text }}</div>
+                    </div>
                 </div>
-                {% if form.penalty_notify_mode.help_text %}<div class="form-text">{{ form.penalty_notify_mode.help_text }}</div>{% endif %}
-                <div class="form-text">{% translate "Several penalties entered in a row always arrive as ONE e-mail." %}</div>
             </div>
 
-            {# 2) Payment receipts #}
-            <div class="mb-3">
-                <span class="form-label d-block">{{ form.repayment_notify.label }}</span>
-                <div class="radio-group">{{ form.repayment_notify }}</div>
-                {% for error in form.repayment_notify.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
-                <div class="form-text">{% translate "One e-mail per recorded payment or payout — the confirmation for the money movement." %}</div>
+            <div class="ui-card">
+                <h2 class="ui-section-title h5">{% translate "E-mail notifications" %}</h2>
+                <p class="text-muted small">{% translate "Invitations, approval decisions, password and verification mails are always sent. Every other mail has an unsubscribe link." %}</p>
+                {% if form.elo_match_notify %}
+                <div class="mb-3">
+                    <span class="form-label d-block fw-semibold">🎯 {{ form.elo_match_notify.label }}</span>
+                    <div class="radio-group">{{ form.elo_match_notify }}</div>
+                    <div class="form-text">{% translate "When a match of yours is entered, corrected or deleted." %}</div>
+                </div>
+                <div class="mb-3">
+                    <span class="form-label d-block fw-semibold">🎯 {{ form.elo_monthly_summary.label }}</span>
+                    <div class="radio-group">{{ form.elo_monthly_summary }}</div>
+                    <div class="form-text">{% translate "On the 1st of each month: your position, Elo change and matches, plus the club's top 5." %}</div>
+                </div>
+                {% endif %}
+                {% if form.penalty_notify_mode %}
+                <div class="mb-3">
+                    <span class="form-label d-block fw-semibold">💶 {{ form.penalty_notify_mode.label }}</span>
+                    <div class="radio-group">{{ form.penalty_notify_mode }}</div>
+                    {% for error in form.penalty_notify_mode.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    <div id="digest-time-row" class="mt-2">
+                        <label for="{{ form.penalty_notify_time.id_for_label }}" class="form-label">{{ form.penalty_notify_time.label }}</label>
+                        {{ form.penalty_notify_time }}
+                        {% for error in form.penalty_notify_time.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="form-text">{% translate "Several penalties entered in a row always arrive as ONE e-mail." %}</div>
+                </div>
+                <div class="mb-3">
+                    <span class="form-label d-block fw-semibold">💶 {{ form.repayment_notify.label }}</span>
+                    <div class="radio-group">{{ form.repayment_notify }}</div>
+                    <div class="form-text">{% translate "One e-mail per recorded payment or payout — the confirmation for the money movement." %}</div>
+                </div>
+                {% endif %}
+                <div class="mb-1">
+                    <span class="form-label d-block fw-semibold">📣 {{ form.club_news_optin.label }}</span>
+                    <div class="radio-group">{{ form.club_news_optin }}</div>
+                    <div class="form-text">{% translate "Round mails and information from your club." %}</div>
+                </div>
             </div>
-
-            {# 3) Round mails / club information #}
-            <div class="mb-3">
-                <span class="form-label d-block">{{ form.club_news_optin.label }}</span>
-                <div class="radio-group">{{ form.club_news_optin }}</div>
-                {% for error in form.club_news_optin.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
-                <div class="form-text">{% translate "Round mails and information from your club." %}</div>
+            <div class="ui-actions mt-3">
+                <button type="submit" class="btn btn-primary">{% translate "Save preferences" %}</button>
             </div>
-
-            <button type="submit" class="btn btn-primary">{% translate "Save preferences" %}</button>
         </form>
     </div>
-    <div class="col-md-6">
-        <div class="card card-body">
-            <h2 class="h5 card-title">{% translate "Change password" %}</h2>
+    <div class="col-lg-5">
+        <div class="ui-card">
+            <h2 class="ui-section-title h5">{% translate "Change password" %}</h2>
             <p class="text-muted small">{% translate "Set a new password for your account." %}</p>
-            <a class="btn btn-primary align-self-start" href="{% url 'account_change_password' %}">{% translate "Change password" %}</a>
+            <a class="btn btn-outline-secondary" href="{% url 'account_change_password' %}">{% translate "Change password" %}</a>
         </div>
     </div>
 </div>
 {% endblock %}
 {% block extra_js %}
 <script>
-    // The digest time only matters in "daily" mode — hide it otherwise
-    // (server-side validation still checks it when daily is selected).
+    // The digest time only matters in "daily" mode — hide it otherwise.
     (function () {
         var radios = document.getElementsByName("penalty_notify_mode");
         var row = document.getElementById("digest-time-row");

@@ -207,6 +207,8 @@ DJANGO_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # Widget templates are overridable (app/templates/django/forms/widgets).
+    "django.forms",
 ]
 
 THIRD_PARTY_APPS = [
@@ -257,6 +259,8 @@ MIDDLEWARE = [
     # ApprovalGateMiddleware: after Messages (flash on rejected sessions) —
     # logs out authenticated users whose approval_status is not "approved".
     "app.accounts.middleware.ApprovalGateMiddleware",
+    # Per-user module access (Elo / Penalty) - 403 for foreign modules.
+    "app.core.access.ModuleAccessMiddleware",
     # django-allauth (requires sessions + auth; see allauth docs)
     "allauth.account.middleware.AccountMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -397,7 +401,19 @@ ALLAUTH_TRUSTED_PROXY_COUNT = env_int("ALLAUTH_TRUSTED_PROXY_COUNT", 0)
 SITE_NAME = env("SITE_NAME", "Darts Club Portal")
 # Enabled feature modules (see app/core/modules.py): "penalty", "elo".
 # Default "penalty" keeps an upgraded DartsPenaltySystem install unchanged.
-MODULES = env_list("MODULES", "penalty")
+MODULES = env_list("MODULES", "elo,penalty")
+
+# Start page for accounts that did not choose one: "elo", "penalty" or "overview".
+# Form widgets render through the project templates (Bootstrap classes).
+FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
+
+DEFAULT_START_PAGE = env("DEFAULT_START_PAGE", "elo")
+
+# Old printed QR codes of the Elo system (see app/accounts/qr.py):
+# ELO_LEGACY_JWT_SECRET = the JWT_SECRET of the old Elo installation,
+# ELO_LEGACY_QR_LOGIN = false refuses the oldest password-in-URL codes.
+ELO_LEGACY_JWT_SECRET = env("ELO_LEGACY_JWT_SECRET", "") or ""
+ELO_LEGACY_QR_LOGIN = env_bool("ELO_LEGACY_QR_LOGIN", "True")
 
 # Elo module knobs (see app/elo/conf.py).
 ELO = {

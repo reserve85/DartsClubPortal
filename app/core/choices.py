@@ -45,6 +45,15 @@ class PenaltyNotifyChoice(models.TextChoices):
     DAILY = "daily", _("Daily digest")
 
 
+class StartPageChoice(models.TextChoices):
+    """Page a user lands on after login ("/")."""
+
+    AUTO = "auto", _("Club default")
+    ELO = "elo", _("Elo ranking")
+    PENALTY = "penalty", _("Financial overview")
+    OVERVIEW = "overview", _("My overview")
+
+
 # Cookie that keeps the theme choice of visitors without an account across
 # page changes. Written by app/static/js/theme.js — keep the name in sync.
 THEME_COOKIE_NAME = "dpm_theme"

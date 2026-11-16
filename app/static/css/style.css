@@ -5,7 +5,7 @@
    Rule: page-level buttons (.btn) get a comfortable 2.75rem height, while
    compact table buttons (.btn.btn-sm) keep a uniform smaller size — so all
    buttons of the same class always look identical on every page. */
-.btn, .form-control, .form-select, .form-check-input {
+.btn, .form-control, .form-select {
     min-height: 2.75rem;
 }
 .btn.btn-sm {

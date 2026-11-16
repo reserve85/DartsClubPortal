@@ -4,4 +4,7 @@
 {% block content %}{% endblock %}
 {% if support_email %}
 {% translate "Support" %}: {{ support_email }}
+{% endif %}{% if unsubscribe_url %}
+{% blocktranslate with kind=unsubscribe_label %}Unsubscribe from "{{ kind }}"{% endblocktranslate %}: {{ unsubscribe_url }}
+{% endif %}{% if settings_url %}{% translate "E-mail settings" %}: {{ settings_url }}
 {% endif %}

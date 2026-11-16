@@ -145,6 +145,8 @@ class UserCreateForm(forms.ModelForm):
             "player_link",
             "is_active",
             "preferred_language",
+            "elo_access",
+            "penalty_access",
         ]
         widgets: ClassVar[dict] = {
             "email": forms.EmailInput(attrs={"autocomplete": "email"}),
@@ -152,6 +154,7 @@ class UserCreateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        drop_disabled_module_fields(self)
         # Only NOT-yet-linked players may be picked for a NEW user.
         self.fields["player_link"].queryset = unlinked_players_queryset()
         # The team field IS a captaincy — rename it on the CREATE form too,
@@ -226,13 +229,21 @@ class InviteCreateForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields: ClassVar[list] = ["email", "role", "team", "preferred_language"]
+        fields: ClassVar[list] = [
+            "email",
+            "role",
+            "team",
+            "preferred_language",
+            "elo_access",
+            "penalty_access",
+        ]
         widgets: ClassVar[dict] = {
             "email": forms.EmailInput(attrs={"autocomplete": "email"}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        drop_disabled_module_fields(self)
         # Refresh per request — players may have been linked since import time.
         self.fields["player"].queryset = inviteable_players_queryset()
         # Same captaincy toggle contract as UserUpdateForm: the marker lets
@@ -349,10 +360,13 @@ class UserUpdateForm(forms.ModelForm):
             "player_link",
             "is_active",
             "preferred_language",
+            "elo_access",
+            "penalty_access",
         ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        drop_disabled_module_fields(self)
         # Only NOT-yet-linked players — plus this user's own current link.
         self.fields["player_link"].queryset = unlinked_players_queryset(self.instance)
         # The team field IS a captaincy — label it accordingly on the edit form.
@@ -439,22 +453,70 @@ class SettingsForm(forms.ModelForm):
             choices=((True, _("Abonnieren")), (False, _("Off"))),
         ),
     )
+    elo_match_notify = forms.BooleanField(
+        required=False,
+        label=_("Elo match results"),
+        widget=forms.RadioSelect(choices=((True, _("Abonnieren")), (False, _("Off")))),
+    )
+    elo_monthly_summary = forms.BooleanField(
+        required=False,
+        label=_("Monthly Elo summary"),
+        widget=forms.RadioSelect(choices=((True, _("Abonnieren")), (False, _("Off")))),
+    )
 
     class Meta:
         model = User
         fields: ClassVar[list] = [
             "preferred_language",
             "preferred_theme",
+            "start_page",
             "penalty_notify_mode",
             "penalty_notify_time",
             "repayment_notify",
             "club_news_optin",
+            "elo_match_notify",
+            "elo_monthly_summary",
         ]
         widgets: ClassVar[dict] = {
             "preferred_language": forms.Select(choices=settings.LANGUAGES),
             "preferred_theme": forms.Select(choices=ThemeChoice.choices),
+            "start_page": forms.Select,
             "penalty_notify_mode": forms.RadioSelect,
         }
+
+    PENALTY_FIELDS = ("penalty_notify_mode", "penalty_notify_time", "repayment_notify")
+    ELO_FIELDS = ("elo_match_notify", "elo_monthly_summary")
+
+    def __init__(self, *args, **kwargs):
+        """Only the mails and start pages of modules this account can use."""
+        super().__init__(*args, **kwargs)
+        from app.core.access import user_modules
+
+        mods = user_modules(self.instance) if self.instance and self.instance.pk else {}
+        if not mods.get("penalty"):
+            for name in self.PENALTY_FIELDS:
+                self.fields.pop(name, None)
+        if not mods.get("elo"):
+            for name in self.ELO_FIELDS:
+                self.fields.pop(name, None)
+        allowed = {"auto"}
+        if mods.get("elo"):
+            allowed.add("elo")
+        if mods.get("penalty"):
+            allowed.add("penalty")
+        if mods.get("elo") and mods.get("penalty"):
+            allowed.add("overview")
+        self.fields["start_page"].choices = [
+            c for c in self.fields["start_page"].choices if c[0] in allowed
+        ]
+        # Optional in the POST: an old client without the field keeps the value.
+        self.fields["start_page"].required = False
+        for name in ("elo_match_notify", "elo_monthly_summary"):
+            if name in self.fields and self.is_bound and name not in self.data:
+                self.fields[name].disabled = True  # not sent -> keep the stored value
+
+    def clean_start_page(self):
+        return self.cleaned_data.get("start_page") or self.instance.start_page or "auto"
 
     def clean(self):
         """A digest without a time is a contradiction — say so, don't guess."""
@@ -466,3 +528,20 @@ class SettingsForm(forms.ModelForm):
                 _("Choose the time of day for the daily digest."),
             )
         return cleaned
+
+
+def drop_disabled_module_fields(form) -> None:
+    """Module access switches only for modules this installation runs."""
+    from app.core.modules import ELO, PENALTY, enabled_modules
+
+    mods = enabled_modules()
+    if ELO not in mods:
+        form.fields.pop("elo_access", None)
+    if PENALTY not in mods:
+        form.fields.pop("penalty_access", None)
+    for name, help_text in (
+        ("elo_access", _("Ranking, statistics and entering matches.")),
+        ("penalty_access", _("Penalties, payments and the financial overview.")),
+    ):
+        if name in form.fields:
+            form.fields[name].help_text = help_text
