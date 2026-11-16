@@ -2850,3 +2850,18 @@ msgstr ""
 
 msgid "new"
 msgstr ""
+
+msgid "Cashier per team"
+msgstr ""
+
+msgid "No cashier yet — nobody can record payments."
+msgstr ""
+
+msgid "Only the cashier of a team records payments and payouts. Everyone else sees the balances read-only."
+msgstr ""
+
+msgid "set by %(name)s"
+msgstr ""
+
+msgid "today"
+msgstr ""

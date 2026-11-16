@@ -325,6 +325,60 @@ class CashierListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
         )
         return context
 
+    def render_to_response(self, context, **response_kwargs):
+        from django.utils import timezone
+        from inertia import render as inertia_render
+
+        from app.teams.services import cashier_label_for
+
+        is_admin = context["is_admin"]
+
+        def label(account):
+            name = getattr(getattr(account, "player_link", None), "name", "")
+            # Privacy (review L4): captains never see a plain e-mail address.
+            return name or (account.email if is_admin else "—")
+
+        def when(value):
+            return timezone.localtime(value).isoformat() if value else None
+
+        teams = []
+        for team in context["teams"]:
+            current = team.current_cashier
+            teams.append(
+                {
+                    "id": team.pk,
+                    "name": team.name,
+                    "canEdit": team.can_edit,
+                    "cashier": (
+                        {
+                            "id": current.pk,
+                            "name": cashier_label_for(current),
+                            "isCaptain": current.pk in team.captain_ids,
+                        }
+                        if current
+                        else None
+                    ),
+                    "history": [
+                        {
+                            "name": row.user_label,
+                            "from": when(row.valid_from),
+                            "to": when(row.valid_to),
+                            "by": cashier_label_for(row.created_by) if row.created_by else "",
+                            "open": row.is_open,
+                        }
+                        for row in team.history
+                    ],
+                }
+            )
+        props = {
+            "teams": teams,
+            "candidates": [
+                {"value": str(u.pk), "label": label(u)} for u in context["assignable_users"]
+            ],
+            "isAdmin": is_admin,
+        }
+        return inertia_render(self.request, "Penalty/Cashiers", props=props, template_data=context)
+
 
 class CashierUpdateView(LoginRequiredMixin, View):
     """POST-only: assign (or clear) the cashier of one team.

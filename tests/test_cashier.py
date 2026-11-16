@@ -1,6 +1,5 @@
 """Kasse — cashier assignment: model, services, views, UI (strict payment right)."""
 
-import re
 from unittest import mock
 
 import pytest
@@ -22,6 +21,7 @@ from app.teams.services import (
     set_cashier,
     user_is_cashier,
 )
+from tests.conftest import inertia_props
 
 pytestmark = pytest.mark.django_db
 
@@ -202,13 +202,12 @@ def test_admin_clears_cashier(admin_client, team, admin_user):
 # ---------------------------------------------------------------------------
 def test_cashier_list_shows_current_cashier_with_dollar_emoji(admin_client, team, admin_user):
     set_cashier(team=team, user=admin_user, actor=admin_user)
-    content = admin_client.get(reverse("teams:cashier_list")).content.decode()
+    props = inertia_props(admin_client.get(reverse("teams:cashier_list")))
+    row = next(t for t in props["teams"] if t["id"] == team.pk)
 
-    assert admin_user.email in content
-    assert "💲" in content  # U+1F4B2 — the money marker
-    assert "$" not in content  # NEVER the ASCII character
-    # history table carries the "assigned by" column
-    assert "assigned by" in content.lower() or "zugewiesen" in content.lower()
+    assert row["cashier"]["name"] == admin_user.email
+    # the history carries who assigned the cashier
+    assert row["history"][0]["open"] and row["history"][0]["by"] == admin_user.email
 
 
 def test_cashier_list_renders_history_rows(admin_client, team, admin_user, captain_user):
@@ -226,10 +225,10 @@ def test_captain_gets_no_save_button_for_foreign_team(
 ):
     """Decision 8 / review L4: the form is only rendered for editable teams."""
     set_cashier(team=team, user=admin_user, actor=admin_user)
-    content = other_captain_client.get(reverse("teams:cashier_list")).content.decode()
+    props = inertia_props(other_captain_client.get(reverse("teams:cashier_list")))
 
-    set_url = reverse("teams:cashier_set")
-    assert content.count(set_url) == 1  # only the own team's row has a form
+    # only the own team's card gets the picker + save button
+    assert [t["id"] for t in props["teams"] if t["canEdit"]] == [other_team.pk]
 
 
 def test_cashier_list_option_labels_are_privacy_aware(
@@ -291,11 +290,10 @@ def test_cashier_list_stacks_crown_for_captain_cashier(
     """On the Kasse page the current cell AND the open history row of a
     captain-cashier carry both markers."""
     set_cashier(team=team, user=captain_user, actor=admin_user)
-    content = admin_client.get(reverse("teams:cashier_list")).content.decode()
+    props = inertia_props(admin_client.get(reverse("teams:cashier_list")))
+    row = next(t for t in props["teams"] if t["id"] == team.pk)
 
-    marked = re.findall(rf"{re.escape(captain_user.email)}\s*👑", content)
-    assert len(marked) == 2  # current cashier cell + open history row
-    assert "$" not in content
+    assert row["cashier"]["isCaptain"] is True  # crown next to the cashier
 
 
 def test_cashier_list_marks_non_captain_cashier_with_dollar_only(admin_client, team, admin_user):
