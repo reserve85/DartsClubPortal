@@ -60,7 +60,6 @@ class MatchdayListView(LoginRequiredMixin, View):
     (default: date ascending — oldest entries first).
     """
 
-    template_name = "matchdays/matchday_list.html"
     paginate_by = PAGE_SIZE
     sort_fields: ClassVar[dict[str, str]] = {
         "date": "date",
@@ -152,7 +151,6 @@ class MatchdayListView(LoginRequiredMixin, View):
 class MatchdayCreateView(LoginRequiredMixin, InertiaFormMixin, CreateView):
     model = Matchday
     form_class = MatchdayForm
-    template_name = "matchdays/matchday_form.html"
     success_url = reverse_lazy("matchdays:matchday_list")
 
     def dispatch(self, request, *args, **kwargs):
@@ -191,7 +189,6 @@ class MatchdayCreateView(LoginRequiredMixin, InertiaFormMixin, CreateView):
 class MatchdayUpdateView(LoginRequiredMixin, InertiaFormMixin, UpdateView):
     model = Matchday
     form_class = MatchdayForm
-    template_name = "matchdays/matchday_form.html"
     success_url = reverse_lazy("matchdays:matchday_list")
 
     def dispatch(self, request, *args, **kwargs):
@@ -237,7 +234,6 @@ class MatchdayUpdateView(LoginRequiredMixin, InertiaFormMixin, UpdateView):
 
 class MatchdayDetailView(LoginRequiredMixin, DetailView):
     model = Matchday
-    template_name = "matchdays/matchday_detail.html"
     context_object_name = "matchday"
 
     def dispatch(self, request, *args, **kwargs):

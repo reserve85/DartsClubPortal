@@ -67,7 +67,6 @@ def _page_props(context) -> dict:
 class UserListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
     groups: ClassVar[list] = [GROUP_ADMIN]
     model = User
-    template_name = "accounts/user_list.html"
     context_object_name = "users"
     paginate_by = 25
 
@@ -134,7 +133,6 @@ class PendingUserListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
 
     groups: ClassVar[list] = [GROUP_ADMIN]
     model = User
-    template_name = "accounts/pending_list.html"
     context_object_name = "pending_users"
 
     def get_queryset(self):
@@ -168,7 +166,6 @@ class UserApprovalView(GroupRequiredMixin, LoginRequiredMixin, View):
     """
 
     groups: ClassVar[list] = [GROUP_ADMIN]
-    template_name = "accounts/approval_form.html"
 
     def get_object(self, pk) -> User:
         return get_object_or_404(User, pk=pk)
@@ -274,7 +271,6 @@ class UserCreateView(GroupRequiredMixin, LoginRequiredMixin, InertiaFormMixin, C
     groups: ClassVar[list] = [GROUP_ADMIN]
     model = User
     form_class = UserCreateForm
-    template_name = "accounts/user_form.html"
     success_url = reverse_lazy("accounts:user_list")
 
     def form_page_props(self, form):
@@ -311,7 +307,6 @@ class UserUpdateView(GroupRequiredMixin, LoginRequiredMixin, InertiaFormMixin, U
     groups: ClassVar[list] = [GROUP_ADMIN]
     model = User
     form_class = UserUpdateForm
-    template_name = "accounts/user_form.html"
     success_url = reverse_lazy("accounts:user_list")
 
     def get(self, request, *args, **kwargs):
@@ -399,7 +394,6 @@ class InviteListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
 
     groups: ClassVar[list] = [GROUP_ADMIN]
     model = Invitation
-    template_name = "accounts/invite_list.html"
     context_object_name = "invitations"
     paginate_by = 25
 
@@ -440,7 +434,6 @@ class InviteCreateView(GroupRequiredMixin, LoginRequiredMixin, InertiaFormMixin,
 
     groups: ClassVar[list] = [GROUP_ADMIN]
     form_class = InviteCreateForm
-    template_name = "accounts/invite_form.html"
     success_url = reverse_lazy("accounts:invite_list")
 
     def get_context_data(self, **kwargs):
@@ -560,8 +553,6 @@ class InviteAcceptView(View):
     with the approval flow). No allauth ``user_signed_up`` fires here — never
     "waiting for approval", never an approval-request bell.
     """
-
-    template_name = "account/invite_accept.html"
 
     def _render(self, request, invitation, form=None, error=None):
         from app.accounts.entrance import entrance_response
@@ -693,7 +684,7 @@ class SettingsView(LoginRequiredMixin, View):
 
 
 class ThemeUpdateView(LoginRequiredMixin, View):
-    """POST-only JSON endpoint used by ``theme.js`` via ``X-CSRFToken``."""
+    """POST-only JSON endpoint used by the theme toggle of the app shell (``X-CSRFToken``)."""
 
     def post(self, request):
         theme = request.POST.get("theme", "")

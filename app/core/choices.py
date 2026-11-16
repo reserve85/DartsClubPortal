@@ -55,5 +55,5 @@ class StartPageChoice(models.TextChoices):
 
 
 # Cookie that keeps the theme choice of visitors without an account across
-# page changes. Written by app/static/js/theme.js — keep the name in sync.
+# page changes. Written by the entrance pages (frontend/src/pages/Auth/Entrance.tsx) — keep the name in sync.
 THEME_COOKIE_NAME = "dpm_theme"

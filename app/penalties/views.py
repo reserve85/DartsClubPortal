@@ -68,8 +68,6 @@ class CatalogListView(LoginRequiredMixin, View):
     edited in the integrated catalog form.
     """
 
-    template_name = "penalties/catalog_list.html"
-
     def get(self, request):
         assert_admin_or_captain(request.user)
         items = list(PenaltyCatalogItem.objects.order_by("type", "description"))
@@ -169,7 +167,6 @@ class CatalogCreateView(GroupRequiredMixin, LoginRequiredMixin, CatalogFormMixin
     groups: ClassVar[list] = [GROUP_ADMIN, GROUP_CAPTAIN]
     model = PenaltyCatalogItem
     form_class = CatalogItemForm
-    template_name = "penalties/catalog_form.html"
     success_url = reverse_lazy("penalties:catalog_list")
 
     def get_form_kwargs(self):
@@ -195,7 +192,6 @@ class CatalogUpdateView(GroupRequiredMixin, LoginRequiredMixin, CatalogFormMixin
     groups: ClassVar[list] = [GROUP_ADMIN, GROUP_CAPTAIN]
     model = PenaltyCatalogItem
     form_class = CatalogItemForm
-    template_name = "penalties/catalog_form.html"
     success_url = reverse_lazy("penalties:catalog_list")
 
     def get_form_kwargs(self):
@@ -262,8 +258,6 @@ class CatalogDeleteView(LoginRequiredMixin, View):
 # ---------------------------------------------------------------------------
 class PenaltyCreateView(LoginRequiredMixin, View):
     """Dispatch by catalog type: NORMAL -> assign_penalty, group -> assign_group_penalty."""
-
-    template_name = "penalties/penalty_form.html"
 
     def get_matchday(self):
         matchday = get_object_or_404(Matchday, pk=self.kwargs["matchday_pk"])
@@ -374,8 +368,6 @@ class PenaltyCreateView(LoginRequiredMixin, View):
 
 
 class PenaltyUpdateView(LoginRequiredMixin, View):
-    template_name = "penalties/penalty_form.html"
-
     def get_penalty(self):
         # Default manager -> operating on a soft-deleted penalty is a 404.
         penalty = get_object_or_404(Penalty, pk=self.kwargs["pk"])

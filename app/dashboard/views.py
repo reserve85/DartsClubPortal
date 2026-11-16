@@ -76,8 +76,6 @@ class FinancialOverviewView(LoginRequiredMixin, View):
     write affordances.
     """
 
-    template_name = "dashboard/financial_overview.html"
-
     def get(self, request):
         season = season_for_request(request)
         teams = list(teams_for_season(season).order_by("name"))

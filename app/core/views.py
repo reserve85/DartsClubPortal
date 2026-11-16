@@ -114,7 +114,6 @@ class AuditLogListView(GroupRequiredMixin, LoginRequiredMixin, View):
     """Admin-only, paginated, filterable audit trail."""
 
     groups: ClassVar[list] = [GROUP_ADMIN]
-    template_name = "core/audit_log_list.html"
     paginate_by = 25
 
     def get(self, request):
@@ -163,7 +162,6 @@ class SeasonListView(GroupRequiredMixin, LoginRequiredMixin, View):
     """Admin: manage seasons — each one a closed cash box."""
 
     groups: ClassVar[list] = [GROUP_ADMIN]
-    template_name = "core/season_list.html"
 
     def get(self, request):
         seasons = Season.objects.annotate(
@@ -218,7 +216,6 @@ class SeasonCreateView(GroupRequiredMixin, LoginRequiredMixin, View):
     """GET: empty season form. POST: create a new season."""
 
     groups: ClassVar[list] = [GROUP_ADMIN]
-    template_name = "core/season_form.html"
 
     def get(self, request):
         return _season_form_page(request, SeasonForm())
@@ -244,7 +241,6 @@ class SeasonUpdateView(GroupRequiredMixin, LoginRequiredMixin, View):
     """POST/GET: rename a season, pick its active teams, toggle the default."""
 
     groups: ClassVar[list] = [GROUP_ADMIN]
-    template_name = "core/season_form.html"
 
     def get_object(self):
         return get_object_or_404(Season, pk=self.kwargs["pk"])

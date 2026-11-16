@@ -1,2 +1,0 @@
-{# Club UI: every text-like input gets Bootstrap's form-control (one look for all modules). #}
-<input type="{{ widget.type }}" name="{{ widget.name }}"{% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}{% if not widget.attrs.class and widget.type != "hidden" and widget.type != "checkbox" and widget.type != "radio" and widget.type != "file" %} class="form-control"{% elif not widget.attrs.class and widget.type == "checkbox" %} class="form-check-input"{% endif %}{% include "django/forms/widgets/attrs.html" %}>

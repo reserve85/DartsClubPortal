@@ -39,8 +39,6 @@ def _drop(pending: dict | None) -> None:
 
 
 class ImportView(LoginRequiredMixin, View):
-    template_name = "importer/import.html"
-
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated and not user_is_admin(request.user):
             raise PermissionDenied

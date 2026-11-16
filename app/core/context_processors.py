@@ -122,7 +122,7 @@ def _theme_choice(request) -> str:
     """Effective theme choice rendered into ``data-theme-choice``.
 
     Signed-in users get their account preference. Anonymous visitors get the
-    ``dpm_theme`` cookie written by theme.js — their toggle has no POST
+    ``dpm_theme`` cookie written by the entrance pages — their toggle has no POST
     endpoint — so the next page is already server-rendered in the chosen mode
     instead of flashing bright while "auto" is resolved client-side.
     Invalid or missing values fall back to ``auto``.

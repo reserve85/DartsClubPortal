@@ -41,7 +41,6 @@ class PlayerDetailView(LoginRequiredMixin, DetailView):
     """Read-only player page: teams with per-team balances + penalty history."""
 
     model = Player
-    template_name = "players/player_detail.html"
     context_object_name = "player"
 
     def get_object(self, queryset=None):
@@ -136,7 +135,6 @@ class PlayerListRedirectView(GroupRequiredMixin, LoginRequiredMixin, RedirectVie
 class PlayerCreateView(LoginRequiredMixin, InertiaFormMixin, CreateView):
     model = Player
     form_class = PlayerForm
-    template_name = "players/player_form.html"
     success_url = reverse_lazy("teams:team_list")
 
     def dispatch(self, request, *args, **kwargs):
@@ -171,7 +169,6 @@ class PlayerCreateView(LoginRequiredMixin, InertiaFormMixin, CreateView):
 class PlayerUpdateView(LoginRequiredMixin, InertiaFormMixin, UpdateView):
     model = Player
     form_class = PlayerForm
-    template_name = "players/player_form.html"
     success_url = reverse_lazy("teams:team_list")
 
     def dispatch(self, request, *args, **kwargs):

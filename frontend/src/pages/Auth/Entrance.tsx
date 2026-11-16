@@ -11,7 +11,7 @@ import type { SharedProps } from "../../types";
 type Kind =
   | "login" | "signup" | "password_reset" | "password_reset_done" | "password_reset_key"
   | "password_reset_key_done" | "email_confirm" | "verification_sent" | "logout"
-  | "password_change" | "inactive" | "invite_accept" | "qr_login";
+  | "password_change" | "inactive" | "invite_accept" | "qr_login" | "unsubscribe";
 
 interface Props {
   kind: Kind;
@@ -22,6 +22,7 @@ interface Props {
   confirmation?: { email: string; canConfirm: boolean; action: string } | null;
   invitation?: { email: string; role: string; team: string; player: string; expires: string; error: string | null };
   qr?: { postUrl: string; legacy: boolean };
+  unsubscribe?: { valid: boolean; label: string; done: boolean };
 }
 
 function Brand() {
@@ -302,6 +303,25 @@ export default function Entrance(p: Props) {
             {inv.player && <Text size="sm">{t("You will play as %(player)s.", { player: inv.player })}</Text>}
           </Paper>
           {submit(t("Set password and activate account"))}
+        </Stack>
+      );
+      break;
+    }
+    case "unsubscribe": {
+      const u = p.unsubscribe!;
+      title = t("Unsubscribe");
+      const settingsLink = <Anchor href="/accounts/settings/" size="sm" ta="center">{t("E-mail settings")}</Anchor>;
+      body = !u.valid ? (
+        <Message icon={<IconAlertTriangle color="var(--mantine-color-red-filled)" />} links={settingsLink}>{t("This link is invalid. Change your e-mail settings after logging in.")}</Message>
+      ) : u.done ? (
+        <Message icon={<IconCircleCheck color="var(--mantine-color-teal-filled)" />} links={settingsLink}>
+          {t('Done – you will no longer receive "%(label)s" e-mails.', { label: u.label })} {t("You can switch it on again at any time in your settings.")}
+        </Message>
+      ) : (
+        <Stack>
+          <Text size="sm">{t('Stop receiving "%(label)s" e-mails?', { label: u.label })}</Text>
+          <Button size="md" fullWidth onClick={() => router.post(p.action)}>{t("Unsubscribe")}</Button>
+          {settingsLink}
         </Stack>
       );
       break;

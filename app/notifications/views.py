@@ -10,7 +10,7 @@ never GET. ``?next=`` (POST field ``next``) is validated with
 from typing import ClassVar
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
@@ -58,6 +58,17 @@ class NotificationDeleteReadView(LoginRequiredMixin, View):
         return _redirect_after(request, "notifications:all")
 
 
+def _unsubscribe_page(request, user, kind, kinds, *, done: bool):
+    from app.accounts.entrance import entrance_response
+
+    info = {
+        "valid": user is not None,
+        "label": str(kinds[kind][0]) if kind else "",
+        "done": done,
+    }
+    return entrance_response(request, "unsubscribe", dict(info), unsubscribe=info)
+
+
 class UnsubscribeView(View):
     """One-click unsubscribe from a single mail kind (signed link, no login)."""
 
@@ -65,11 +76,7 @@ class UnsubscribeView(View):
         from app.notifications.unsubscribe import KINDS, read_token
 
         user, kind = read_token(token)
-        return render(
-            request,
-            "notifications/unsubscribe.html",
-            {"valid": user is not None, "label": KINDS[kind][0] if kind else "", "done": False},
-        )
+        return _unsubscribe_page(request, user, kind, KINDS, done=False)
 
     def post(self, request, token):
         from app.notifications.unsubscribe import KINDS, read_token, unsubscribe
@@ -77,11 +84,7 @@ class UnsubscribeView(View):
         user, kind = read_token(token)
         if user is not None:
             unsubscribe(user, kind)
-        return render(
-            request,
-            "notifications/unsubscribe.html",
-            {"valid": user is not None, "label": KINDS[kind][0] if kind else "", "done": True},
-        )
+        return _unsubscribe_page(request, user, kind, KINDS, done=True)
 
 
 class NotificationListView(LoginRequiredMixin, View):

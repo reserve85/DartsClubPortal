@@ -53,7 +53,6 @@ class TeamListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
 
     groups: ClassVar[list] = [GROUP_ADMIN, GROUP_CAPTAIN]
     model = Team
-    template_name = "teams/team_list.html"
     context_object_name = "teams"
 
     def get_queryset(self):
@@ -229,7 +228,6 @@ class TeamCreateView(GroupRequiredMixin, LoginRequiredMixin, InertiaFormMixin, C
     groups: ClassVar[list] = [GROUP_ADMIN]
     model = Team
     form_class = TeamForm
-    template_name = "teams/team_form.html"
     success_url = reverse_lazy("teams:team_list")
 
     def get_form_kwargs(self):
@@ -285,7 +283,6 @@ class TeamUpdateView(GroupRequiredMixin, LoginRequiredMixin, InertiaFormMixin, U
     groups: ClassVar[list] = [GROUP_ADMIN]
     model = Team
     form_class = TeamForm
-    template_name = "teams/team_form.html"
     success_url = reverse_lazy("teams:team_list")
 
     def form_page_props(self, form):
@@ -313,7 +310,6 @@ class TeamDeleteView(GroupRequiredMixin, LoginRequiredMixin, View):
     """Hard delete only for empty teams (B2) — otherwise force-reject."""
 
     groups: ClassVar[list] = [GROUP_ADMIN]
-    template_name = "teams/team_confirm_delete.html"
 
     def get_object(self):
         return get_object_or_404(Team, pk=self.kwargs["pk"])
@@ -353,7 +349,6 @@ class CashierListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
 
     groups: ClassVar[list] = [GROUP_ADMIN, GROUP_CAPTAIN]
     model = Team
-    template_name = "teams/cashier_list.html"
     context_object_name = "teams"
     queryset = Team.objects.all()
 

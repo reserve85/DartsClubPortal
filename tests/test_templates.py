@@ -208,28 +208,18 @@ def test_navbar_follows_color_mode(db):
 # ---------------------------------------------------------------------------
 # Typography: ONE heading scale across every web template
 # ---------------------------------------------------------------------------
-def test_web_templates_share_one_heading_scale():
-    """h1 -> .h3, h2 -> .h5, h3 -> .h6 on every page template.
+def test_web_pages_come_from_the_react_frontend_only():
+    """ONE design system: every web page is a React/Mantine page.
 
-    Guards the font audit (2026-09): imprint/privacy once rendered a bare
-    <h1> (browser default, ~2.5rem) while other pages used the .h3 scale and
-    the auth cards used .h4 — three different sizes for the same element.
-    E-mail templates are excluded: email clients get an explicit inline scale.
+    Server templates are left only for the Inertia shell, the stand-alone
+    rate-limit page and e-mails - no Bootstrap page can creep back in.
     """
-    import re
     from pathlib import Path
 
     root = Path(__file__).resolve().parent.parent / "app" / "templates"
-    expected = {"h1": "h3", "h2": "h5", "h3": "h6"}
-    offenders = []
-    for path in sorted(root.rglob("*.html")):
-        if path.parent.name == "emails":
-            continue
-        text = path.read_text(encoding="utf-8")
-        for tag, scale in expected.items():
-            for match in re.finditer(rf"<{tag}(\s[^>]*)?>", text):
-                attrs = match.group(1) or ""
-                classes = re.search(r'class="([^"]*)"', attrs)
-                if classes is None or scale not in classes.group(1).split():
-                    offenders.append(f"{path.relative_to(root)}: <{tag}{attrs.strip()}>")
-    assert not offenders, "Heading outside the shared scale:\n" + "\n".join(offenders)
+    pages = {
+        p.relative_to(root).as_posix() for p in root.rglob("*.html") if p.parent.name != "emails"
+    }
+    assert pages == {"inertia_layout.html", "429.html"}
+    static = Path(__file__).resolve().parent.parent / "app" / "static"
+    assert not (static / "vendor").exists() and not (static / "css").exists()
