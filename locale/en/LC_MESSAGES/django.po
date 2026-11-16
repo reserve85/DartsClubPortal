@@ -2727,3 +2727,48 @@ msgstr ""
 
 msgid "read only"
 msgstr ""
+
+msgid "Delete this matchday? Matchdays with penalties cannot be deleted."
+msgstr ""
+
+msgid "Create matchday"
+msgstr ""
+
+msgid "%(n)s selected"
+msgstr ""
+
+msgid "Edit participants"
+msgstr ""
+
+msgid "Newest first"
+msgstr ""
+
+msgid "No active players in this team for the season."
+msgstr ""
+
+msgid "None"
+msgstr ""
+
+msgid "Oldest first"
+msgstr ""
+
+msgid "Really delete? This cannot be undone."
+msgstr ""
+
+msgid "Sort by"
+msgstr ""
+
+msgid "Sort direction"
+msgstr ""
+
+msgid "upcoming"
+msgstr ""
+
+msgid "Add the players afterwards on the matchday page."
+msgstr ""
+
+msgid "%(n)s matchday"
+msgstr ""
+
+msgid "%(n)s matchdays"
+msgstr ""

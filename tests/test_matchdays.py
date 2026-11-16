@@ -11,6 +11,7 @@ from app.core.models import AuditAction, AuditLog
 from app.matchdays.models import Matchday, MatchdayPlayer
 from app.penalties.models import Penalty
 from app.players.models import Player
+from tests.conftest import inertia_props
 
 pytestmark = pytest.mark.django_db
 
@@ -114,7 +115,8 @@ def test_captain_list_defaults_to_own_team(captain_client, other_captain_client,
     assert response.status_code == 200
     assert response.context["selected_team"] == team
     assert {m.opponent for m in response.context["page_obj"]} == {"A"}
-    assert 'name="team"' in response.content.decode()  # selector visible for captains
+    props = inertia_props(response)  # selector visible for captains
+    assert props["teamId"] == team.pk and len(props["teams"]) >= 2
 
     # Own team is NOT the first alphabetically -> the default must still be OWN.
     response = other_captain_client.get(url)
@@ -181,14 +183,13 @@ def test_matchday_list_marks_today_and_mutes_past(admin_client, team):
         team=team, opponent="Future FC", venue="home", date=today + timedelta(days=7)
     )
 
-    content = admin_client.get(reverse("matchdays:matchday_list")).content.decode()
-    assert 'class="matchday-today"' in _row_for(content, "Today FC")
-    assert "badge text-bg-success" in _row_for(content, "Today FC")
-    assert 'class="matchday-past"' in _row_for(content, "Past FC")
-    assert "text-bg-success" not in _row_for(content, "Past FC")
-    assert "matchday-past" not in _row_for(content, "Today FC")
-    assert "matchday-past" not in _row_for(content, "Future FC")
-    assert "matchday-today" not in _row_for(content, "Future FC")
+    rows = {
+        r["opponent"]: r
+        for r in inertia_props(admin_client.get(reverse("matchdays:matchday_list")))["rows"]
+    }
+    assert rows["Today FC"]["isToday"] and not rows["Today FC"]["isPast"]
+    assert rows["Past FC"]["isPast"] and not rows["Past FC"]["isToday"]
+    assert not rows["Future FC"]["isPast"] and not rows["Future FC"]["isToday"]
 
 
 def test_captain_team_filter_switches_to_view_foreign_team(captain_client, team, other_team):
@@ -210,11 +211,10 @@ def test_captain_team_filter_switches_to_view_foreign_team(captain_client, team,
     assert captain_client.get(url, {"team": "abc"}).status_code == 404  # not a 500
 
 
-def test_team_selector_offered_to_admin_and_captain(admin_client, captain_client):
-    content = admin_client.get(reverse("matchdays:matchday_list")).content.decode()
-    assert 'name="team"' in content
-    content = captain_client.get(reverse("matchdays:matchday_list")).content.decode()
-    assert 'name="team"' in content
+def test_team_selector_offered_to_admin_and_captain(admin_client, captain_client, team):
+    for client in (admin_client, captain_client):
+        props = inertia_props(client.get(reverse("matchdays:matchday_list")))
+        assert [t["id"] for t in props["teams"]] == [team.pk]
 
 
 def test_captain_views_foreign_matchday_read_only(captain_client, other_team):
@@ -308,11 +308,10 @@ def test_matchday_edit_never_touches_participants(admin_client, matchday_with_pl
 def test_add_players_editor_tints_the_whole_row(admin_client, matchday_with_players):
     """Ticking a player highlights the WHOLE row green — like the assignment matrix."""
     md, players = matchday_with_players(2)
-    content = admin_client.get(reverse("matchdays:matchday_detail", args=[md.pk])).content.decode()
-    assert 'class="participant-select-row"' in content
-    # every roster member is offered, the current participants are pre-checked
-    assert content.count('class="participant-select-row"') == len(players)
-    assert re.search(rf'value="{players[0].pk}"[^>]*checked', content), "participant not checked"
+    props = inertia_props(admin_client.get(reverse("matchdays:matchday_detail", args=[md.pk])))
+    # every roster member is offered, the current participants are pre-selected
+    assert {p["id"] for p in props["eligible"]} == {p.pk for p in players}
+    assert {p["id"] for p in props["participants"]} == {p.pk for p in players}
 
 
 # ---------------------------------------------------------------------------
@@ -388,7 +387,7 @@ def test_detail_page_offers_inline_participant_editor(admin_client, matchday_wit
     response = admin_client.get(reverse("matchdays:matchday_detail", args=[md.pk]))
     assert response.status_code == 200
     # editor form + full eligible roster (active players of THIS team)
-    assert _participants_url(md) in response.content.decode()
+    assert inertia_props(response)["canManage"] is True
     assert {p.pk for p in response.context["eligible_players"]} == {p.pk for p in players}
     # current participants are pre-checked
     assert set(response.context["participant_ids"]) == {p.pk for p in players}

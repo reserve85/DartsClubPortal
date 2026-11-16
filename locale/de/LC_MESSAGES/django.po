@@ -3706,6 +3706,51 @@ msgstr "Sonderstrafe: Der Betrag wird jeweils einzeln eingegeben; angezeigt ist 
 msgid "read only"
 msgstr "nur lesen"
 
+msgid "Delete this matchday? Matchdays with penalties cannot be deleted."
+msgstr "Diesen Spieltag löschen? Spieltage mit Strafen können nicht gelöscht werden."
+
+msgid "Create matchday"
+msgstr "Spieltag anlegen"
+
+msgid "%(n)s selected"
+msgstr "%(n)s ausgewählt"
+
+msgid "Edit participants"
+msgstr "Teilnehmer bearbeiten"
+
+msgid "Newest first"
+msgstr "Neueste zuerst"
+
+msgid "No active players in this team for the season."
+msgstr "Keine aktiven Spieler in dieser Mannschaft für die Saison."
+
+msgid "None"
+msgstr "Keine"
+
+msgid "Oldest first"
+msgstr "Älteste zuerst"
+
+msgid "Really delete? This cannot be undone."
+msgstr "Wirklich löschen? Das kann nicht rückgängig gemacht werden."
+
+msgid "Sort by"
+msgstr "Sortieren nach"
+
+msgid "Sort direction"
+msgstr "Sortierrichtung"
+
+msgid "upcoming"
+msgstr "geplant"
+
+msgid "Add the players afterwards on the matchday page."
+msgstr "Die Spieler trägst du danach auf der Spieltagsseite ein."
+
+msgid "%(n)s matchday"
+msgstr "%(n)s Spieltag"
+
+msgid "%(n)s matchdays"
+msgstr "%(n)s Spieltage"
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 

@@ -8,6 +8,8 @@ from django.conf import settings
 from django.test import Client
 from django.urls import reverse
 
+from tests.conftest import inertia_props
+
 pytestmark = pytest.mark.django_db
 
 MO_DE = Path(__file__).resolve().parent.parent / "locale" / "de" / "LC_MESSAGES" / "django.mo"
@@ -82,9 +84,8 @@ def test_german_signup_page(db):
 def test_german_matchday_team_selector(admin_client, team):
     """The matchday team dropdown must offer the German 'All teams' option."""
     _switch_language(admin_client, "de")
-    content = admin_client.get(reverse("matchdays:matchday_list")).content.decode()
-    assert "Alle Mannschaften" in content
-    assert "All teams" not in content
+    props = inertia_props(admin_client.get(reverse("matchdays:matchday_list")))
+    assert props["i18n"]["All teams"] == "Alle Mannschaften"
 
 
 @needs_catalog
@@ -101,11 +102,11 @@ def test_german_new_ui_strings(admin_client, matchday):
     content = admin_client.get(reverse("teams:team_list")).content.decode()
     assert "Mannschaften & Spieler" in content
     assert "Zuordnungen speichern" in content
-    content = admin_client.get(
-        reverse("matchdays:matchday_detail", args=[matchday.pk])
-    ).content.decode()
-    assert "Spieler hinzufügen" in content
-    assert "Teilnehmer speichern" in content
+    i18n = inertia_props(
+        admin_client.get(reverse("matchdays:matchday_detail", args=[matchday.pk]))
+    )["i18n"]
+    assert i18n["Add players"] == "Spieler hinzufügen"
+    assert i18n["Save participants"] == "Teilnehmer speichern"
 
 
 @needs_catalog
@@ -119,8 +120,8 @@ def test_german_today_badge(admin_client, team):
         team=team, opponent="SV Punctual", venue="home", date=timezone.localdate()
     )
     _switch_language(admin_client, "de")
-    content = admin_client.get(reverse("matchdays:matchday_list")).content.decode()
-    assert 'badge text-bg-success">Heute</span>' in content
+    props = inertia_props(admin_client.get(reverse("matchdays:matchday_list")))
+    assert props["i18n"]["Today"] == "Heute" and props["rows"][0]["isToday"]
 
 
 @needs_catalog

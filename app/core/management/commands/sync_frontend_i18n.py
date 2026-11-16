@@ -12,13 +12,18 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 PATTERN = re.compile(r"""\bt\(\s*(["'`])((?:\.|(?!\1).)*)\1""", re.DOTALL)
+# Plurals: tn("one", "many", n) -> both msgids.
+PATTERN_TN = re.compile(r'\btn\(\s*"((?:\\.|[^"])*)"\s*,\s*"((?:\\.|[^"])*)"')
 
 
 def collect() -> list[str]:
     root = Path(settings.BASE_DIR) / "frontend" / "src"
     found = set()
     for path in root.rglob("*.ts*"):
-        for _quote, text in PATTERN.findall(path.read_text(encoding="utf-8")):
+        source = path.read_text(encoding="utf-8")
+        texts = [text for _quote, text in PATTERN.findall(source)]
+        texts += [text for pair in PATTERN_TN.findall(source) for text in pair]
+        for text in texts:
             found.add(text.replace("'", "'").replace('\\"', '"'))
     return sorted(found)
 

@@ -20,6 +20,7 @@ from app.penalties.services import (
     record_payout,
     team_balances,
 )
+from tests.conftest import inertia_props
 
 pytestmark = pytest.mark.django_db
 
@@ -335,8 +336,9 @@ def test_matchday_detail_has_no_per_row_payment_actions(
         reverse("penalties:penalty_pay", args=[penalty.pk])
     with pytest.raises(NoReverseMatch):
         reverse("penalties:penalty_unpay", args=[penalty.pk])
-    content = admin_client.get(reverse("matchdays:matchday_detail", args=[md.pk])).content.decode()
-    assert reverse("penalties:penalty_update", args=[penalty.pk]) in content  # edit stays
+    props = inertia_props(admin_client.get(reverse("matchdays:matchday_detail", args=[md.pk])))
+    assert [p["id"] for p in props["penalties"]] == [penalty.pk]  # edit stays (canManage)
+    assert props["canManage"] is True
 
 
 def test_player_financial_view_shows_total_paid(

@@ -7,17 +7,21 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db import transaction
-from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse_lazy
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic import CreateView, DetailView, UpdateView
+from inertia import render as inertia_render
 
+from app.core.inertia_utils import InertiaFormMixin
 from app.core.models import AuditAction
 from app.core.pagination import PAGE_SIZE
 from app.core.permissions import (
     assert_admin_or_captain,
     user_can_manage_team,
+    user_is_admin,
 )
 from app.core.services import log_action
 from app.core.utils import numeric_pk
@@ -25,6 +29,7 @@ from app.matchdays.forms import MatchdayForm
 from app.matchdays.models import Matchday, MatchdayPlayer
 from app.matchdays.services import season_for_request
 from app.penalties.models import Penalty
+from app.players.avatars import avatar_url
 from app.players.models import Player
 from app.teams.services import teams_for_season
 
@@ -105,22 +110,46 @@ class MatchdayListView(LoginRequiredMixin, View):
         }
         query = request.GET.copy()
         query.pop("page", None)
-        return render(
-            request,
-            self.template_name,
-            {
-                "page_obj": page,
-                "teams": teams,
-                "selected_team": selected_team,
-                "sort": sort,
-                "dir": direction,
-                "sort_next": sort_next,
-                "querystring": query.urlencode(),
-            },
-        )
+        context = {
+            "page_obj": page,
+            "teams": teams,
+            "selected_team": selected_team,
+            "sort": sort,
+            "dir": direction,
+            "sort_next": sort_next,
+            "querystring": query.urlencode(),
+        }
+        today = timezone.localdate()
+        props = {
+            "rows": [
+                {
+                    "id": m.pk,
+                    "label": m.display_label,
+                    "date": m.date.isoformat(),
+                    "team": m.team.name,
+                    "opponent": m.opponent,
+                    "venue": m.get_venue_display(),
+                    "isToday": m.date == today,
+                    "isPast": m.date < today,
+                    "canManage": user_can_manage_team(request.user, m.team),
+                }
+                for m in page.object_list
+            ],
+            "teams": [{"id": t.pk, "name": t.name} for t in teams],
+            "teamId": selected_team.pk if selected_team else None,
+            "allTeams": request.GET.get("team") == "",
+            "sort": sort,
+            "dir": direction,
+            "page": page.number,
+            "pages": page.paginator.num_pages,
+            "total": page.paginator.count,
+            "season": season.name if season else "",
+            "canCreate": user_is_admin(request.user) or request.user.team_id is not None,
+        }
+        return inertia_render(request, "Penalty/Matchdays", props=props, template_data=context)
 
 
-class MatchdayCreateView(LoginRequiredMixin, CreateView):
+class MatchdayCreateView(LoginRequiredMixin, InertiaFormMixin, CreateView):
     model = Matchday
     form_class = MatchdayForm
     template_name = "matchdays/matchday_form.html"
@@ -136,6 +165,21 @@ class MatchdayCreateView(LoginRequiredMixin, CreateView):
         kwargs["season"] = season_for_request(self.request)
         return kwargs
 
+    def form_page_props(self, form):
+        return {
+            "title": str(_("New matchday")),
+            "subtitle": str(_("Add the players afterwards on the matchday page.")),
+            "submitLabel": str(_("Create matchday")),
+            "cancelUrl": reverse("matchdays:matchday_list"),
+            "rows": [["team", "season"], ["opponent", "venue"]],
+        }
+
+    def get_initial(self):
+        return {**super().get_initial(), "date": timezone.localdate()}
+
+    def get_success_url(self):
+        return reverse("matchdays:matchday_detail", args=[self.object.pk])
+
     def form_valid(self, form):
         form.instance.created_by = self.request.user
         response = super().form_valid(form)
@@ -144,7 +188,7 @@ class MatchdayCreateView(LoginRequiredMixin, CreateView):
         return response
 
 
-class MatchdayUpdateView(LoginRequiredMixin, UpdateView):
+class MatchdayUpdateView(LoginRequiredMixin, InertiaFormMixin, UpdateView):
     model = Matchday
     form_class = MatchdayForm
     template_name = "matchdays/matchday_form.html"
@@ -165,6 +209,24 @@ class MatchdayUpdateView(LoginRequiredMixin, UpdateView):
         kwargs["user"] = self.request.user
         kwargs["season"] = season_for_request(self.request)
         return kwargs
+
+    def form_page_props(self, form):
+        return {
+            "title": str(_("Edit matchday")),
+            "subtitle": self.object.display_label,
+            "badge": self.object.team.name,
+            "submitLabel": str(_("Save changes")),
+            "cancelUrl": reverse("matchdays:matchday_detail", args=[self.object.pk]),
+            "deleteUrl": reverse("matchdays:matchday_delete", args=[self.object.pk]),
+            "deleteLabel": str(_("Delete matchday")),
+            "deleteConfirm": str(
+                _("Delete this matchday? Matchdays with penalties cannot be deleted.")
+            ),
+            "rows": [["team", "season"], ["opponent", "venue"]],
+        }
+
+    def get_success_url(self):
+        return reverse("matchdays:matchday_detail", args=[self.object.pk])
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -205,6 +267,54 @@ class MatchdayDetailView(LoginRequiredMixin, DetailView):
             "player", "catalog_item"
         ).order_by("-created_at")
         return context
+
+    def render_to_response(self, context, **response_kwargs):
+        md = self.object
+        can_manage = context["can_manage"]
+        today = timezone.localdate()
+        props = {
+            "matchday": {
+                "id": md.pk,
+                "label": md.display_label,
+                "date": md.date.isoformat(),
+                "team": md.team.name,
+                "season": md.season.name if md.season else "",
+                "opponent": md.opponent,
+                "venue": md.get_venue_display(),
+                "description": md.description,
+                "isToday": md.date == today,
+            },
+            "canManage": can_manage,
+            "participants": [
+                {"id": p.player_id, "name": p.player.name, "avatar": avatar_url(p.player)}
+                for p in context["participants"]
+            ],
+            "eligible": (
+                [
+                    {"id": p.pk, "name": p.name, "avatar": avatar_url(p)}
+                    for p in context["eligible_players"]
+                ]
+                if can_manage
+                else []
+            ),
+            "penalties": [
+                {
+                    "id": pen.pk,
+                    "when": timezone.localtime(pen.created_at).isoformat(),
+                    "player": pen.player.name,
+                    "playerAvatar": avatar_url(pen.player),
+                    "description": pen.display_description,
+                    "amount": float(pen.amount_eur),
+                    "group": bool(pen.group_id),
+                    "manual": not pen.catalog_item or pen.catalog_item.type == "MANUAL",
+                }
+                for pen in context["penalties"]
+            ],
+            "total": float(sum(pen.amount_eur for pen in context["penalties"])),
+        }
+        return inertia_render(
+            self.request, "Penalty/MatchdayDetail", props=props, template_data=context
+        )
 
 
 class MatchdayParticipantsView(LoginRequiredMixin, View):
@@ -253,8 +363,6 @@ class MatchdayParticipantsView(LoginRequiredMixin, View):
 class MatchdayDeleteView(LoginRequiredMixin, View):
     """Hard delete blocked when ANY penalty rows exist — incl. soft-deleted (B2)."""
 
-    template_name = "matchdays/matchday_confirm_delete.html"
-
     def get_object(self):
         return get_object_or_404(Matchday, pk=self.kwargs["pk"])
 
@@ -269,7 +377,7 @@ class MatchdayDeleteView(LoginRequiredMixin, View):
     def get(self, request, pk):
         matchday = self.get_object()
         self._check_permission(matchday)
-        return render(request, self.template_name, {"matchday": matchday})
+        return redirect("matchdays:matchday_update", pk=matchday.pk)
 
     def post(self, request, pk):
         matchday = self.get_object()
