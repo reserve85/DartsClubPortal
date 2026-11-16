@@ -20,11 +20,11 @@ ELO = "elo"
 
 # Known modules -> human label (shown in menus / overview tiles).
 KNOWN_MODULES: dict[str, str] = {
-    PENALTY: _("Penalties"),
-    ELO: _("Elo ranking"),
+    PENALTY: _("Penalty"),
+    ELO: _("Elo"),
 }
-# Modules whose code is part of this build. "elo" is added by the Elo port.
-AVAILABLE_MODULES: frozenset[str] = frozenset({PENALTY})
+# Modules whose code is part of this build.
+AVAILABLE_MODULES: frozenset[str] = frozenset({PENALTY, ELO})
 
 
 def parse_modules(raw) -> frozenset[str]:

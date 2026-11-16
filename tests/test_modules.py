@@ -40,9 +40,9 @@ class TestParseModules:
         with pytest.raises(ImproperlyConfigured, match="unknown"):
             parse_modules("penalty,bowling")
 
-    def test_module_not_in_this_version_yet(self):
-        with pytest.raises(ImproperlyConfigured, match="not part of this version"):
-            parse_modules("elo")
+    def test_both_modules_are_available(self):
+        assert parse_modules("elo,penalty") == frozenset({"elo", "penalty"})
+        assert parse_modules("elo") == frozenset({"elo"})
 
 
 class TestPenaltyModuleOn:

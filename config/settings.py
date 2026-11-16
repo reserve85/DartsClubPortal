@@ -227,6 +227,7 @@ LOCAL_APPS = [
     "app.penalties",
     "app.dashboard",
     "app.notifications",
+    "app.elo",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -397,6 +398,18 @@ SITE_NAME = env("SITE_NAME", "Darts Club Portal")
 # Enabled feature modules (see app/core/modules.py): "penalty", "elo".
 # Default "penalty" keeps an upgraded DartsPenaltySystem install unchanged.
 MODULES = env_list("MODULES", "penalty")
+
+# Elo module knobs (see app/elo/conf.py).
+ELO = {
+    "DEFAULT_ELO": env_int("ELO_DEFAULT_ELO", 1200),
+    "K_FACTOR": env_int("ELO_K_FACTOR", 32),
+    "INACTIVITY_MONTHS": env_int("ELO_INACTIVITY_MONTHS", 3),
+    "HIGH_FINISH_MIN": env_int("ELO_HIGH_FINISH_MIN", 100),
+    "HIGH_FINISH_MAX": env_int("ELO_HIGH_FINISH_MAX", 170),
+    "LOW_DARTS_MIN": env_int("ELO_LOW_DARTS_MIN", 9),
+    "LOW_DARTS_MAX": env_int("ELO_LOW_DARTS_MAX", 21),
+    "BEST_OF_LEGS": env_int("ELO_BEST_OF_LEGS", 5),
+}
 
 IMPRINT_NAME = env("IMPRINT_NAME")
 IMPRINT_URL = env("IMPRINT_URL")

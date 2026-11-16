@@ -54,6 +54,15 @@ class AuditAction(models.TextChoices):
     USER_INVITE_OBSOLETED = "user_invite_obsoleted", _("Invitation obsolete")
     CASHIER_SET = "cashier_set", _("Cashier assigned")
     CASHIER_CLEARED = "cashier_cleared", _("Cashier removed")
+    ELO_MATCH_CREATED = "elo_match_created", _("Elo match entered")
+    ELO_MATCH_UPDATED = "elo_match_updated", _("Elo match edited")
+    ELO_MATCH_DELETED = "elo_match_deleted", _("Elo match deleted")
+    ELO_RECALCULATED = "elo_recalculated", _("Elo ranking recalculated")
+    ELO_PLAYER_CREATED = "elo_player_created", _("Player added to the Elo ranking")
+    ELO_PLAYER_UPDATED = "elo_player_updated", _("Elo player edited")
+    ELO_PLAYER_DISABLED = "elo_player_disabled", _("Elo player disabled")
+    ELO_PLAYER_REACTIVATED = "elo_player_reactivated", _("Elo player reactivated")
+    DATA_IMPORTED = "data_imported", _("Data imported")
 
 
 class AuditLog(models.Model):
