@@ -2612,7 +2612,7 @@ msgstr "Als gelesen markieren"
 
 #: app\templates\notifications\list.html
 msgid "Mark as unread"
-msgstr "Ungelesen markieren"
+msgstr "Als ungelesen markieren"
 
 #: app\templates\notifications\list.html
 msgid "Delete this message?"
@@ -3830,13 +3830,13 @@ msgid "new"
 msgstr "neu"
 
 msgid "Cashier per team"
-msgstr "Kassierer je Mannschaft"
+msgstr "Kassier je Mannschaft"
 
 msgid "No cashier yet — nobody can record payments."
-msgstr "Noch kein Kassierer – niemand kann Zahlungen erfassen."
+msgstr "Noch kein Kassier – niemand kann Zahlungen erfassen."
 
 msgid "Only the cashier of a team records payments and payouts. Everyone else sees the balances read-only."
-msgstr "Nur der Kassierer einer Mannschaft erfasst Zahlungen und Auszahlungen. Alle anderen sehen die Salden nur lesend."
+msgstr "Nur der Kassier einer Mannschaft erfasst Zahlungen und Auszahlungen. Alle anderen sehen die Salden nur lesend."
 
 msgid "set by %(name)s"
 msgstr "gesetzt von %(name)s"
