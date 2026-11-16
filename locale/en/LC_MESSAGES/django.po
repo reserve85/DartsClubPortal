@@ -3015,3 +3015,15 @@ msgstr ""
 
 msgid "waiting for approval"
 msgstr ""
+
+msgid "%(n)s entries"
+msgstr ""
+
+msgid "%(n)s entry"
+msgstr ""
+
+msgid "User (e-mail)"
+msgstr ""
+
+msgid "system"
+msgstr ""

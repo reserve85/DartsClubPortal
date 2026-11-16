@@ -188,7 +188,15 @@ class UserQrCodeView(LoginRequiredMixin, View):
                 )
             ctx["png"] = _qr_png_data_uri(url)
             ctx["url"] = url
-        return render(request, "accounts/user_qr.html", ctx)
+        from inertia import render as inertia_render
+
+        props = {
+            "target": {"email": target.email, "name": target.full_name},
+            "allowed": ctx["allowed"],
+            "png": ctx.get("png", ""),
+            "backUrl": reverse("accounts:user_list"),
+        }
+        return inertia_render(request, "Admin/UserQr", props=props, template_data=ctx)
 
 
 def _qr_png_data_uri(url: str) -> str:

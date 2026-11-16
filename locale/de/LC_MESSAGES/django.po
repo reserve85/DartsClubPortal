@@ -3994,6 +3994,18 @@ msgstr "gültig bis"
 msgid "waiting for approval"
 msgstr "wartet auf Freigabe"
 
+msgid "%(n)s entries"
+msgstr "%(n)s Einträge"
+
+msgid "%(n)s entry"
+msgstr "%(n)s Eintrag"
+
+msgid "User (e-mail)"
+msgstr "Benutzer (E-Mail)"
+
+msgid "system"
+msgstr "System"
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 

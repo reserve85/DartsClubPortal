@@ -86,17 +86,35 @@ class AuditLogListView(GroupRequiredMixin, LoginRequiredMixin, View):
             queryset = queryset.filter(user__email__icontains=actor)
 
         page = Paginator(queryset, self.paginate_by).get_page(request.GET.get("page"))
+        context = {
+            "page_obj": page,
+            "actions": AuditAction.choices,
+            "selected_action": action,
+            "actor": actor,
+        }
+        from django.utils import timezone
 
-        return render(
-            request,
-            self.template_name,
-            {
-                "page_obj": page,
-                "actions": AuditAction.choices,
-                "selected_action": action,
-                "actor": actor,
-            },
-        )
+        props = {
+            "entries": [
+                {
+                    "id": e.pk,
+                    "when": timezone.localtime(e.created_at).isoformat(),
+                    "action": e.action,
+                    "actionLabel": str(e.get_action_display()),
+                    "user": e.user.email if e.user_id else "",
+                    "target": f"{e.target_type}#{e.target_id}" if e.target_type else "",
+                    "metadata": e.metadata or {},
+                }
+                for e in page.object_list
+            ],
+            "actions": [{"value": v, "label": str(label)} for v, label in AuditAction.choices],
+            "action": action,
+            "actor": actor,
+            "page": page.number,
+            "pages": page.paginator.num_pages,
+            "total": page.paginator.count,
+        }
+        return inertia_render(request, "Admin/Audit", props=props, template_data=context)
 
 
 class SeasonListView(GroupRequiredMixin, LoginRequiredMixin, View):
