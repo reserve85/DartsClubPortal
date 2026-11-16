@@ -28,8 +28,16 @@ def collect() -> list[str]:
     return sorted(found)
 
 
+def _literal(text: str) -> str:
+    """A string literal the way ruff format writes it: single quotes when that saves escapes."""
+    quoted = json.dumps(text, ensure_ascii=False)
+    if '"' in text and "'" not in text:
+        return "'" + quoted[1:-1].replace('\\"', '"') + "'"
+    return quoted
+
+
 def render(msgids: list[str]) -> str:
-    body = "\n".join(f"    {json.dumps(m, ensure_ascii=False)}," for m in msgids)
+    body = "\n".join(f"    {_literal(m)}," for m in msgids)
     return (
         '"""Msgids used by the React frontend (generated: manage.py sync_frontend_i18n)."""\n\n'
         f"MSGIDS: list[str] = [\n{body}\n]\n"
