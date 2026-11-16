@@ -3207,3 +3207,24 @@ msgstr ""
 
 msgid "When a penalty is assigned to you. Several penalties entered in a row always arrive as ONE e-mail."
 msgstr ""
+
+msgid "To the start page"
+msgstr ""
+
+msgid "You are not allowed to open this page. If you think you should, ask an admin of your club."
+msgstr ""
+
+msgid "No access"
+msgstr ""
+
+msgid "This page does not exist (anymore). Maybe the link is old."
+msgstr ""
+
+msgid "Page not found"
+msgstr ""
+
+msgid "An unexpected error occurred. Please try again in a moment."
+msgstr ""
+
+msgid "Something went wrong"
+msgstr ""

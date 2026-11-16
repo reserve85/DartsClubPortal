@@ -4186,6 +4186,27 @@ msgstr "Jede Strafe"
 msgid "When a penalty is assigned to you. Several penalties entered in a row always arrive as ONE e-mail."
 msgstr "Wenn dir eine Strafe eingetragen wird. Mehrere Strafen hintereinander kommen immer als EINE E-Mail."
 
+msgid "To the start page"
+msgstr "Zur Startseite"
+
+msgid "You are not allowed to open this page. If you think you should, ask an admin of your club."
+msgstr "Diese Seite darfst du nicht öffnen. Wenn du meinst, das ist ein Fehler, frag einen Admin deines Vereins."
+
+msgid "No access"
+msgstr "Kein Zugriff"
+
+msgid "This page does not exist (anymore). Maybe the link is old."
+msgstr "Diese Seite gibt es nicht (mehr). Vielleicht ist der Link veraltet."
+
+msgid "Page not found"
+msgstr "Seite nicht gefunden"
+
+msgid "An unexpected error occurred. Please try again in a moment."
+msgstr "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es gleich noch einmal."
+
+msgid "Something went wrong"
+msgstr "Da ist etwas schiefgelaufen"
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 

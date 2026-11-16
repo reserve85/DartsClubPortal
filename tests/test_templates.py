@@ -220,6 +220,6 @@ def test_web_pages_come_from_the_react_frontend_only():
     pages = {
         p.relative_to(root).as_posix() for p in root.rglob("*.html") if p.parent.name != "emails"
     }
-    assert pages == {"inertia_layout.html", "429.html"}
+    assert pages == {"inertia_layout.html", "403.html", "404.html", "429.html", "500.html"}
     static = Path(__file__).resolve().parent.parent / "app" / "static"
     assert not (static / "vendor").exists() and not (static / "css").exists()
