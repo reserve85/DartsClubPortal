@@ -473,10 +473,16 @@ def test_switching_to_quick_reschedules_the_pending_rows(
     settings.NOTIFICATION_COALESCE_SECONDS = 90
     md, players = matchday_with_players(2)
     user = _link(players[0], mode="daily")
+    # Digest slot 6 h from now: never "due within the hour", whatever the
+    # wall clock (a fixed 08:00 slot made this test fail from 07:00 to 08:00).
+    user.penalty_notify_time = (
+        (timezone.localtime() + timedelta(hours=6)).time().replace(second=0, microsecond=0)
+    )
+    user.save(update_fields=["penalty_notify_time"])
     _assign(md, players[0], catalog_normal, admin_user)
 
     row = NotificationOutbox.objects.get()
-    assert row.send_after > timezone.now() + timedelta(hours=1)  # tomorrow's slot
+    assert row.send_after > timezone.now() + timedelta(hours=1)  # the next digest slot
     assert flush_outbox() == 0  # nothing due yet — the old bug in a nutshell
 
     response = _logged_in_client(user).post(
