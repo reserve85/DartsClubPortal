@@ -87,14 +87,14 @@ function ThemeSwitch() {
   );
 }
 
-function EntranceShell({ children }: { children: ReactNode }) {
+export function EntranceShell({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
   useFlashToasts();
   const t = useT();
   const { urls, site } = usePage<SharedProps>().props;
   const b = site.build;
   return (
     <Box mih="100dvh" py={{ base: "md", sm: 40 }} px="md" style={{ background: "radial-gradient(1200px 500px at 50% -10%, var(--mantine-color-brand-light), transparent)" }}>
-      <Box maw={440} mx="auto">
+      <Box maw={wide ? 760 : 440} mx="auto">
         <Group justify="space-between" mb="lg">
           <LanguageSwitch />
           <ThemeSwitch />

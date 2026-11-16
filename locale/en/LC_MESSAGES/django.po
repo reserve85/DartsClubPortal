@@ -3189,3 +3189,15 @@ msgstr ""
 
 msgid "This account is inactive."
 msgstr ""
+
+msgid "Colour scheme cookie:"
+msgstr ""
+
+msgid "Data is processed exclusively to run the club's Elo ranking and penalty system: matches and statistics, matchdays, balances and financial reporting, plus the e-mails you subscribed to."
+msgstr ""
+
+msgid "Elo data: matches, results, Elo values and dart statistics; an optional player picture."
+msgstr ""
+
+msgid "Remembers light or dark mode before login. Essential for the display."
+msgstr ""

@@ -4168,6 +4168,18 @@ msgstr "Datenschutzerklärung"
 msgid "This account is inactive."
 msgstr "Dieses Konto ist inaktiv."
 
+msgid "Colour scheme cookie:"
+msgstr "Farbschema-Cookie:"
+
+msgid "Data is processed exclusively to run the club's Elo ranking and penalty system: matches and statistics, matchdays, balances and financial reporting, plus the e-mails you subscribed to."
+msgstr "Die Daten werden ausschließlich für die Elo-Rangliste und das Strafensystem des Vereins verarbeitet: Matches und Statistiken, Spieltage, Kontostände und Finanzberichte sowie die E-Mails, die du abonniert hast."
+
+msgid "Elo data: matches, results, Elo values and dart statistics; an optional player picture."
+msgstr "Elo-Daten: Matches, Ergebnisse, Elo-Werte und Dart-Statistiken; ein optionales Spielerbild."
+
+msgid "Remembers light or dark mode before login. Essential for the display."
+msgstr "Merkt sich hellen oder dunklen Modus vor der Anmeldung. Notwendig für die Darstellung."
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 

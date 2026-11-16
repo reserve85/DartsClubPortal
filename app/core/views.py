@@ -9,7 +9,7 @@ from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Count
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views import View
@@ -81,18 +81,33 @@ class RightsView(LoginRequiredMixin, View):
         return inertia_render(request, "Rights", props=props)
 
 
+def _contact() -> dict:
+    """Imprint / privacy contact data from the CONTACT_* / IMPRINT_* settings."""
+    from django.conf import settings
+
+    return {
+        "company": settings.CONTACT_COMPANY,
+        "name": settings.CONTACT_NAME,
+        "street": settings.CONTACT_STREET,
+        "city": settings.CONTACT_CITY,
+        "email": settings.CONTACT_EMAIL,
+        "imprintName": settings.IMPRINT_NAME,
+        "imprintUrl": settings.IMPRINT_URL,
+    }
+
+
 class ImprintView(View):
     """Imprint page driven by CONTACT_* / IMPRINT_* settings (public)."""
 
     def get(self, request):
-        return render(request, "core/imprint.html")
+        return inertia_render(request, "Legal", props={"kind": "imprint", "contact": _contact()})
 
 
 class PrivacyView(View):
     """Privacy Policy page driven by CONTACT_* settings (public)."""
 
     def get(self, request):
-        return render(request, "core/privacy.html")
+        return inertia_render(request, "Legal", props={"kind": "privacy", "contact": _contact()})
 
 
 class AuditLogListView(GroupRequiredMixin, LoginRequiredMixin, View):
