@@ -34,7 +34,7 @@ DartsClubPortal (Django, 1 container, 1 SQLite database, 1 volume)
 ├── players     people (shared by all modules)
 ├── penalty     the existing penalty apps (teams, matchdays, penalties, dashboard, seasons …)
 ├── elo         NEW: matches, Elo calculation, ranking, statistics, head-to-head,
-│               export (PDF/CSV), QR login
+│               export (CSV), QR login
 ├── portal      "My overview": Elo tile + penalty tile
 └── importer    imports of the Elo and the penalty database
 ```
@@ -159,7 +159,7 @@ import → verification report**.
 | **0** | Base: fork, name/branding, module switch `MODULES`, menu, tests green | ✅ portal = today's penalty app, modules switchable |
 | **1** | Design: new base template + UI kit, penalty pages restyled, screenshots | ✅ target design in place |
 | **2** | Elo core: models, Elo calculation, recalculation, ranking, statistics, head-to-head + ported tests | ✅ calculation identical to Elo |
-| **3** | Elo UI: ranking, match entry, statistics, head-to-head, administration, PDF/CSV, QR login, messaging, German/English | ✅ Elo module usable |
+| **3** | Elo UI: ranking, match entry, statistics, head-to-head, administration, CSV export, QR login, messaging, German/English | ✅ Elo module usable |
 | **4** | Import: `import_elo` + `import_penalty` with preview, matching, transaction, verification report; admin upload | ✅ data of both systems importable |
 | **5** | "My overview" (Elo + penalty), club accounts, role polish, per-module access (Elo-only users) | ✅ see docs/ROLES.md |
 | **6** | One image, Compose/Portainer example, switch-over guide, end-to-end test with real copies of both databases | ready to switch |
