@@ -45,7 +45,13 @@ services:
     environment:
       # ── Club portal ────────────────────────────────────────────────────
       - SITE_NAME=Darts Club Portal                 # Name in navbar, page titles and e-mails
-      - MODULES=penalty                             # Enabled modules: penalty, elo (comma separated) | Default: penalty
+      - MODULES=elo,penalty                         # Enabled modules: elo, penalty (comma separated) | Default: elo,penalty
+      - DEFAULT_START_PAGE=elo                      # Start page: elo, penalty, overview | Default: elo
+      # - PUBLIC_SITE_URL=https://darts.example.com # Address used in e-mail links (unsubscribe, match mails)
+      # - ELO_K_FACTOR=32                           # Elo K-factor | Default: 32
+      # - ELO_INACTIVITY_MONTHS=3                   # Months without a match -> inactive | Default: 3
+      # - ELO_LEGACY_JWT_SECRET=...                 # JWT_SECRET of the old Elo system (old QR codes keep working)
+      # - ELO_LEGACY_QR_LOGIN=true                  # Oldest QR codes with password in the URL | Default: true
       # ── Django core ────────────────────────────────────────────────────
       - DJANGO_SECRET_KEY=CHANGE_ME_GENERATE_RANDOM   # Secret key | Any random string | ⚠ CHANGE THIS
       - DJANGO_DEBUG=False                            # Debug mode | true, false | Default: False
