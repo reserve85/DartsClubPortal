@@ -3574,6 +3574,33 @@ msgstr "Der Upload ist abgelaufen. Bitte die Datei erneut hochladen."
 msgid "Optional captaincy: the team this account leads (any role)."
 msgstr "Optional: die Mannschaft, deren Kapitän dieses Konto ist (jede Rolle)."
 
+msgid "Upload"
+msgstr "Hochladen"
+
+msgid "Remove picture"
+msgstr "Bild entfernen"
+
+msgid "Shown in every round avatar of the portal (cropped to a square)."
+msgstr "Wird in jedem runden Avatar im Portal angezeigt (quadratisch zugeschnitten)."
+
+msgid "Picture"
+msgstr "Bild"
+
+msgid "Picture removed."
+msgstr "Bild entfernt."
+
+msgid "Picture saved."
+msgstr "Bild gespeichert."
+
+msgid "This file is not a picture."
+msgstr "Diese Datei ist kein Bild."
+
+msgid "The picture is too large (max. 8 MB)."
+msgstr "Das Bild ist zu groß (max. 8 MB)."
+
+msgid "picture"
+msgstr "Bild"
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 

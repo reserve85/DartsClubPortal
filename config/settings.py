@@ -342,6 +342,8 @@ LOCALE_PATHS = [BASE_DIR / "locale"]
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "app" / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+# Uploaded pictures (player avatars) live on the data volume next to the DB.
+MEDIA_ROOT = Path(env("MEDIA_ROOT", "") or (SQLITE_PATH.parent / "media"))
 
 STORAGES = {
     "default": {

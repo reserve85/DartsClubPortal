@@ -180,6 +180,7 @@
 {% include "includes/_cookie_consent.html" %}
 
 <div id="ui-toasts" aria-live="polite"></div>
+{{ avatar_map|json_script:"avatar-map" }}
 <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
 <script src="{% static 'js/club-ui.js' %}"></script>
 <script src="{% static 'js/base.js' %}"></script>

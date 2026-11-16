@@ -80,6 +80,7 @@
         </form>
     </div>
     <div class="col-lg-5">
+        {% if request.user.player_link %}{% url 'accounts:settings' as settings_url %}{% include "includes/_avatar_form.html" with target=request.user.player_link next_url=settings_url %}{% endif %}
         <div class="ui-card">
             <h2 class="ui-section-title h5">{% translate "Change password" %}</h2>
             <p class="text-muted small">{% translate "Set a new password for your account." %}</p>

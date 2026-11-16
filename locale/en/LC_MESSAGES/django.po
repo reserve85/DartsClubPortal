@@ -2595,3 +2595,30 @@ msgstr ""
 
 msgid "Optional captaincy: the team this account leads (any role)."
 msgstr ""
+
+msgid "Upload"
+msgstr ""
+
+msgid "Remove picture"
+msgstr ""
+
+msgid "Shown in every round avatar of the portal (cropped to a square)."
+msgstr ""
+
+msgid "Picture"
+msgstr ""
+
+msgid "Picture removed."
+msgstr ""
+
+msgid "Picture saved."
+msgstr ""
+
+msgid "This file is not a picture."
+msgstr ""
+
+msgid "The picture is too large (max. 8 MB)."
+msgstr ""
+
+msgid "picture"
+msgstr ""

@@ -71,6 +71,16 @@ def _nav_section(request) -> str:
     return ""
 
 
+def _avatar_map(request) -> dict:
+    """Name -> picture URL of every player with a picture (signed-in only)."""
+    user = getattr(request, "user", None)
+    if user is None or not user.is_authenticated:
+        return {}
+    from app.players.avatars import avatar_map
+
+    return avatar_map()
+
+
 def _penalty_page(request) -> bool:
     """True on pages of the penalty module (the season picker belongs there)."""
     from app.core.access import module_of
@@ -154,6 +164,7 @@ def site_context(request):
         "seasons": seasons,
         "active_season": active_season,
         "nav_section": _nav_section(request),
+        "avatar_map": _avatar_map(request),
         "penalty_page": _penalty_page(request),
         "unread_notification_count": _unread_notifications(request),
         "pending_approval_count": _pending_approval_count(request),

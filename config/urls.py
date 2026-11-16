@@ -22,6 +22,7 @@ from django.urls import include, path
 from app.accounts.qr import LegacyAutoLoginView, QrLoginView
 from app.core import views as core_views
 from app.core.modules import ELO, PENALTY, enabled_modules
+from app.players.avatars import AvatarFileView, AvatarUploadView
 
 _MODULES = enabled_modules()
 
@@ -70,6 +71,8 @@ urlpatterns += i18n_patterns(
     *([path("elo/", include("app.elo.urls"))] if ELO in _MODULES else []),
     path("audit/", core_views.AuditLogListView.as_view(), name="audit_list"),
     path("import/", include("app.importer.urls")),
+    path("avatars/upload/", AvatarUploadView.as_view(), name="avatar_upload"),
+    path("avatars/<str:name>", AvatarFileView.as_view(), name="player_avatar"),
     path("imprint/", core_views.ImprintView.as_view(), name="imprint"),
     path("privacy/", core_views.PrivacyView.as_view(), name="privacy"),
     prefix_default_language=False,

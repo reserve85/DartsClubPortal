@@ -113,6 +113,8 @@ class Player(models.Model):
         help_text=_("A player can belong to multiple teams — per season."),
     )
     active = models.BooleanField(default=True, verbose_name=_("active"))
+    # File name of the picture in MEDIA_ROOT/avatars (see app/players/avatars.py).
+    avatar = models.CharField(_("picture"), max_length=80, blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("created at"))
 
     objects = PlayerManager()

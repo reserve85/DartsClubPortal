@@ -19,12 +19,30 @@
         return PALETTE[h % PALETTE.length];
     }
 
+    var AVATARS = null;
+    function avatarMap() {
+        if (AVATARS === null) {
+            var src = document.getElementById("avatar-map");
+            try { AVATARS = src ? JSON.parse(src.textContent) : {}; } catch (e) { AVATARS = {}; }
+        }
+        return AVATARS;
+    }
+    // Uploaded picture instead of the initials (round, same size).
+    function applyPicture(el, name) {
+        var url = avatarMap()[name];
+        if (!url) return;
+        el.style.backgroundImage = "url('" + url + "')";
+        el.classList.add("has-img");
+        el.textContent = "";
+    }
+
     function avatar(name, size) {
         var el = document.createElement("span");
         el.className = "ui-avatar" + (size ? " " + size : "");
         el.setAttribute("aria-hidden", "true");
         el.textContent = initials(name);
         el.style.setProperty("--ui-av", avatarColor(name));
+        applyPicture(el, name);
         return el;
     }
 
@@ -92,12 +110,13 @@
         });
     }
 
-    window.clubUi = { initials: initials, avatarColor: avatarColor, avatar: avatar, toast: toast, labelTables: labelTables };
+    window.clubUi = { initials: initials, avatarColor: avatarColor, avatar: avatar, toast: toast, labelTables: labelTables, applyPicture: applyPicture };
 
     function init() {
         document.querySelectorAll(".ui-avatar[data-name]").forEach(function (el) {
             el.textContent = initials(el.getAttribute("data-name"));
             if (!el.classList.contains("is-a") && !el.classList.contains("is-b")) el.style.setProperty("--ui-av", avatarColor(el.getAttribute("data-name")));
+            applyPicture(el, el.getAttribute("data-name"));
         });
         labelTables();
         personLinks();
