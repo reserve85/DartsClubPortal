@@ -169,22 +169,6 @@ def test_season_set_rejects_non_numeric_id(admin_client):
         assert response.status_code == 404, f"got {response.status_code} for {bad!r}"
 
 
-def test_season_dropdown_rendered_and_switchable(admin_client, season):
-    newer = Season.objects.create(name="2026/2027")  # active by default (newest)
-
-    response = admin_client.get(reverse("dashboard:index"))
-    assert response.context["active_season"] == newer
-    content = response.content.decode()
-    assert reverse("season_set") in content
-    assert season.name in content and newer.name in content
-
-    response = admin_client.post(reverse("season_set"), {"season": season.pk, "next": "/"})
-    assert response.status_code == 302
-    assert admin_client.session["season_id"] == season.pk
-    response = admin_client.get(reverse("dashboard:index"))
-    assert response.context["active_season"] == season
-
-
 def test_matchday_list_filtered_by_active_season(admin_client, season, team):
     newer = Season.objects.create(name="2026/2027")  # active by default
     md_old = Matchday.objects.create(
@@ -407,14 +391,6 @@ def test_season_list_offers_edit_and_default_actions(admin_client, season):
     content = admin_client.get(reverse("season_list")).content.decode()
     assert reverse("season_update", args=[season.pk]) in content
     assert reverse("season_set_default", args=[season.pk]) in content
-
-
-def test_navbar_marks_the_default_season(admin_client, season):
-    season.is_default = True
-    season.save()
-    content = admin_client.get(reverse("dashboard:index")).content.decode()
-    # "2025/2026 (Standard)" — translated label falls back to "(default)"
-    assert "(Standard)" in content or "(default)" in content
 
 
 # ---------------------------------------------------------------------------

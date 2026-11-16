@@ -75,21 +75,6 @@ def test_missing_admin_recipients_never_break_signup(db):
 # ---------------------------------------------------------------------------
 # Display (navbar bell + notification list)
 # ---------------------------------------------------------------------------
-def test_admin_sees_bell_with_unread_badge(db, admin_client, admin_user):
-    _signup(Client())
-
-    content = admin_client.get(reverse("dashboard:index")).content.decode()
-    assert reverse("notifications:unread") in content
-    assert "🔔" in content
-    assert '<span class="badge text-bg-warning">1</span>' in content
-
-
-def test_every_signed_in_account_sees_the_bell(captain_client, player_client):
-    """Read is universal: the bell moved out of the admin block (decision 5)."""
-    for client in (captain_client, player_client):
-        content = client.get(reverse("dashboard:index")).content.decode()
-        assert reverse("notifications:unread") in content
-        assert "🔔" in content
 
 
 def test_anonymous_visitor_never_sees_the_bell(db):

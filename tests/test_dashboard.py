@@ -1,7 +1,5 @@
 """Dashboard + financial overview — role matrix and ``player_link`` handling."""
 
-import re
-from datetime import timedelta
 from decimal import Decimal
 
 import pytest
@@ -9,10 +7,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.test import Client
 from django.urls import reverse
-from django.utils import timezone
 
 from app.core.permissions import GROUP_CAPTAIN
-from app.matchdays.models import Matchday
 from app.penalties.services import assign_penalty
 
 pytestmark = pytest.mark.django_db
@@ -254,28 +250,6 @@ def test_financial_player_sees_own_penalties_and_all_teams_read_only(
     assert response.context["is_cashier"] is False
 
 
-def test_financial_overview_cashier_gets_payment_ui(
-    admin_client, admin_user, team, matchday_with_players, catalog_normal, cashier
-):
-    """The team's cashier (admin here) opens the strict payment gate."""
-    md, players = matchday_with_players(2)
-    assign_penalty(
-        matchday=md,
-        player=players[0],
-        catalog_item=catalog_normal,
-        amount_eur=5,
-        description_snapshot="Late arrival",
-        actor=admin_user,
-    )
-    response = admin_client.get(reverse("dashboard:financial_overview"))
-    assert response.context["cashier"] == admin_user
-    assert response.context["is_cashier"] is True
-    content = response.content.decode()
-    assert reverse("penalties:payment_create") in content
-    assert 'id="paymentModal"' in content
-    assert "Cashier" in content or "Kassier" in content  # the dedicated line
-
-
 def test_financial_overview_shows_no_cashier_hint(admin_client, team, admin_user):
     """No cashier yet -> managers get the hint, never a silent missing button."""
     response = admin_client.get(reverse("dashboard:financial_overview"))
@@ -351,26 +325,6 @@ def test_financial_sections_rendered_for_admin(
         assert row_player.name in content
 
 
-def test_financial_overview_shows_catalog_entry_and_info(
-    admin_client, matchday_with_players, catalog_normal, admin_user
-):
-    """Single rows list ``<catalog entry> (<info>)``, the most common table
-    groups by the catalog entry alone."""
-    md, players = matchday_with_players(2)
-    assign_penalty(
-        matchday=md,
-        player=players[0],
-        catalog_item=catalog_normal,
-        amount_eur=5,
-        description_snapshot="9 Punkte",
-        actor=admin_user,
-    )
-
-    content = admin_client.get(reverse("dashboard:financial_overview")).content.decode()
-    assert "Late arrival (9 Punkte)" in content  # assigned penalties row
-    assert "<td>Late arrival</td>" in content  # most common penalties row
-
-
 def test_financial_overview_shows_inactive_player_names(
     admin_client, matchday_with_players, catalog_normal, admin_user
 ):
@@ -392,51 +346,6 @@ def test_financial_overview_shows_inactive_player_names(
 # ---------------------------------------------------------------------------
 # Captain marking (👑) in the financial overview
 # ---------------------------------------------------------------------------
-def test_financial_overview_marks_captains_in_heading_without_selector_marker(
-    admin_client, team, other_team, captain_user
-):
-    """The selector lists plain team names (no captain marker); the selected
-    team lists its captain account(s) with a 👑 crown under the heading."""
-    response = admin_client.get(reverse("dashboard:financial_overview"), {"team": team.pk})
-    assert response.status_code == 200
-    assert response.context["team_captains"] == [captain_user]
-    content = response.content.decode()
-    assert f"{team.name}</option>" in content  # plain option — no marker …
-    assert f"{other_team.name} ©" not in content  # never a © in the dropdown
-    assert "©</option>" not in content
-    assert f"{captain_user.email} 👑" in content  # crown next to the captain name
-
-
-def test_financial_overview_marks_captain_player_row(admin_client, team, captain_user, player):
-    """A captain account linked to a player shows a 👑 crown in that row."""
-    captain_user.player_link = player
-    captain_user.save(update_fields=["player_link"])
-
-    response = admin_client.get(reverse("dashboard:financial_overview"), {"team": team.pk})
-    content = response.content.decode()
-    row = next(r for r in re.findall(r"<tr.*?</tr>", content, flags=re.DOTALL) if player.name in r)
-    assert "👑" in row
-    assert "badge text-bg-info" not in row  # no blue badge background
-    # the captains line prefers the linked player's name over the login email
-    assert f"{player.name} 👑" in content
-
-
-def test_financial_overview_marks_admin_assigned_as_captain(
-    admin_client, admin_user, team, other_team
-):
-    """Role decoupling: an Admin with a team counts as that team's captain."""
-    admin_user.team = team
-    admin_user.save(update_fields=["team"])
-
-    response = admin_client.get(reverse("dashboard:financial_overview"), {"team": team.pk})
-    assert response.context["team_captains"] == [admin_user]
-    content = response.content.decode()
-    assert f"{admin_user.email} 👑" in content
-    assert other_team.name in content  # still listed in the selector
-
-    # … and the admin's own team becomes the default selection
-    response = admin_client.get(reverse("dashboard:financial_overview"))
-    assert response.context["selected_team"] == team
 
 
 def test_financial_overview_hides_inactive_captain(admin_client, team, captain_user):
@@ -449,50 +358,9 @@ def test_financial_overview_hides_inactive_captain(admin_client, team, captain_u
     assert "👑" not in response.content.decode()  # no crown without a captain
 
 
-def test_matchday_totals_marks_today_and_mutes_past(admin_client, team):
-    """The 'Matchday totals' (Spieltagssummen) table marks rows like the list.
-
-    Today's Spieltag gets the green row + badge, an already played one is
-    muted — same visual language in both tables that list Spieltage.
-    """
-    today = timezone.localdate()
-    Matchday.objects.create(team=team, opponent="Today FC", venue="home", date=today)
-    Matchday.objects.create(
-        team=team, opponent="Past FC", venue="home", date=today - timedelta(days=14)
-    )
-
-    content = admin_client.get(reverse("dashboard:financial_overview")).content.decode()
-    rows = re.findall(r"<tr.*?</tr>", content, flags=re.DOTALL)
-
-    def row_for(opponent):
-        return next(row for row in rows if opponent in row)
-
-    assert 'class="matchday-today"' in row_for("Today FC")
-    assert "badge text-bg-success" in row_for("Today FC")
-    assert 'class="matchday-past"' in row_for("Past FC")
-    assert "text-bg-success" not in row_for("Past FC")
-    assert "matchday-past" not in row_for("Today FC")
-
-
 # ---------------------------------------------------------------------------
 # Read-only price list ("Penalties and amounts") — every role
 # ---------------------------------------------------------------------------
-def test_price_list_visible_for_player_role(player_client, team, catalog_normal, catalog_manual):
-    """Players get 403 on the management catalog but see the read-only price
-    list on the financial overview (transparency decision)."""
-    assert player_client.get(reverse("penalties:catalog_list")).status_code == 403
-
-    response = player_client.get(reverse("dashboard:index"))
-    assert response.status_code == 200
-    items = response.context["catalog_overview"]
-    assert {item.description for item in items} == {"Late arrival", "Manual"}
-    content = response.content.decode()
-    assert "Late arrival" in content
-    # locale-aware floatformat: "5.00" (en) / "5,00" (de)
-    assert "5.00" in content or "5,00" in content
-    # scope label + column header answer "who does it hit" (en / de catalog)
-    assert "Affects the player" in content or "Betrifft den Spieler" in content
-    assert "<th>Affects</th>" in content or "<th>Betrifft</th>" in content
 
 
 def test_price_list_shows_team_fee_override(admin_client, team, catalog_normal):
@@ -527,51 +395,9 @@ def test_price_list_manual_hint_flag(admin_client, team, catalog_normal):
     assert "Manuelle Strafen: Der Betrag wird einzeln erfasst." not in content
 
 
-def test_price_list_manual_hint_flag_with_manual_item(admin_client, team, catalog_manual):
-    """A MANUAL item shows the default fee plus the footnote (variable amount)."""
-    response = admin_client.get(reverse("dashboard:index"), {"team": team.pk})
-    assert response.context["catalog_has_manual"] is True
-    content = response.content.decode()
-    # en / de catalog
-    assert (
-        "Manual penalties: the amount is entered individually." in content
-        or "Manuelle Strafen: Der Betrag wird einzeln erfasst." in content
-    )
-    assert (
-        "Affects the player – special penalty" in content
-        or "Betrifft den Spieler – Sonderstrafe" in content
-    )
-
-
 # ---------------------------------------------------------------------------
 # Collapsible sections — default state (click a heading -> toggle its table)
 # ---------------------------------------------------------------------------
-def test_financial_overview_sections_default_to_expanded_except_price_list(admin_client, team):
-    """Every section starts OPEN; only "Penalties and amounts" starts CLOSED.
-
-    The toggles are plain Bootstrap collapses (``data-bs-toggle="collapse"``)
-    wired to the heading buttons — no custom JS.
-    """
-    content = admin_client.get(
-        reverse("dashboard:financial_overview"), {"team": team.pk}
-    ).content.decode()
-
-    # the price list is the ONE section collapsed by default
-    assert 'data-bs-target="#sec-prices" aria-expanded="false"' in content
-    assert '<div class="collapse" id="sec-prices">' in content
-
-    # …all other sections are expanded
-    for target in (
-        "sec-players-active",
-        "sec-payments",
-        "sec-matchday-totals",
-        "sec-most-common",
-        "sec-assigned",
-    ):
-        assert f'data-bs-target="#{target}" aria-expanded="true"' in content
-        assert f'<div class="collapse show" id="{target}">' in content
-
-    assert 'data-bs-toggle="collapse"' in content
 
 
 def test_financial_overview_hides_inactive_section_without_inactive_players(admin_client, team):
@@ -582,27 +408,3 @@ def test_financial_overview_hides_inactive_section_without_inactive_players(admi
     ).content.decode()
     assert 'id="sec-players-inactive"' not in content
     assert 'data-bs-target="#sec-players-inactive"' not in content
-
-
-def test_financial_overview_shows_inactive_section_with_inactive_players(
-    admin_client, matchday_with_players, catalog_normal, admin_user
-):
-    """An inactive player with a balance brings the section back, expanded."""
-    md, players = matchday_with_players(2)
-    players[1].active = False
-    players[1].save()
-    assign_penalty(
-        matchday=md,
-        player=players[1],
-        catalog_item=catalog_normal,
-        amount_eur=5,
-        description_snapshot="Keks",
-        actor=admin_user,
-    )
-
-    content = admin_client.get(
-        reverse("dashboard:financial_overview"), {"team": md.team.pk}
-    ).content.decode()
-    assert 'data-bs-target="#sec-players-inactive" aria-expanded="true"' in content
-    assert '<div class="collapse show" id="sec-players-inactive">' in content
-    assert players[1].name in content

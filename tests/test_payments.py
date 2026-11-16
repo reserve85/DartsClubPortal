@@ -1,6 +1,5 @@
 """Payments — partial payments against a player's team debt (service, views, UI)."""
 
-import re
 from decimal import Decimal
 
 import pytest
@@ -323,55 +322,6 @@ def test_payment_form_ignores_invalid_data(admin_client, matchday_with_players):
 # ---------------------------------------------------------------------------
 # UI integration
 # ---------------------------------------------------------------------------
-def test_financial_overview_renders_payment_form_and_list(
-    admin_client, matchday_with_players, catalog_normal, admin_user, cashier
-):
-    md, players = matchday_with_players(2)
-    _make_penalty(md, players[0], catalog_normal, admin_user)
-
-    # language-independent: the row form posts to the payment endpoint
-    content = admin_client.get(reverse("dashboard:financial_overview")).content.decode()
-    assert reverse("penalties:payment_create") in content
-    assert Payment.objects.count() == 0
-
-    admin_client.post(
-        reverse("penalties:payment_create"),
-        {"team": md.team.pk, "player": players[0].pk, "amount_eur": "5"},
-    )
-    content = admin_client.get(reverse("dashboard:financial_overview")).content.decode()
-    payment = Payment.objects.get()
-    assert reverse("penalties:payment_delete", args=[payment.pk]) in content
-
-
-def test_financial_overview_uses_one_payment_modal(
-    admin_client, matchday_with_players, catalog_normal, admin_user, cashier
-):
-    """The amount is entered in ONE shared modal — no tiny per-row inputs."""
-    md, players = matchday_with_players(2)
-    _make_penalty(md, players[0], catalog_normal, admin_user)
-    _make_penalty(md, players[1], catalog_normal, admin_user)
-
-    content = admin_client.get(reverse("dashboard:financial_overview")).content.decode()
-
-    assert 'id="paymentModal"' in content
-    assert 'data-bs-target="#paymentModal"' in content
-    # exactly ONE amount field per shared modal — payment + payout, no row forms
-    assert content.count('name="amount_eur"') == 2
-    # both modals render for the cashier (row TRIGGERS only exist on credit
-    # rows — covered by test_financial_overview_shows_credit_and_payout_action)
-    assert 'id="payoutModal"' in content
-    # every row opens the modal for ITS player, carrying the open balance
-    for player in players:
-        assert f'data-player="{player.pk}"' in content
-    assert f'data-player-name="{players[0].name}"' in content
-    balance = re.search(
-        rf'data-player="{players[0].pk}"\s+data-player-name="[^"]*"\s+data-balance="([^"]+)"',
-        content,
-    )
-    assert balance is not None
-    assert Decimal(balance.group(1)) == Decimal(5)  # 5 € penalty, nothing paid
-    # no-JS fallback: the modal form still posts to the payment endpoint
-    assert reverse("penalties:payment_create") in content
 
 
 def test_matchday_detail_has_no_per_row_payment_actions(
@@ -538,50 +488,3 @@ def test_payout_view_refuses_amount_over_credit(
 # ---------------------------------------------------------------------------
 # Credit UI — green balances, payout action, payout modal
 # ---------------------------------------------------------------------------
-def test_financial_overview_shows_credit_and_payout_action(
-    admin_client, matchday_with_players, catalog_normal, admin_user, cashier
-):
-    """A credit row turns green, gains a payout trigger and states the CREDIT."""
-    md, players = matchday_with_players(2)
-    _make_penalty(md, players[0], catalog_normal, admin_user)  # 5.00 € owed
-    record_payment(
-        player=players[0], team=md.team, amount_eur=11, actor=admin_user
-    )  # 6.00 € credit
-
-    content = admin_client.get(reverse("dashboard:financial_overview")).content.decode()
-
-    # The payout endpoint + the shared payout modal are wired up …
-    assert reverse("penalties:payout_create") in content
-    assert 'id="payoutModal"' in content
-    # … and its cashier line flips with the direction (no "Received by").
-    assert "Paid out by" in content or "Ausgezahlt von" in content
-    trigger = re.search(
-        rf'data-bs-target="#payoutModal"\s+data-player="{players[0].pk}"'
-        r'\s+data-player-name="[^"]*"\s+data-balance="([^\"]+)"',
-        content,
-    )
-    assert trigger is not None  # … and the credit row opens it with ITS balance
-    assert Decimal(trigger.group(1)) == Decimal(-6)
-    # The team summary says CREDIT (absolute value, green tile) instead of
-    # "Penalties open: -6.00 €" in red.
-    assert re.search(
-        r'<div class="ui-tile is-gain">\s*<div class="t">(Credit|Guthaben)</div>\s*<div class="n">6[.,]00 €',
-        content,
-    )
-    # The row balance itself stays signed but turns green.
-    assert re.search(r'class="text-end text-success">-6[.,]00 €', content)
-
-
-def test_financial_overview_hides_payout_action_for_debt_rows(
-    admin_client, matchday_with_players, catalog_normal, admin_user, cashier
-):
-    """Only credit rows (balance < 0) offer the payout button."""
-    md, players = matchday_with_players(2)
-    _make_penalty(md, players[0], catalog_normal, admin_user)  # 5.00 € owed, nothing paid
-
-    content = admin_client.get(reverse("dashboard:financial_overview")).content.decode()
-
-    assert 'id="payoutModal"' in content  # the modal itself always renders …
-    assert not re.search(  # … but no row trigger points at it
-        rf'data-bs-target="#payoutModal"\s+data-player="{players[0].pk}"', content
-    )

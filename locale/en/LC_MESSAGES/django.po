@@ -2685,3 +2685,45 @@ msgstr ""
 
 msgid "Colour scheme"
 msgstr ""
+
+msgid "Inactive players with open amounts"
+msgstr ""
+
+msgid "Most common"
+msgstr ""
+
+msgid "No captain yet"
+msgstr ""
+
+msgid "No cashier has been set for this team yet."
+msgstr ""
+
+msgid "No players in this team yet."
+msgstr ""
+
+msgid "No team in this season yet."
+msgstr ""
+
+msgid "Pay out"
+msgstr ""
+
+msgid "Pay out credit"
+msgstr ""
+
+msgid "Price list"
+msgstr ""
+
+msgid "Revert"
+msgstr ""
+
+msgid "Revert payment?"
+msgstr ""
+
+msgid "Set cashier"
+msgstr ""
+
+msgid "Special penalty: the amount is entered individually; the fee shown is the default."
+msgstr ""
+
+msgid "read only"
+msgstr ""

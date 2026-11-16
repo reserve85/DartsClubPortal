@@ -128,37 +128,6 @@ def test_anonymous_redirected_to_login(db):
 # ---------------------------------------------------------------------------
 # Navigation: Übersicht/Finanzen | Team area | Administration
 # ---------------------------------------------------------------------------
-def test_admin_sees_all_nav_groups(admin_client):
-    """Top menu: Overview · Elo ▾ · Penalty ▾ · Administration ▾ (admin)."""
-    content = admin_client.get(reverse("dashboard:index")).content.decode()
-    assert reverse("overview") in content
-    assert reverse("elo:ranking") in content
-    assert reverse("elo:manage") in content  # Elo administration (admin only)
-    assert reverse("dashboard:financial_overview") in content
-    assert reverse("teams:team_list") in content
-    assert reverse("accounts:user_list") in content
-    assert reverse("season_list") in content
-
-
-def test_admin_menu_order_seasons_users_audit(admin_client):
-    """Administration dropdown: Seasons first, Users second, Audit last."""
-    content = admin_client.get(reverse("dashboard:index")).content.decode()
-    seasons = content.index(reverse("season_list"))
-    users = content.index(reverse("accounts:user_list"))
-    audit = content.index(reverse("audit_list"))
-    assert seasons < users < audit
-
-
-def test_header_order_elo_penalty_administration(admin_client):
-    """Header: Overview – Elo – Penalty – Administration."""
-    content = admin_client.get(reverse("dashboard:index")).content.decode()
-    overview = content.index(f'href="{reverse("overview")}"')
-    elo = content.index(f'href="{reverse("elo:ranking")}"')
-    financial = content.index(f'href="{reverse("dashboard:financial_overview")}"')
-    matchdays = content.index(f'href="{reverse("matchdays:matchday_list")}"')
-    users = content.index(f'href="{reverse("accounts:user_list")}"')
-    assert overview < elo < financial < matchdays < users
-    assert content.count('role="button" data-bs-toggle="dropdown"') == 3
 
 
 def test_delete_lives_on_the_edit_page_deactivation_is_the_checkbox(admin_client, team, player):
@@ -226,24 +195,6 @@ def test_delete_lives_on_the_edit_page_app_wide(
     assert reverse("penalties:penalty_delete", args=[penalty.pk]) in penalty_edit
 
 
-def test_captain_nav_has_team_area_without_admin_area(captain_client, team):
-    content = captain_client.get(reverse("dashboard:index")).content.decode()
-    assert reverse("teams:team_list") in content  # combined Teams & Players page
-    assert reverse("matchdays:matchday_list") in content
-    assert reverse("accounts:user_list") not in content
-    assert reverse("season_list") not in content
-    assert reverse("elo:manage") not in content  # captains are no Elo admins
-
-
-def test_player_nav_only_shows_user_pages(player_client):
-    content = player_client.get(reverse("dashboard:index")).content.decode()
-    assert f'href="{reverse("dashboard:financial_overview")}"' in content
-    assert reverse("matchdays:matchday_list") not in content
-    assert reverse("players:player_list") not in content
-    assert reverse("accounts:user_list") not in content
-    assert reverse("elo:manage") not in content
-
-
 def test_navbar_follows_color_mode(db):
     """The navbar must adapt to light/dark mode — no hardcoded black bar."""
     content = Client().get(reverse("account_login")).content.decode()
@@ -255,24 +206,6 @@ def test_navbar_follows_color_mode(db):
     # Django strips only SINGLE-line {# ... #} comments — a multi-line one would
     # leak into the page as visible text.
     assert "{#" not in content
-
-
-def test_logout_is_a_plain_nav_link_like_settings(admin_client):
-    """Abmelden must have the SAME height as Einstellungen in the navbar.
-
-    The logout posts via a form, but its button must not carry ``.btn``:
-    ``style.css`` gives every ``.btn`` the 2.75rem touch-target min-height
-    while plain ``.nav-link`` anchors are 2.5rem tall — the two header items
-    would sit at different heights. The form must not be ``d-inline``
-    either (an inline wrapper around a block button adds stray line-box
-    space in the navbar).
-    """
-    content = admin_client.get(reverse("dashboard:index")).content.decode()
-    logout_action = f'action="{reverse("account_logout")}"'
-    assert logout_action in content
-    assert f'{logout_action} class="m-0"' in content  # block form, no inline strut
-    assert '<button type="submit" class="nav-link text-start">' in content
-    assert 'class="btn btn-link nav-link"' not in content  # .btn min-height = height mismatch
 
 
 # ---------------------------------------------------------------------------

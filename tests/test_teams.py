@@ -6,6 +6,7 @@ from django.urls import reverse
 from app.core.models import AuditAction, AuditLog
 from app.players.models import Player
 from app.teams.models import Team
+from tests.conftest import inertia_props
 
 pytestmark = pytest.mark.django_db
 
@@ -128,15 +129,15 @@ def test_financial_overview_shows_roster_balances_and_links(
     content = response.content.decode()
 
     # each player is linked to its detail page …
-    assert reverse("players:player_detail", args=[players[0].pk]) in content
-    assert reverse("players:player_detail", args=[players[1].pk]) in content
+    ids = {r["playerId"] for r in inertia_props(response)["team"]["balances"]}
+    assert {players[0].pk, players[1].pk} <= ids  # rows link to /players/<id>/
     # … and the balance for THIS team is shown next to the name
     rows = {row.pk: row.balance for row in response.context["team_balances"]}
     assert rows[players[0].pk] == Decimal(5)
     assert rows[players[1].pk] == Decimal(0)
 
     # matchdays are linked to their detail page
-    assert reverse("matchdays:matchday_detail", args=[md.pk]) in content
+    assert md.pk in [m["id"] for m in inertia_props(response)["team"]["matchdays"]]  # linked rows
     assert md.display_label in content
 
 

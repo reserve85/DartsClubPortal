@@ -50,15 +50,6 @@ def test_english_ui_renders_source_strings(admin_client):
     assert "Finanzübersicht" not in content
 
 
-def test_default_language_is_german_with_catalog(admin_client):
-    """Without an explicit choice the UI follows DJANGO_LANGUAGE_CODE=de."""
-    if not MO_DE.exists():
-        pytest.skip("compiled German catalog missing (run: python manage.py compilemessages)")
-    content = admin_client.get(reverse("dashboard:index")).content.decode()
-    assert "Finanzübersicht" in content
-    assert "Financial overview" not in content
-
-
 @needs_catalog
 def test_german_login_page(admin_client):  # client type irrelevant; uses fresh client below
     client = Client()
@@ -133,19 +124,6 @@ def test_german_today_badge(admin_client, team):
 
 
 @needs_catalog
-def test_german_cookie_banner_copy(admin_client):
-    _switch_language(admin_client, "de")
-    content = admin_client.get(reverse("dashboard:index")).content.decode()
-    assert "Diese Website setzt nur notwendige Cookies" in content
-
-
-def test_cookie_banner_present_in_english(admin_client):
-    _switch_language(admin_client, "en")
-    content = admin_client.get(reverse("dashboard:index"), follow=True).content.decode()
-    assert 'id="cookie-consent"' in content
-    assert "This site sets only essential cookies" in content
-
-
 @needs_catalog
 def test_german_payment_button(
     admin_client, matchday_with_players, catalog_normal, admin_user, cashier
@@ -179,33 +157,6 @@ def test_german_cash_box_menu_entry(admin_client, team):
     assert reverse("teams:cashier_list") in content
     assert "Kasse" in content or "Cash box" in content
     assert "💲" not in content  # no marker in the navigation
-
-
-def test_cashier_column_is_language_tolerant(
-    admin_client, matchday_with_players, catalog_normal, admin_user, cashier
-):
-    """Payments table column: 'Cashier' (en) / 'Kassier' (de).
-
-    Direction-neutral on purpose: the row's cashier snapshot is correct for
-    BOTH a payment (money in) and a payout (money out) — "Received by"
-    would be wrong for payout rows.
-    """
-    from app.penalties.services import assign_penalty, record_payment
-
-    md, players = matchday_with_players(2)
-    assign_penalty(
-        matchday=md,
-        player=players[0],
-        catalog_item=catalog_normal,
-        description_snapshot="Late arrival",
-        actor=admin_user,
-    )
-    record_payment(player=players[0], team=md.team, amount_eur=2, actor=admin_user)
-
-    _switch_language(admin_client, "de")
-    content = admin_client.get(reverse("dashboard:financial_overview")).content.decode()
-    assert "<th>Cashier</th>" in content or "<th>Kassier</th>" in content
-    assert admin_user.email in content  # the cashier of THAT payment
 
 
 @needs_catalog

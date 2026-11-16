@@ -9,6 +9,8 @@ import os
 import sys
 from pathlib import Path
 
+from django.core.serializers.json import DjangoJSONEncoder
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -417,6 +419,17 @@ MODULES = env_list("MODULES", "elo,penalty")
 # Frontend: React + Mantine pages via Inertia, built by Vite into app/static/dist.
 INERTIA_LAYOUT = "inertia_layout.html"
 INERTIA_VERSION = env("APP_VERSION", "dev")
+
+
+class _Utf8JsonEncoder(DjangoJSONEncoder):
+    """Inertia page data as real UTF-8 (umlauts instead of \u00fc escapes)."""
+
+    def __init__(self, *args, **kwargs):
+        kwargs["ensure_ascii"] = False
+        super().__init__(*args, **kwargs)
+
+
+INERTIA_JSON_ENCODER = _Utf8JsonEncoder
 DJANGO_VITE = {
     "default": {
         # VITE_DEV_MODE=true: assets come from the Vite dev server (npm run dev).

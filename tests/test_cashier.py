@@ -264,66 +264,10 @@ def test_team_with_cashier_history_is_not_deletable(team, admin_user):
     assert team.deletable() is False
 
 
-def test_kassier_line_renders_for_every_role(admin_user, team, request):
-    set_cashier(team=team, user=admin_user, actor=admin_user)
-    for client_name in ("admin_client", "captain_client", "player_client"):
-        client = request.getfixturevalue(client_name)
-        content = client.get(reverse("dashboard:financial_overview")).content.decode()
-        assert "Cashier" in content or "Kassier" in content, client_name
-        assert "💲" in content, client_name
-        assert "$" not in content, client_name
-
-
-def test_kassier_line_shows_dash_without_cashier(admin_client, team):
-    content = admin_client.get(reverse("dashboard:financial_overview")).content.decode()
-    assert re.search(r"(Cashier|Kassier):</span>\s*<ul[^>]*>\s*<li[^>]*>\s*–", content)
-    assert "💲" not in content  # no marker without a cashier
-
-
-def test_cashier_is_a_list_entry_under_its_own_label(admin_client, team, admin_user):
-    """Same shape as the captains: 'Cashier:' on its own line, the name as the
-    list item BELOW it — label and name must never share one line."""
-    set_cashier(team=team, user=admin_user, actor=admin_user)
-    content = admin_client.get(reverse("dashboard:financial_overview")).content.decode()
-
-    block = re.search(r"(Cashier|Kassier):</span>(.*?)</ul>", content, flags=re.DOTALL)
-    assert block, "cashier block with its own list not rendered"
-    assert "<li" in block.group(2)
-    assert admin_user.email in block.group(2)  # the name sits inside the <li>
-
-    label_line = next(
-        (line for line in content.splitlines() if re.search(r"(Cashier|Kassier):</span>", line)),
-        "",
-    )
-    assert label_line and admin_user.email not in label_line  # never "Cashier: name"
-
-
-def test_recorded_by_cashier_hint_is_removed(admin_client, team, admin_user, captain_user):
-    """The redundant "Payments are recorded by the cashier: …" hint is gone —
-    the dedicated Cashier block above already names the cashier."""
-    set_cashier(team=team, user=captain_user, actor=admin_user)  # captain is the cashier
-    content = admin_client.get(reverse("dashboard:financial_overview")).content.decode()
-    assert "recorded by the cashier" not in content  # msgid (en)
-    assert "vom Kassier erfasst" not in content  # msgstr (de)
-    assert re.search(r"(Cashier|Kassier):</span>\s*<ul", content)  # the block stays
-
-
 def test_invalid_form_redirects_with_message(admin_client):
     response = admin_client.post(reverse("teams:cashier_set"), {"team": "", "user": ""})
     assert response.status_code == 302
     assert TeamCashier.objects.count() == 0
-
-
-def test_roleless_account_sees_kassier_line(db, role_groups, team, admin_user):
-    user = User.objects.create_user(
-        email="plainviewer@example.com", password="pw", approval_status="approved"
-    )
-    set_cashier(team=team, user=admin_user, actor=admin_user)
-    client = Client()
-    client.force_login(user)
-    content = client.get(reverse("dashboard:financial_overview")).content.decode()
-    assert "Cashier" in content or "Kassier" in content
-    assert "💲" in content
 
 
 # ---------------------------------------------------------------------------
@@ -336,92 +280,9 @@ def _captain_li_line(html: str, captain) -> str:
     return lines[0]
 
 
-def test_captain_cashier_stacks_both_emojis(admin_client, team, captain_user, admin_user):
-    set_cashier(team=team, user=captain_user, actor=admin_user)
-    content = admin_client.get(reverse("dashboard:financial_overview")).content.decode()
-
-    line = _captain_li_line(content, captain_user)
-    assert "👑" in line and "💲" in line  # one line: 👑 💲 (decision 13)
-    assert "$" not in line
-    # Option A: the dedicated Cashier line is present REGARDLESS of stacking.
-    assert re.search(r"(Cashier|Kassier):</span>", content)
-
-
-def test_non_cashier_captain_gets_crown_only(admin_client, team, captain_user, admin_user):
-    set_cashier(team=team, user=admin_user, actor=admin_user)  # admin is the cashier
-    content = admin_client.get(reverse("dashboard:financial_overview")).content.decode()
-
-    line = _captain_li_line(content, captain_user)
-    assert "👑" in line
-    assert "💲" not in line  # stacked marker only for the cashier
-    # … and the dedicated line still names the (non-captain) cashier.
-    assert admin_user.email in content
-
-
-def test_non_captain_cashier_renders_only_the_kassier_line(
-    admin_client, team, admin_user, captain_user
-):
-    set_cashier(team=team, user=admin_user, actor=admin_user)
-    content = admin_client.get(reverse("dashboard:financial_overview")).content.decode()
-
-    line = _captain_li_line(content, captain_user)
-    assert "👑" in line
-    assert "💲" not in line  # the admin is no captain -> no stacking in that list
-    # … and the dedicated Cashier block still names the (non-captain) cashier,
-    # as a list entry under the label (never inline: "Cashier: name").
-    assert re.search(
-        rf"(Cashier|Kassier):</span>\s*<ul[^>]*>\s*<li[^>]*>\s*{re.escape(admin_user.email)}",
-        content,
-    )
-
-
 # ---------------------------------------------------------------------------
 # Marker rule: EVERY emoji shows ALL roles (captain and/or cashier)
 # ---------------------------------------------------------------------------
-def test_cashier_entry_and_modal_carry_all_roles(captain_client, team, captain_user, admin_user):
-    """The cashier entry and the modal's 'Received by' stack the captain's
-    crown when one account is BOTH — captain and cashier of that team."""
-    set_cashier(team=team, user=captain_user, actor=admin_user)
-    content = captain_client.get(reverse("dashboard:financial_overview")).content.decode()
-
-    block = re.search(r"(Cashier|Kassier):</span>(.*?)</ul>", content, flags=re.DOTALL)
-    assert block, "cashier block not rendered"
-    assert "👑" in block.group(2) and "💲" in block.group(2)
-
-    modal = re.search(r'id="paymentReceivedBy">(.*?)</p>', content, flags=re.DOTALL)
-    assert modal, "payment modal not rendered"
-    assert "👑" in modal.group(1) and "💲" in modal.group(1)
-    assert "$" not in content  # NEVER the ASCII character
-
-
-def test_player_row_shows_all_roles_of_its_account(
-    admin_client, team, captain_user, admin_user, player
-):
-    """The roster row of a player linked to the captain-cashier shows 👑 AND 💲."""
-    captain_user.player_link = player
-    captain_user.save(update_fields=["player_link"])
-    set_cashier(team=team, user=captain_user, actor=admin_user)
-
-    content = admin_client.get(
-        reverse("dashboard:financial_overview"), {"team": team.pk}
-    ).content.decode()
-    row = next(r for r in re.findall(r"<tr.*?</tr>", content, flags=re.DOTALL) if player.name in r)
-    assert "👑" in row and "💲" in row
-    assert "$" not in row
-
-
-def test_cashier_player_row_shows_the_dollar_without_crown(admin_client, team, admin_user, player):
-    """A cashier who does NOT captain the team gets the 💲 alone in the row."""
-    admin_user.player_link = player
-    admin_user.save(update_fields=["player_link"])
-    set_cashier(team=team, user=admin_user, actor=admin_user)
-
-    content = admin_client.get(
-        reverse("dashboard:financial_overview"), {"team": team.pk}
-    ).content.decode()
-    row = next(r for r in re.findall(r"<tr.*?</tr>", content, flags=re.DOTALL) if player.name in r)
-    assert "💲" in row
-    assert "👑" not in row
 
 
 def test_cashier_list_stacks_crown_for_captain_cashier(

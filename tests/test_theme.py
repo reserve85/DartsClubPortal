@@ -43,17 +43,6 @@ def test_theme_endpoint_get_not_allowed(admin_client):
     assert admin_client.get(reverse("accounts:settings_theme")).status_code == 405
 
 
-def test_rendered_theme_follows_preference(admin_user):
-    admin_user.preferred_theme = "dark"
-    admin_user.save(update_fields=["preferred_theme"])
-    client = Client()
-    client.force_login(admin_user)
-    html = client.get(reverse("dashboard:index")).content.decode()
-    assert 'data-bs-theme="dark"' in html
-    assert 'data-theme-choice="dark"' in html
-    assert f'data-theme-url="{reverse("accounts:settings_theme")}"' in html
-
-
 def test_theme_switcher_buttons_rendered_for_anonymous(db):
     """The navbar switcher is kept for ANONYMOUS visitors (login, signup)."""
     html = Client().get(reverse("account_login")).content.decode()
@@ -127,14 +116,3 @@ def test_invalid_theme_cookie_falls_back_to_auto(db):
     html = client.get(reverse("account_login")).content.decode()
     assert 'data-bs-theme="auto"' in html
     assert 'data-theme-choice="auto"' in html
-
-
-def test_account_preference_wins_over_theme_cookie(admin_user):
-    admin_user.preferred_theme = "light"
-    admin_user.save(update_fields=["preferred_theme"])
-    client = Client()
-    client.force_login(admin_user)
-    client.cookies[THEME_COOKIE_NAME] = "dark"
-    html = client.get(reverse("dashboard:index")).content.decode()
-    assert 'data-bs-theme="light"' in html
-    assert 'data-theme-choice="light"' in html

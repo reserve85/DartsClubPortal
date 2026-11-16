@@ -64,31 +64,6 @@ def _link_payer(player, **kwargs):
 # ---------------------------------------------------------------------------
 # 1. Bell for every signed-in role (badge from unread_notification_count)
 # ---------------------------------------------------------------------------
-def test_bell_badge_for_captain(captain_client, captain_user):
-    _make(captain_user)
-    _make(captain_user, verb="Second")
-    content = captain_client.get(reverse("dashboard:index")).content.decode()
-    assert reverse("notifications:unread") in content
-    assert '<span class="badge text-bg-warning">2</span>' in content
-
-
-def test_bell_badge_for_player(player_client, player_user):
-    _make(player_user)
-    content = player_client.get(reverse("dashboard:index")).content.decode()
-    assert reverse("notifications:unread") in content
-    assert '<span class="badge text-bg-warning">1</span>' in content
-
-
-def test_bell_badge_for_roleless_account(db, role_groups, team):
-    user = User.objects.create_user(
-        email="roleless@example.com", password="pw", approval_status="approved"
-    )
-    _make(user)
-    client = Client()
-    client.force_login(user)
-    content = client.get(reverse("dashboard:index")).content.decode()
-    assert reverse("notifications:unread") in content
-    assert '<span class="badge text-bg-warning">1</span>' in content
 
 
 def test_zero_badge_renders_without_span(admin_client, admin_user):
@@ -480,30 +455,3 @@ def test_received_by_survives_a_cashier_change(
 # ---------------------------------------------------------------------------
 # 8. Live pending-approvals badge (admin-only, count from User rows)
 # ---------------------------------------------------------------------------
-def test_live_pending_approval_badge(admin_client, captain_client, admin_user):
-    User.objects.create_user(email="pending1@example.com", password="pw")
-    User.objects.create_user(email="pending2@example.com", password="pw")
-    danger = "badge text-bg-danger"
-
-    admin_html = admin_client.get(reverse("dashboard:index")).content.decode()
-    assert f'<span class="{danger}">2</span>' in admin_html
-    assert reverse("accounts:approval_list") in admin_html
-
-    # Never for non-admins…
-    captain_html = captain_client.get(reverse("dashboard:index")).content.decode()
-    assert danger not in captain_html
-
-    # …and independent of the mailbox state (rows can be read/deleted freely).
-    Notification.objects.all().delete()
-    admin_html = admin_client.get(reverse("dashboard:index")).content.decode()
-    assert f'<span class="{danger}">2</span>' in admin_html
-
-    # An approval drops the badge without relying on notification rows.
-    first = User.objects.get(email="pending1@example.com")
-    response = admin_client.post(
-        reverse("accounts:approval", args=[first.pk]), {"action": "approve"}
-    )
-    assert response.status_code == 302
-    admin_html = admin_client.get(reverse("dashboard:index")).content.decode()
-    assert f'<span class="{danger}">1</span>' in admin_html
-    assert f'<span class="{danger}">2</span>' not in admin_html

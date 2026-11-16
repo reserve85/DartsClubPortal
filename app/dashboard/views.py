@@ -1,8 +1,10 @@
 """Role-aware financial overview (season-scoped money data) — the start page."""
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.views import View
+from inertia import render as inertia_render
 
 from app.core.permissions import (
     user_can_manage_team,
@@ -105,10 +107,15 @@ class FinancialOverviewView(LoginRequiredMixin, View):
         if user_is_player(request.user):
             context.update(self._own_section(request, season))
 
-        if team is None:
-            return render(request, self.template_name, context)
-        context.update(self._context_for_team(team, teams, season, captains_by_team))
-        return render(request, self.template_name, context)
+        if team is not None:
+            context.update(self._context_for_team(team, teams, season, captains_by_team))
+        # template_data: the raw context stays visible to tests (response.context).
+        return inertia_render(
+            request,
+            "Penalty/Financial",
+            props=financial_props(request, season, context),
+            template_data=context,
+        )
 
     @staticmethod
     def _own_section(request, season) -> dict:
@@ -177,3 +184,133 @@ def _season_payments(queryset, season):
     if season is None:
         return queryset
     return queryset.filter(season=season)
+
+
+# ---------------------------------------------------------------- React props
+def _money(value) -> float:
+    return float(value or 0)
+
+
+def _penalty_row(p) -> dict:
+    return {
+        "id": p.pk,
+        "date": p.matchday.date.isoformat(),
+        "createdAt": p.created_at.date().isoformat(),
+        "player": p.player.name,
+        "playerId": p.player_id,
+        "matchday": p.matchday.display_label,
+        "matchdayId": p.matchday_id,
+        "description": p.display_description,
+        "amount": _money(p.amount_eur),
+    }
+
+
+def financial_props(request, season, ctx) -> dict:
+    """The financial overview as plain data (same rules as before)."""
+    from app.matchdays.models import Season
+    from app.players.avatars import avatars_for
+
+    team = ctx.get("selected_team")
+    props: dict = {
+        "seasons": [
+            {"id": s.pk, "name": s.name, "isDefault": s.is_default}
+            for s in Season.objects.order_by("-name")
+        ],
+        "seasonId": season.pk if season else None,
+        "teams": [{"id": t.pk, "name": t.name} for t in ctx.get("teams", [])],
+        "teamId": team.pk if team else None,
+        "own": None,
+        "team": None,
+    }
+    if ctx.get("own_mode"):
+        player = ctx.get("player")
+        props["own"] = (
+            {
+                "name": player.name,
+                "avatar": avatars_for([player.pk]).get(player.pk, ""),
+                "total": _money(ctx["own_total"]),
+                "paid": _money(ctx["own_paid"]),
+                "balance": _money(ctx["own_balance"]),
+                "penalties": [
+                    _penalty_row(p)
+                    for p in ctx["own_penalties"].select_related("matchday__team", "player")[:200]
+                ],
+            }
+            if player is not None
+            else {"noPlayerLink": True}
+        )
+    if team is None:
+        return props
+    balances = list(ctx["team_balances"])
+    inactive = list(ctx["inactive_balances"])
+    pics = avatars_for([p.pk for p in balances + inactive])
+    captain_ids = set(ctx["captain_player_ids"])
+    cashier = ctx["cashier"]
+    cashier_player_id = getattr(cashier, "player_link_id", None) if cashier else None
+    today = timezone.localdate()
+
+    def bal(p):
+        return {
+            "playerId": p.pk,
+            "name": p.name,
+            "avatar": pics.get(p.pk, ""),
+            "total": _money(p.total),
+            "paid": _money(p.paid),
+            "balance": _money(p.balance),
+            "isCaptain": p.pk in captain_ids,
+            "isCashier": p.pk == cashier_player_id,
+        }
+
+    props["team"] = {
+        "id": team.pk,
+        "name": team.name,
+        "captains": [c.full_name or c.email for c in ctx["team_captains"]],
+        "cashier": (cashier.full_name or cashier.email) if cashier else None,
+        "canManage": ctx["can_manage"],
+        "isCashier": ctx["is_cashier"],
+        "total": _money(ctx["team_penalties"]),
+        "paid": _money(ctx["team_paid"]),
+        "balance": _money(ctx["team_total"]),
+        "balances": [bal(p) for p in balances],
+        "inactive": [bal(p) for p in inactive],
+        "payments": [
+            {
+                "id": pay.pk,
+                "date": pay.created_at.date().isoformat(),
+                "player": pay.player.name,
+                "amount": _money(pay.amount_eur),
+                "receivedBy": (pay.received_by.full_name or pay.received_by.email)
+                if pay.received_by
+                else "",
+            }
+            for pay in ctx["payments"].select_related("received_by").order_by("-created_at")[:200]
+        ],
+        "matchdays": [
+            {
+                "id": m.pk,
+                "label": m.display_label,
+                "date": m.date.isoformat(),
+                "total": _money(m.total),
+                "isToday": m.date == today,
+                "isPast": m.date < today,
+            }
+            for m in ctx["matchday_totals"]
+        ],
+        "mostCommon": [
+            {"description": r["description"], "count": r["count"], "total": _money(r["total"])}
+            for r in ctx["most_common"]
+        ],
+        "catalog": [
+            {
+                "description": c.description,
+                "amount": _money(c.team_amount),
+                "manual": c.type == PenaltyType.MANUAL,
+            }
+            for c in ctx["catalog_overview"]
+        ],
+        "penalties": [
+            _penalty_row(p)
+            for p in ctx["assigned_penalties"].select_related("matchday__team", "player")[:300]
+        ],
+    }
+    return props

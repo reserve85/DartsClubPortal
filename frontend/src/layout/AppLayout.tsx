@@ -32,6 +32,7 @@ import {
   IconSun,
 } from "@tabler/icons-react";
 import { useEffect, type ReactNode } from "react";
+import { CookieNotice } from "../components/CookieNotice";
 import { NavIcon } from "../components/icons";
 import { PlayerAvatar } from "../components/PlayerAvatar";
 import { useT } from "../i18n";
@@ -234,6 +235,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       <AppShell.Main>
         <Box maw={1100} mx="auto" pb={96}>{children}</Box>
       </AppShell.Main>
+      <CookieNotice />
     </AppShell>
   );
 }

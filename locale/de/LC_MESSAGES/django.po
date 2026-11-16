@@ -3664,6 +3664,48 @@ msgstr "Tipp: Beim Import des Elo-Backup-ZIPs werden die alten Logos automatisch
 msgid "Colour scheme"
 msgstr "Farbschema"
 
+msgid "Inactive players with open amounts"
+msgstr "Inaktive Spieler mit offenen Beträgen"
+
+msgid "Most common"
+msgstr "Häufigste"
+
+msgid "No captain yet"
+msgstr "Noch kein Kapitän"
+
+msgid "No cashier has been set for this team yet."
+msgstr "Für dieses Team ist noch kein Kassier festgelegt."
+
+msgid "No players in this team yet."
+msgstr "Noch keine Spieler in diesem Team."
+
+msgid "No team in this season yet."
+msgstr "In dieser Saison gibt es noch kein Team."
+
+msgid "Pay out"
+msgstr "Auszahlen"
+
+msgid "Pay out credit"
+msgstr "Guthaben auszahlen"
+
+msgid "Price list"
+msgstr "Preisliste"
+
+msgid "Revert"
+msgstr "Stornieren"
+
+msgid "Revert payment?"
+msgstr "Zahlung stornieren?"
+
+msgid "Set cashier"
+msgstr "Kassier festlegen"
+
+msgid "Special penalty: the amount is entered individually; the fee shown is the default."
+msgstr "Sonderstrafe: Der Betrag wird jeweils einzeln eingegeben; angezeigt ist der Standardbetrag."
+
+msgid "read only"
+msgstr "nur lesen"
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 
