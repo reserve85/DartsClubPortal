@@ -19,7 +19,7 @@ from django.utils.translation import gettext as _
 from django.views import View
 from inertia import render as inertia_render
 
-from app.core.permissions import user_is_admin
+from app.core.permissions import user_is_portal_admin
 
 KINDS = ("light", "dark")
 MAX_BYTES = 5 * 1024 * 1024
@@ -85,7 +85,7 @@ class LogoFileView(View):
 
 class LogoAdminView(LoginRequiredMixin, View):
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated and not user_is_admin(request.user):
+        if request.user.is_authenticated and not user_is_portal_admin(request.user):
             raise PermissionDenied
         return super().dispatch(request, *args, **kwargs)
 

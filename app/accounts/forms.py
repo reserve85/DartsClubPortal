@@ -136,6 +136,21 @@ def inviteable_players_queryset():
     )
 
 
+ADMIN_AREA_FIELDS = ("admin_elo", "admin_penalty", "admin_portal")
+
+
+def clean_admin_areas(cleaned: dict) -> dict:
+    """Role Admin: the ticked areas (none ticked = every area). Role User: none."""
+    if cleaned.get("role") == GROUP_ADMIN:
+        if not any(cleaned.get(f) for f in ADMIN_AREA_FIELDS):
+            for f in ADMIN_AREA_FIELDS:
+                cleaned[f] = True
+    else:
+        for f in ADMIN_AREA_FIELDS:
+            cleaned[f] = False
+    return cleaned
+
+
 class UserCreateForm(forms.ModelForm):
     role = forms.ChoiceField(choices=ROLE_CHOICES, label=_("Role"), initial=RoleChoice.PLAYER.value)
     password1 = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
@@ -146,6 +161,9 @@ class UserCreateForm(forms.ModelForm):
         fields: ClassVar[list] = [
             "email",
             "role",
+            "admin_elo",
+            "admin_penalty",
+            "admin_portal",
             "team",
             "player_link",
             "is_active",
@@ -176,7 +194,7 @@ class UserCreateForm(forms.ModelForm):
         cleaned = super().clean()
         # The team field is a captaincy assignment, NOT a role requirement:
         # optional for Captain, allowed for Admin, never valid for Player.
-        return cleaned
+        return clean_admin_areas(cleaned)
 
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
@@ -357,6 +375,9 @@ class UserUpdateForm(forms.ModelForm):
         fields: ClassVar[list] = [
             "email",
             "role",
+            "admin_elo",
+            "admin_penalty",
+            "admin_portal",
             "team",
             "player_link",
             "is_active",
@@ -381,6 +402,18 @@ class UserUpdateForm(forms.ModelForm):
             elif self.instance.is_player:
                 role = GROUP_PLAYER
             self.fields["role"].initial = role
+            if role == GROUP_ADMIN and not any(
+                getattr(self.instance, f) for f in ADMIN_AREA_FIELDS
+            ):
+                for f in ADMIN_AREA_FIELDS:  # admin from before the areas: everything
+                    self.initial[f] = True
+        if self.instance.pk and self.instance.is_superuser:
+            # The system account (DJANGO_SUPERUSER_EMAIL) can never lose rights.
+            self.fields["role"].initial = GROUP_ADMIN
+            for name in ("role", "is_active", *ADMIN_AREA_FIELDS):
+                if name in self.fields:
+                    self.fields[name].disabled = True
+                    self.initial[name] = True if name != "role" else GROUP_ADMIN
         # The dropdown is only usable for Captain/Admin accounts (a Player never
         # holds a team). The state is set on the WIDGET only — ``field.disabled``
         # stays False so a crafted POST is still validated against the team/role
@@ -403,16 +436,18 @@ class UserUpdateForm(forms.ModelForm):
         cleaned = super().clean()
         # Same rule as UserCreateForm: the team is an optional captaincy for
         # Captain/Admin accounts and invalid for the Player role.
-        return cleaned
+        if self.instance.is_superuser:
+            return cleaned  # the system account keeps everything (fields are locked)
+        return clean_admin_areas(cleaned)
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.is_staff = self.cleaned_data["role"] == GROUP_ADMIN
+        role = GROUP_ADMIN if user.is_superuser else self.cleaned_data["role"]
+        user.is_staff = role == GROUP_ADMIN
         if commit:
             user.save()
             if user.pk:
-                role_group = Group.objects.get(name=self.cleaned_data["role"])
-                user.groups.set([role_group])
+                user.groups.set([Group.objects.get(name=role)])
         return user
 
 

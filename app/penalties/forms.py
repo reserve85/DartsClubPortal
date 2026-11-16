@@ -5,7 +5,7 @@ from typing import ClassVar
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from app.core.permissions import user_is_admin
+from app.core.permissions import user_is_penalty_admin
 from app.matchdays.models import MatchdayPlayer
 from app.penalties.models import (
     Penalty,
@@ -47,7 +47,7 @@ class CatalogItemForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.user = user
         # No user (system/fixture usage) counts as admin scope.
-        self._admin_scope = user is None or user_is_admin(user)
+        self._admin_scope = user is None or user_is_penalty_admin(user)
         self._teams = list(self._editable_teams())
         is_create = self.instance.pk is None
 

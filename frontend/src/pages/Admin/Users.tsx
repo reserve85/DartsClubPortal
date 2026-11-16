@@ -14,6 +14,7 @@ interface UserRow {
   player: string;
   playerUrl: string | null;
   role: "system" | "admin" | "user" | "";
+  adminScopes: ("elo" | "penalty" | "portal")[];
   team: string;
   status: "approved" | "pending" | "rejected" | "requested";
   active: boolean;
@@ -74,6 +75,9 @@ export default function Users({ users, pendingCount, inviteCount, page, pages }:
                   {u.name && <Text size="xs" c="dimmed" truncate>{u.email}</Text>}
                   <Group gap={6} mt={6}>
                     <Badge color={ROLE_COLOR[u.role]} variant={u.role ? "filled" : "outline"}>{roleLabel[u.role]}</Badge>
+                    {u.role === "admin" && u.adminScopes.length < 3 && u.adminScopes.map((s) => (
+                      <Badge key={s} color="brand" variant="light">{{ elo: "Elo", penalty: "Penalty", portal: "Portal" }[s]}</Badge>
+                    ))}
                     {u.team && <Badge color="yellow" variant="light">{t("Captain")}: {u.team}</Badge>}
                     {u.player && (
                       u.playerUrl ? (

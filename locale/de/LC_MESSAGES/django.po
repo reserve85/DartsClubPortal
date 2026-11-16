@@ -4225,6 +4225,39 @@ msgstr "Vorschlag"
 msgid "— create a new player —"
 msgstr "— neuen Spieler anlegen —"
 
+msgid "Penalty admin"
+msgstr "Penalty-Admin"
+
+msgid "Matchdays and penalties of every team, catalog, teams, seasons, cashiers."
+msgstr "Spieltage und Strafen aller Mannschaften, Katalog, Mannschaften, Saisons, Kassiere."
+
+msgid "Edit and delete matches, manage Elo players, recalculate, exports."
+msgstr "Matches bearbeiten und löschen, Elo-Spieler verwalten, neu berechnen, Exporte."
+
+msgid "Portal admin"
+msgstr "Portal-Admin"
+
+msgid "Users, invitations, approvals, rights, audit log, import, club logo."
+msgstr "Benutzer, Einladungen, Freigaben, Rechte, Audit-Protokoll, Import, Vereinslogo."
+
+msgid "Elo admin"
+msgstr "Elo-Admin"
+
+msgid "As penalty admin you manage matchdays, penalties, catalog, teams and seasons of every team."
+msgstr "Als Penalty-Admin verwaltest du Spieltage, Strafen, Katalog, Mannschaften und Saisons aller Mannschaften."
+
+msgid "As portal admin you manage users, invitations, approvals and admin areas."
+msgstr "Als Portal-Admin verwaltest du Benutzer, Einladungen, Freigaben und Admin-Bereiche."
+
+msgid "Audit log, import, club logo, QR codes"
+msgstr "Audit-Protokoll, Import, Vereinslogo, QR-Codes"
+
+msgid "Seasons and teams"
+msgstr "Saisons und Mannschaften"
+
+msgid "Users, invitations, approvals, admin areas"
+msgstr "Benutzer, Einladungen, Freigaben, Admin-Bereiche"
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 

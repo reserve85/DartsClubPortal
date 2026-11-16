@@ -17,7 +17,7 @@ from django.utils.translation import gettext as _
 from django.views import View
 from inertia import render as inertia_render
 
-from app.core.permissions import user_is_admin
+from app.core.permissions import user_is_portal_admin
 from app.importer.elo_import import (
     elo_accounts,
     elo_player_suggestions,
@@ -46,7 +46,7 @@ def _drop(pending: dict | None) -> None:
 
 class ImportView(LoginRequiredMixin, View):
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated and not user_is_admin(request.user):
+        if request.user.is_authenticated and not user_is_portal_admin(request.user):
             raise PermissionDenied
         return super().dispatch(request, *args, **kwargs)
 

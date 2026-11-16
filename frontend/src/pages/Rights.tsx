@@ -7,12 +7,13 @@ import { useT } from "../i18n";
 
 /** y = yes, o = own team only, r = read only, c = only the team's cashier, n = no */
 type Cell = "y" | "o" | "r" | "c" | "n";
-type Col = "admin" | "captain" | "cashier" | "user";
+type Col = "eloAdmin" | "penaltyAdmin" | "portalAdmin" | "captain" | "cashier" | "user";
 
 interface Props {
   me: {
     role: "system" | "admin" | "user" | "";
     isAdmin: boolean;
+    adminScopes: ("elo" | "penalty" | "portal")[];
     captainOf: string | null;
     cashierOf: string[];
     hasPlayer: boolean;
@@ -23,45 +24,51 @@ interface Props {
 export default function Rights({ me }: Props) {
   const t = useT();
   const cols: { key: Col; label: string; icon: ReactNode; color: string }[] = [
-    { key: "admin", label: t("Admin"), icon: <IconShieldCheck size={16} />, color: "brand" },
+    { key: "eloAdmin", label: t("Elo admin"), icon: <IconShieldCheck size={16} />, color: "brand" },
+    { key: "penaltyAdmin", label: t("Penalty admin"), icon: <IconShieldCheck size={16} />, color: "brand" },
+    { key: "portalAdmin", label: t("Portal admin"), icon: <IconShieldCheck size={16} />, color: "brand" },
     { key: "captain", label: t("Captain"), icon: <IconCrown size={16} />, color: "yellow" },
     { key: "cashier", label: t("Cashier"), icon: <IconCash size={16} />, color: "teal" },
     { key: "user", label: t("User"), icon: <IconUser size={16} />, color: "gray" },
   ];
-  const groups: { title: string; rows: [string, Cell, Cell, Cell, Cell][] }[] = [
+  // Columns: Elo admin, Penalty admin, Portal admin, Captain, Cashier, User
+  const groups: { title: string; rows: [string, Cell, Cell, Cell, Cell, Cell, Cell][] }[] = [
     {
       title: "Elo",
       rows: [
-        [t("See the ranking, statistics, head-to-head and matches"), "y", "y", "y", "y"],
-        [t("Enter a match"), "y", "y", "y", "y"],
-        [t("Edit or delete matches"), "y", "n", "n", "n"],
-        [t("Manage Elo players, recalculate, CSV exports"), "y", "n", "n", "n"],
+        [t("See the ranking, statistics, head-to-head and matches"), "y", "y", "y", "y", "y", "y"],
+        [t("Enter a match"), "y", "y", "y", "y", "y", "y"],
+        [t("Edit or delete matches"), "y", "n", "n", "n", "n", "n"],
+        [t("Manage Elo players, recalculate, CSV exports"), "y", "n", "n", "n", "n", "n"],
       ],
     },
     {
       title: "Penalty",
       rows: [
-        [t("See the own balance and the financial overview"), "y", "y", "y", "y"],
-        [t("Matchdays: create, edit, add players"), "y", "o", "r", "n"],
-        [t("Assign and edit penalties"), "y", "o", "n", "n"],
-        [t("Players and team assignment"), "y", "o", "n", "n"],
-        [t("Catalog: fee and active state per team"), "y", "o", "n", "n"],
-        [t("Catalog: new entries, default fee, delete"), "y", "n", "n", "n"],
-        [t("Cash box: choose the cashier"), "y", "o", "n", "n"],
-        [t("Record payments and payouts"), "c", "c", "o", "n"],
+        [t("See the own balance and the financial overview"), "y", "y", "y", "y", "y", "y"],
+        [t("Matchdays: create, edit, add players"), "n", "y", "n", "o", "r", "n"],
+        [t("Assign and edit penalties"), "n", "y", "n", "o", "n", "n"],
+        [t("Players and team assignment"), "n", "y", "n", "o", "n", "n"],
+        [t("Catalog: fee and active state per team"), "n", "y", "n", "o", "n", "n"],
+        [t("Catalog: new entries, default fee, delete"), "n", "y", "n", "n", "n", "n"],
+        [t("Seasons and teams"), "n", "y", "n", "n", "n", "n"],
+        [t("Cash box: choose the cashier"), "n", "y", "n", "o", "n", "n"],
+        [t("Record payments and payouts"), "c", "c", "c", "c", "o", "n"],
       ],
     },
     {
       title: t("Administration"),
       rows: [
-        [t("Users, invitations, approvals"), "y", "n", "n", "n"],
-        [t("Seasons, teams, club logo"), "y", "n", "n", "n"],
-        [t("Audit log, import, QR codes"), "y", "n", "n", "n"],
+        [t("Users, invitations, approvals, admin areas"), "n", "n", "y", "n", "n", "n"],
+        [t("Audit log, import, club logo, QR codes"), "n", "n", "y", "n", "n", "n"],
       ],
     },
   ];
+  const scopes = me.adminScopes ?? [];
   const mine: Record<Col, boolean> = {
-    admin: me.isAdmin,
+    eloAdmin: scopes.includes("elo"),
+    penaltyAdmin: scopes.includes("penalty"),
+    portalAdmin: scopes.includes("portal"),
     captain: !!me.captainOf,
     cashier: me.cashierOf.length > 0,
     user: true,
@@ -95,6 +102,9 @@ export default function Rights({ me }: Props) {
         <Paper withBorder p="md" radius="md">
           <Group gap={8} mb="sm">
             <Badge size="lg" color={me.isAdmin ? "brand" : "gray"} variant="filled">{roleLabel}</Badge>
+            {me.role === "admin" && scopes.length < 3 && scopes.map((s) => (
+              <Badge key={s} size="lg" color="brand" variant="light">{{ elo: t("Elo admin"), penalty: t("Penalty admin"), portal: t("Portal admin") }[s]}</Badge>
+            ))}
             {me.captainOf && <Badge size="lg" color="yellow" variant="light" leftSection={<IconCrown size={14} />}>{t("Captain")}: {me.captainOf}</Badge>}
             {me.cashierOf.map((team) => (
               <Badge key={team} size="lg" color="teal" variant="light" leftSection={<IconCash size={14} />}>{t("Cashier")}: {team}</Badge>
@@ -103,12 +113,13 @@ export default function Rights({ me }: Props) {
             <Badge size="lg" variant="outline" color={me.modules.penalty ? "brand" : "gray"}>Penalty {me.modules.penalty ? "✓" : "–"}</Badge>
           </Group>
           <List size="sm" spacing={4} icon={<ThemeIcon size={18} radius="xl" color="teal"><IconCheck size={12} /></ThemeIcon>}>
-            {me.modules.elo && <List.Item>{me.isAdmin ? t("You run the Elo ranking: matches, players, corrections.") : t("You see the Elo ranking and enter your matches.")}</List.Item>}
+            {me.modules.elo && <List.Item>{scopes.includes("elo") ? t("You run the Elo ranking: matches, players, corrections.") : t("You see the Elo ranking and enter your matches.")}</List.Item>}
             {me.modules.penalty && <List.Item>{t("You see your balance and the financial overview of every team.")}</List.Item>}
-            {me.isAdmin && <List.Item>{t("You manage users, seasons, teams and every team's penalties.")}</List.Item>}
-            {!me.isAdmin && me.captainOf && <List.Item>{t("As captain you manage matchdays, penalties, players and fees of %(team)s.", { team: me.captainOf })}</List.Item>}
+            {scopes.includes("penalty") && <List.Item>{t("As penalty admin you manage matchdays, penalties, catalog, teams and seasons of every team.")}</List.Item>}
+            {scopes.includes("portal") && <List.Item>{t("As portal admin you manage users, invitations, approvals and admin areas.")}</List.Item>}
+            {!scopes.includes("penalty") && me.captainOf && <List.Item>{t("As captain you manage matchdays, penalties, players and fees of %(team)s.", { team: me.captainOf })}</List.Item>}
             {me.cashierOf.length > 0 && <List.Item>{t("As cashier you record payments and payouts of %(teams)s.", { teams: me.cashierOf.join(", ") })}</List.Item>}
-            {!me.isAdmin && !me.captainOf && me.modules.penalty && <List.Item>{t("Everything else of the penalty module is read only for you.")}</List.Item>}
+            {!scopes.includes("penalty") && !me.captainOf && me.modules.penalty && <List.Item>{t("Everything else of the penalty module is read only for you.")}</List.Item>}
           </List>
         </Paper>
       </Section>
@@ -116,7 +127,7 @@ export default function Rights({ me }: Props) {
       <Section title={t("Overview of all roles")}>
         <Paper withBorder radius="md">
           <ScrollArea type="auto">
-            <Table verticalSpacing={8} miw={560} highlightOnHover>
+            <Table verticalSpacing={8} miw={760} highlightOnHover>
               <Table.Thead>
                 <Table.Tr>
                   <Table.Th style={{ position: "sticky", left: 0, background: "var(--mantine-color-body)", zIndex: 1 }} />
@@ -135,7 +146,7 @@ export default function Rights({ me }: Props) {
                 {groups.map((g) => (
                   <Fragment key={g.title}>
                     <Table.Tr>
-                      <Table.Td colSpan={5} bg="var(--mantine-color-default-hover)">
+                      <Table.Td colSpan={7} bg="var(--mantine-color-default-hover)">
                         <Text size="xs" fw={800} tt="uppercase" c="dimmed">{g.title}</Text>
                       </Table.Td>
                     </Table.Tr>

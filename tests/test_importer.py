@@ -280,3 +280,12 @@ def test_account_suggestion_by_first_name_or_nickname(role_groups):
     assert suggest_account("Flo") == flo  # nickname = start of the first name
     assert suggest_account("Dennis") is None  # two people fit: no guess
     assert suggest_account("Wildboars") is None  # shared club account: new
+
+
+@pytest.mark.django_db
+def test_elo_admin_login_becomes_elo_admin_only(tmp_path, role_groups):
+    from app.core.permissions import user_admin_scopes
+
+    assert import_elo(make_elo_db(tmp_path / "elo.db")).ok
+    created = get_user_model().objects.get(legacy_username="Dennis")
+    assert user_admin_scopes(created) == {"elo"}  # no cash box / user administration

@@ -34,7 +34,7 @@ from django.utils.translation import gettext as _
 from django.views import View
 
 from app.core.models import AuditAction
-from app.core.permissions import user_is_admin
+from app.core.permissions import user_is_admin, user_is_portal_admin
 from app.core.services import log_action
 
 logger = logging.getLogger("app.accounts")
@@ -176,7 +176,7 @@ class UserQrCodeView(LoginRequiredMixin, View):
     """Admin: printable QR code that logs a shared account in."""
 
     def get(self, request, pk):
-        if not user_is_admin(request.user):
+        if not user_is_portal_admin(request.user):
             raise PermissionDenied
         target = get_object_or_404(get_user_model(), pk=pk)
         ctx = {"target": target, "allowed": qr_allowed(target)}

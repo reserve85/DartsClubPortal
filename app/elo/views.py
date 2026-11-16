@@ -24,7 +24,7 @@ from django.views import View
 from inertia import render as inertia_render
 
 from app.core.inertia_utils import form_errors, request_data
-from app.core.permissions import user_is_admin
+from app.core.permissions import user_is_elo_admin
 from app.elo import notify
 from app.elo.conf import elo_setting
 from app.elo.forms import EloPlayerAddForm, EloPlayerEditForm, MatchEditForm, MatchForm
@@ -70,7 +70,7 @@ class EloAdminMixin:
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return redirect("account_login")
-        if not user_is_admin(request.user):
+        if not user_is_elo_admin(request.user):
             raise PermissionDenied
         return super().dispatch(request, *args, **kwargs)
 
@@ -247,7 +247,7 @@ class MatchListView(LoginRequiredMixin, View):
                     "to": end.isoformat() if end else "",
                 },
                 "players": [{"id": p["id"], "name": p["name"]} for p in elo_players(True)],
-                "isAdmin": user_is_admin(request.user),
+                "isAdmin": user_is_elo_admin(request.user),
                 "today": timezone.localdate().isoformat(),
             },
         )
@@ -363,7 +363,7 @@ class MatchDetailView(LoginRequiredMixin, View):
                 },
                 "a": side("a"),
                 "b": side("b"),
-                "canEdit": user_is_admin(request.user),
+                "canEdit": user_is_elo_admin(request.user),
             },
         )
 
@@ -507,7 +507,7 @@ class PlayerDetailView(LoginRequiredMixin, View):
                     }
                     for m in recent
                 ],
-                "canEdit": user_is_admin(request.user),
+                "canEdit": user_is_elo_admin(request.user),
             },
         )
 

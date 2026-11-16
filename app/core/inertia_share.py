@@ -16,7 +16,12 @@ from app.core.access import has_module
 from app.core.branding import logo_urls
 from app.core.frontend_i18n import MSGIDS
 from app.core.modules import ELO, PENALTY, enabled_modules
-from app.core.permissions import user_is_admin, user_is_captain
+from app.core.permissions import (
+    user_admin_scopes,
+    user_is_admin,
+    user_is_captain,
+    user_is_portal_admin,
+)
 
 
 def _build_info() -> dict:
@@ -48,7 +53,8 @@ def _item(label, name, icon, *args, **extra):
 def navigation(user) -> list[dict]:
     """Menu groups for this account: Elo · Penalty · Captain · Administration."""
     groups = []
-    is_admin = user_is_admin(user)
+    scopes = user_admin_scopes(user)
+    is_admin = "penalty" in scopes  # team management of every team
     if has_module(user, ELO):
         items = [
             _item(_("Ranking"), "elo:ranking", "trophy"),
@@ -83,18 +89,19 @@ def navigation(user) -> list[dict]:
                 "items": [i for i in items if i],
             }
         )
-    if is_admin:
+    if scopes:
+        portal = "portal" in scopes
         items = [
-            _item(_("Users"), "accounts:user_list", "user-cog"),
+            _item(_("Users"), "accounts:user_list", "user-cog") if portal else None,
             _item(_("Elo administration"), "elo:manage", "adjustments")
-            if has_module(user, ELO)
+            if "elo" in scopes and has_module(user, ELO)
             else None,
             _item(_("Seasons"), "season_list", "calendar-cog")
-            if PENALTY in enabled_modules()
+            if "penalty" in scopes and PENALTY in enabled_modules()
             else None,
-            _item(_("Import"), "importer:import", "upload"),
-            _item(_("Club logo"), "club_logo_admin", "photo"),
-            _item(_("Audit"), "audit_list", "history"),
+            _item(_("Import"), "importer:import", "upload") if portal else None,
+            _item(_("Club logo"), "club_logo_admin", "photo") if portal else None,
+            _item(_("Audit"), "audit_list", "history") if portal else None,
         ]
         groups.append(
             {
@@ -128,6 +135,7 @@ def user_payload(user) -> dict | None:
         "playerId": player.pk if player else None,
         "role": user.role,
         "isAdmin": user_is_admin(user),
+        "adminScopes": sorted(user_admin_scopes(user)),
         "isCaptain": user_is_captain(user),
         "captainOf": {"id": team.pk, "name": team.name} if team is not None else None,
         "modules": {ELO: has_module(user, ELO), PENALTY: has_module(user, PENALTY)},
@@ -188,7 +196,7 @@ def _counts(user) -> dict:
     from app.notifications.inapp import unread_count
 
     out = {"notifications": unread_count(user)}
-    if user_is_admin(user):
+    if user_is_portal_admin(user):
         from django.contrib.auth import get_user_model
 
         out["approvals"] = get_user_model().objects.filter(approval_status="pending").count()

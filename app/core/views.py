@@ -59,7 +59,7 @@ class RightsView(LoginRequiredMixin, View):
 
     def get(self, request):
         from app.core.access import user_modules
-        from app.core.permissions import user_is_admin
+        from app.core.permissions import user_admin_scopes, user_is_admin
         from app.teams.models import TeamCashier
 
         user = request.user
@@ -72,6 +72,7 @@ class RightsView(LoginRequiredMixin, View):
             "me": {
                 "role": user.role or "",
                 "isAdmin": user_is_admin(user),
+                "adminScopes": sorted(user_admin_scopes(user)),
                 "captainOf": user.team.name if user.team_id else None,
                 "cashierOf": cashier_of,
                 "hasPlayer": user.player_link_id is not None,
@@ -162,6 +163,7 @@ class SeasonListView(GroupRequiredMixin, LoginRequiredMixin, View):
     """Admin: manage seasons — each one a closed cash box."""
 
     groups: ClassVar[list] = [GROUP_ADMIN]
+    admin_scope: ClassVar[str] = "penalty"
 
     def get(self, request):
         seasons = Season.objects.annotate(
@@ -216,6 +218,7 @@ class SeasonCreateView(GroupRequiredMixin, LoginRequiredMixin, View):
     """GET: empty season form. POST: create a new season."""
 
     groups: ClassVar[list] = [GROUP_ADMIN]
+    admin_scope: ClassVar[str] = "penalty"
 
     def get(self, request):
         return _season_form_page(request, SeasonForm())
@@ -241,6 +244,7 @@ class SeasonUpdateView(GroupRequiredMixin, LoginRequiredMixin, View):
     """POST/GET: rename a season, pick its active teams, toggle the default."""
 
     groups: ClassVar[list] = [GROUP_ADMIN]
+    admin_scope: ClassVar[str] = "penalty"
 
     def get_object(self):
         return get_object_or_404(Season, pk=self.kwargs["pk"])
@@ -273,6 +277,7 @@ class SeasonSetDefaultView(GroupRequiredMixin, LoginRequiredMixin, View):
     """
 
     groups: ClassVar[list] = [GROUP_ADMIN]
+    admin_scope: ClassVar[str] = "penalty"
 
     def post(self, request, pk):
         season = get_object_or_404(Season, pk=pk)
@@ -299,6 +304,7 @@ class SeasonDeleteView(GroupRequiredMixin, LoginRequiredMixin, View):
     """
 
     groups: ClassVar[list] = [GROUP_ADMIN]
+    admin_scope: ClassVar[str] = "penalty"
 
     def post(self, request, pk):
         season = get_object_or_404(Season, pk=pk)

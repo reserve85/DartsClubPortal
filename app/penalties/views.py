@@ -21,8 +21,8 @@ from app.core.permissions import (
     GroupRequiredMixin,
     assert_admin_or_captain,
     user_can_manage_team,
-    user_is_admin,
     user_is_captain,
+    user_is_penalty_admin,
 )
 from app.core.services import log_action
 from app.core.utils import safe_next_url
@@ -90,7 +90,7 @@ class CatalogListView(LoginRequiredMixin, View):
                         "amount": amount if amount is not None else item.amount_eur,
                     }
                 )
-        can_create = user_is_admin(request.user) or user_is_captain(request.user)
+        can_create = user_is_penalty_admin(request.user) or user_is_captain(request.user)
         props = {
             "items": [
                 {
@@ -153,7 +153,7 @@ class CatalogFormMixin(InertiaFormMixin):
                 "empty": str(_("No teams yet.")),
             },
         }
-        if not is_create and user_is_admin(self.request.user):
+        if not is_create and user_is_penalty_admin(self.request.user):
             props.update(
                 deleteUrl=reverse("penalties:catalog_delete", args=[form.instance.pk]),
                 deleteConfirm=str(_("Delete this catalog item?")),
@@ -165,6 +165,7 @@ class CatalogCreateView(GroupRequiredMixin, LoginRequiredMixin, CatalogFormMixin
     """Admin + Captain create — the form also owns the per-team fees/flags."""
 
     groups: ClassVar[list] = [GROUP_ADMIN, GROUP_CAPTAIN]
+    admin_scope: ClassVar[str] = "penalty"
     model = PenaltyCatalogItem
     form_class = CatalogItemForm
     success_url = reverse_lazy("penalties:catalog_list")
@@ -190,6 +191,7 @@ class CatalogUpdateView(GroupRequiredMixin, LoginRequiredMixin, CatalogFormMixin
     """Admin + Captain edit — core fields + per-team fees/flags + delete entry."""
 
     groups: ClassVar[list] = [GROUP_ADMIN, GROUP_CAPTAIN]
+    admin_scope: ClassVar[str] = "penalty"
     model = PenaltyCatalogItem
     form_class = CatalogItemForm
     success_url = reverse_lazy("penalties:catalog_list")
@@ -229,7 +231,7 @@ class CatalogDeleteView(LoginRequiredMixin, View):
 
     def post(self, request, pk):
         # Deleting removes the item for EVERY team: admins only.
-        if not user_is_admin(request.user):
+        if not user_is_penalty_admin(request.user):
             raise PermissionDenied
         item = get_object_or_404(PenaltyCatalogItem, pk=pk)
         if Penalty.all_objects().filter(catalog_item=item).exists():

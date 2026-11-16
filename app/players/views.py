@@ -128,6 +128,7 @@ class PlayerListRedirectView(GroupRequiredMixin, LoginRequiredMixin, RedirectVie
     """The standalone players list was merged into the Teams & Players page."""
 
     groups: ClassVar[list] = [GROUP_ADMIN, GROUP_CAPTAIN]
+    admin_scope: ClassVar[str] = "penalty"
     permanent = False
     url = reverse_lazy("teams:team_list")
 

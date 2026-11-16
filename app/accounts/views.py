@@ -42,7 +42,12 @@ from app.accounts.services import (
 from app.core.choices import ThemeChoice
 from app.core.inertia_utils import InertiaFormMixin, form_errors, form_schema, request_data
 from app.core.models import AuditAction
-from app.core.permissions import GROUP_ADMIN, GROUP_PLAYER, GroupRequiredMixin
+from app.core.permissions import (
+    GROUP_ADMIN,
+    GROUP_PLAYER,
+    GroupRequiredMixin,
+    user_admin_scopes,
+)
 from app.core.services import log_action
 from app.notifications.inapp import (
     clear_approval_notifications,
@@ -102,6 +107,7 @@ class UserListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
                 "player": player.name if player else invited_player,
                 "playerUrl": reverse("players:player_detail", args=[player.pk]) if player else None,
                 "role": user.role or "",
+                "adminScopes": sorted(user_admin_scopes(user)),
                 "team": user.team.name if user.team else invited_team,
                 "status": user.approval_status,
                 "active": user.is_active,
@@ -331,14 +337,18 @@ class UserUpdateView(GroupRequiredMixin, LoginRequiredMixin, InertiaFormMixin, U
         }
 
     def _other_admins_exist(self) -> bool:
-        """True when another account could still manage the system."""
+        """True when another account could still manage users and rights."""
         from django.db.models import Q
 
-        return (
+        from app.core.permissions import user_is_portal_admin
+
+        others = (
             User.objects.filter(Q(is_superuser=True) | Q(groups__name=GROUP_ADMIN))
             .exclude(pk=self.request.user.pk)
-            .exists()
+            .filter(is_active=True)
+            .distinct()
         )
+        return any(user_is_portal_admin(u) for u in others)
 
     def form_valid(self, form):
         # Lockout protection: an admin may edit themselves, but must not
@@ -348,7 +358,10 @@ class UserUpdateView(GroupRequiredMixin, LoginRequiredMixin, InertiaFormMixin, U
                 form.add_error("is_active", _("You cannot deactivate your own account."))
                 return self.form_invalid(form)
             if (
-                form.cleaned_data.get("role") != GROUP_ADMIN
+                (
+                    form.cleaned_data.get("role") != GROUP_ADMIN
+                    or not form.cleaned_data.get("admin_portal")
+                )
                 and not self.request.user.is_superuser
                 and not self._other_admins_exist()
             ):

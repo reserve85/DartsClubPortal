@@ -3246,3 +3246,36 @@ msgstr ""
 
 msgid "— create a new player —"
 msgstr ""
+
+msgid "Penalty admin"
+msgstr ""
+
+msgid "Matchdays and penalties of every team, catalog, teams, seasons, cashiers."
+msgstr ""
+
+msgid "Edit and delete matches, manage Elo players, recalculate, exports."
+msgstr ""
+
+msgid "Portal admin"
+msgstr ""
+
+msgid "Users, invitations, approvals, rights, audit log, import, club logo."
+msgstr ""
+
+msgid "Elo admin"
+msgstr ""
+
+msgid "As penalty admin you manage matchdays, penalties, catalog, teams and seasons of every team."
+msgstr ""
+
+msgid "As portal admin you manage users, invitations, approvals and admin areas."
+msgstr ""
+
+msgid "Audit log, import, club logo, QR codes"
+msgstr ""
+
+msgid "Seasons and teams"
+msgstr ""
+
+msgid "Users, invitations, approvals, admin areas"
+msgstr ""

@@ -59,13 +59,41 @@ def _group_flag(user, group: str, cache_attr: str) -> bool:
     return value
 
 
-def user_is_admin(user) -> bool:
-    """Admin-group member OR superuser (the un-lockable system account)."""
+ADMIN_SCOPES = ("elo", "penalty", "portal")
+
+
+def user_admin_scopes(user) -> frozenset:
+    """The admin areas of ``user``: any of "elo", "penalty", "portal".
+
+    The system account (superuser) always has every area. An Admin-group
+    member without any area flag is a full admin (accounts from before the
+    areas existed); otherwise exactly the ticked areas count.
+    """
     if not user or not user.is_authenticated:
-        return False
+        return frozenset()
     if user.is_superuser:
-        return True
-    return _group_flag(user, GROUP_ADMIN, _CACHE_ADMIN)
+        return frozenset(ADMIN_SCOPES)
+    if not _group_flag(user, GROUP_ADMIN, _CACHE_ADMIN):
+        return frozenset()
+    picked = frozenset(s for s in ADMIN_SCOPES if getattr(user, f"admin_{s}", False))
+    return picked or frozenset(ADMIN_SCOPES)
+
+
+def user_is_admin(user) -> bool:
+    """Admin of at least one area (or the un-lockable system account)."""
+    return bool(user_admin_scopes(user))
+
+
+def user_is_elo_admin(user) -> bool:
+    return "elo" in user_admin_scopes(user)
+
+
+def user_is_penalty_admin(user) -> bool:
+    return "penalty" in user_admin_scopes(user)
+
+
+def user_is_portal_admin(user) -> bool:
+    return "portal" in user_admin_scopes(user)
 
 
 def user_is_captain(user) -> bool:
@@ -86,10 +114,10 @@ def user_is_player(user) -> bool:
 
 
 def user_can_manage_team(user, team) -> bool:
-    """True for Admins (any team) and for Captains of exactly this team."""
+    """True for Penalty admins (any team) and for Captains of exactly this team."""
     if not user or not user.is_authenticated:
         return False
-    if user_is_admin(user):
+    if user_is_penalty_admin(user):
         return True
     return bool(
         user_is_captain(user)
@@ -160,13 +188,20 @@ class GroupRequiredMixin:
     """
 
     groups: ClassVar[list[str]] = []
+    # Which admin area GROUP_ADMIN stands for on this view.
+    admin_scope: ClassVar[str] = "portal"
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return HttpResponseRedirect(reverse("account_login"))
         if request.user.is_superuser:
             return super().dispatch(request, *args, **kwargs)  # system account: always allowed
-        allowed = any(request.user.groups.filter(name=group).exists() for group in self.groups)
+        allowed = GROUP_ADMIN in self.groups and self.admin_scope in user_admin_scopes(request.user)
+        allowed = allowed or any(
+            request.user.groups.filter(name=group).exists()
+            for group in self.groups
+            if group != GROUP_ADMIN
+        )
         if not allowed and GROUP_CAPTAIN in self.groups and user_is_captain(request.user):
             allowed = True  # captaincy is an assignment (User.team), not only a group
         if not allowed:
@@ -180,5 +215,5 @@ def assert_admin_or_captain(user) -> None:
     Single home for the role gate that views used to repeat inline (the
     superuser is covered via ``user_is_admin``).
     """
-    if not (user_is_admin(user) or user_is_captain(user)):
+    if not (user_is_penalty_admin(user) or user_is_captain(user)):
         raise PermissionDenied

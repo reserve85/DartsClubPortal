@@ -137,6 +137,24 @@ class User(AbstractUser):
     )
     # -- module access: an account can be limited to single modules (e.g. an
     # Elo-only account that only enters matches). Admins always see all.
+    # -- admin areas: an Admin may administer only some parts of the portal
+    # (e.g. Elo but not the cash box). Admin group + no area = all areas
+    # (accounts from before the split); the system account always has all.
+    admin_elo = models.BooleanField(
+        _("Elo admin"),
+        default=False,
+        help_text=_("Edit and delete matches, manage Elo players, recalculate, exports."),
+    )
+    admin_penalty = models.BooleanField(
+        _("Penalty admin"),
+        default=False,
+        help_text=_("Matchdays and penalties of every team, catalog, teams, seasons, cashiers."),
+    )
+    admin_portal = models.BooleanField(
+        _("Portal admin"),
+        default=False,
+        help_text=_("Users, invitations, approvals, rights, audit log, import, club logo."),
+    )
     elo_access = models.BooleanField(_("Elo access"), default=True)
     penalty_access = models.BooleanField(_("Penalty access"), default=True)
     start_page = models.CharField(

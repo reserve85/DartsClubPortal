@@ -22,7 +22,7 @@ from app.core.permissions import (
     GroupRequiredMixin,
     user_can_edit_player,
     user_can_manage_team,
-    user_is_admin,
+    user_is_penalty_admin,
 )
 from app.core.services import log_action
 from app.matchdays.services import season_for_request
@@ -52,6 +52,7 @@ class TeamListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
     """
 
     groups: ClassVar[list] = [GROUP_ADMIN, GROUP_CAPTAIN]
+    admin_scope: ClassVar[str] = "penalty"
     model = Team
     context_object_name = "teams"
 
@@ -84,7 +85,7 @@ class TeamListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
         # table above shows every team with its active-state badge.
         context["matrix_teams"] = [team for team in context["teams"] if team.active_in_season]
         column_pks = {team.pk for team in context["matrix_teams"]}
-        if user_is_admin(request.user):
+        if user_is_penalty_admin(request.user):
             context["editable_team_pks"] = column_pks
         elif request.user.team_id:
             context["editable_team_pks"] = {request.user.team_id} & column_pks
@@ -110,7 +111,7 @@ class TeamListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
         from app.players.avatars import avatar_url
 
         user = self.request.user
-        is_admin = user_is_admin(user)
+        is_admin = user_is_penalty_admin(user)
         season = context["season"]
         editable = context["editable_team_pks"]
         page = context["page_obj"]
@@ -156,7 +157,7 @@ class TeamListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
         season = season_for_request(request)
         columns = {t.pk: t for t in teams_for_season(season)}
         column_pks = set(columns)
-        if user_is_admin(request.user):
+        if user_is_penalty_admin(request.user):
             editable = column_pks
         elif request.user.team_id:
             editable = {request.user.team_id} & column_pks
@@ -218,6 +219,7 @@ class TeamDetailRedirectView(GroupRequiredMixin, LoginRequiredMixin, RedirectVie
     """The standalone team page was merged into the financial overview."""
 
     groups: ClassVar[list] = [GROUP_ADMIN, GROUP_CAPTAIN]
+    admin_scope: ClassVar[str] = "penalty"
     permanent = False
 
     def get_redirect_url(self, *args, **kwargs):
@@ -226,6 +228,7 @@ class TeamDetailRedirectView(GroupRequiredMixin, LoginRequiredMixin, RedirectVie
 
 class TeamCreateView(GroupRequiredMixin, LoginRequiredMixin, InertiaFormMixin, CreateView):
     groups: ClassVar[list] = [GROUP_ADMIN]
+    admin_scope: ClassVar[str] = "penalty"
     model = Team
     form_class = TeamForm
     success_url = reverse_lazy("teams:team_list")
@@ -281,6 +284,7 @@ class TeamCreateView(GroupRequiredMixin, LoginRequiredMixin, InertiaFormMixin, C
 
 class TeamUpdateView(GroupRequiredMixin, LoginRequiredMixin, InertiaFormMixin, UpdateView):
     groups: ClassVar[list] = [GROUP_ADMIN]
+    admin_scope: ClassVar[str] = "penalty"
     model = Team
     form_class = TeamForm
     success_url = reverse_lazy("teams:team_list")
@@ -310,6 +314,7 @@ class TeamDeleteView(GroupRequiredMixin, LoginRequiredMixin, View):
     """Hard delete only for empty teams (B2) — otherwise force-reject."""
 
     groups: ClassVar[list] = [GROUP_ADMIN]
+    admin_scope: ClassVar[str] = "penalty"
 
     def get_object(self):
         return get_object_or_404(Team, pk=self.kwargs["pk"])
@@ -348,6 +353,7 @@ class CashierListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
     """
 
     groups: ClassVar[list] = [GROUP_ADMIN, GROUP_CAPTAIN]
+    admin_scope: ClassVar[str] = "penalty"
     model = Team
     context_object_name = "teams"
     queryset = Team.objects.all()
@@ -367,7 +373,7 @@ class CashierListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
         for row in TeamCashier.objects.select_related("user__player_link", "created_by", "team"):
             history_by_team.setdefault(row.team_id, []).append(row)
 
-        is_admin = user_is_admin(user)
+        is_admin = user_is_penalty_admin(user)
         captains_by_team = captains_for_teams(teams)
         # Template convenience attributes (DTL cannot subscript dicts with a
         # variable key) — the named context dicts stay the contract for tests.

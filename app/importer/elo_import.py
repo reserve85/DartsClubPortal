@@ -514,6 +514,16 @@ def _import_users(src_users, report: ImportReport, email_domain: str, account_ma
             user.legacy_elo_id = row["id"]
         user.save()
         if role == "ADMIN":
+            # Elo admin rights only: penalty and user administration are
+            # decided in the portal (an existing full admin keeps everything).
+            if not user.is_superuser and not user.groups.filter(name=GROUP_ADMIN).exists():
+                user.admin_elo, user.admin_penalty, user.admin_portal = True, False, False
+                user.save(update_fields=["admin_elo", "admin_penalty", "admin_portal"])
+            elif user.groups.filter(name=GROUP_ADMIN).exists() and (
+                user.admin_penalty or user.admin_portal
+            ):
+                user.admin_elo = True
+                user.save(update_fields=["admin_elo"])
             user.groups.add(groups[GROUP_ADMIN])
         elif not user.groups.exists():
             user.groups.add(groups[GROUP_PLAYER])

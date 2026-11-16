@@ -11,7 +11,7 @@ from django.core.exceptions import PermissionDenied
 from django.urls import reverse
 
 from app.core.modules import ELO, PENALTY, enabled_modules
-from app.core.permissions import user_is_admin
+from app.core.permissions import user_admin_scopes
 
 # URL namespaces / names that belong to a module.
 MODULE_NAMESPACES = {
@@ -40,7 +40,8 @@ def has_module(user, module: str) -> bool:
         return False
     if not user or not user.is_authenticated:
         return False
-    if user_is_admin(user):
+    scopes = user_admin_scopes(user)
+    if "portal" in scopes or module in scopes:
         return True
     return bool(getattr(user, _FLAG[module], True))
 

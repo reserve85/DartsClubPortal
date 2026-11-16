@@ -9,7 +9,7 @@ from typing import ClassVar
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from app.core.permissions import user_is_admin, user_is_captain
+from app.core.permissions import user_is_captain, user_is_penalty_admin
 from app.matchdays.models import Matchday, Season
 from app.teams.models import Team
 from app.teams.services import teams_for_season
@@ -91,7 +91,7 @@ class MatchdayForm(forms.ModelForm):
         # Precedence admin > captain: an Admin who also sits in the Captain
         # group keeps the free team choice (roles are single-valued by design,
         # but the Django admin group editor can produce hybrid accounts).
-        if user is not None and user_is_captain(user) and not user_is_admin(user):
+        if user is not None and user_is_captain(user) and not user_is_penalty_admin(user):
             self.team_locked = True
             self.fields["team"].queryset = Team.objects.filter(pk=user.team_id)
             self.fields["team"].initial = user.team_id

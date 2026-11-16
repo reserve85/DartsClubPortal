@@ -20,7 +20,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views import View
 
-from app.core.permissions import user_is_admin
+from app.core.permissions import user_is_elo_admin, user_is_penalty_admin
 from app.players.models import Player
 
 SIZE = 256
@@ -97,7 +97,7 @@ class AvatarUploadView(LoginRequiredMixin, View):
     def post(self, request):
         pid = request.POST.get("player")
         if pid and pid.isdigit() and int(pid) != getattr(request.user, "player_link_id", None):
-            if not user_is_admin(request.user):
+            if not (user_is_elo_admin(request.user) or user_is_penalty_admin(request.user)):
                 raise PermissionDenied
             player = get_object_or_404(Player, pk=int(pid))
         else:

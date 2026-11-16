@@ -21,7 +21,7 @@ from app.core.pagination import PAGE_SIZE
 from app.core.permissions import (
     assert_admin_or_captain,
     user_can_manage_team,
-    user_is_admin,
+    user_is_penalty_admin,
 )
 from app.core.services import log_action
 from app.core.utils import numeric_pk
@@ -143,7 +143,7 @@ class MatchdayListView(LoginRequiredMixin, View):
             "pages": page.paginator.num_pages,
             "total": page.paginator.count,
             "season": season.name if season else "",
-            "canCreate": user_is_admin(request.user) or request.user.team_id is not None,
+            "canCreate": user_is_penalty_admin(request.user) or request.user.team_id is not None,
         }
         return inertia_render(request, "Penalty/Matchdays", props=props, template_data=context)
 

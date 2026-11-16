@@ -37,12 +37,16 @@ logger = logging.getLogger("app.notifications")
 def admin_recipients() -> list[AbstractBaseUser]:
     """Every active Admin-group member and superuser (the bell audience)."""
     user_model = get_user_model()
-    return list(
+    from app.core.permissions import user_is_portal_admin
+
+    candidates = (
         user_model.objects.filter(is_active=True)
         .filter(Q(groups__name=GROUP_ADMIN) | Q(is_superuser=True))
         .distinct()
         .order_by("email")
     )
+    # Approvals and sign-ups concern the user administration only.
+    return [u for u in candidates if user_is_portal_admin(u)]
 
 
 def notify_new_approval_request(user) -> None:

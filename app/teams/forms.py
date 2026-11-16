@@ -38,10 +38,10 @@ class CashierForm(forms.Form):
 
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
-        from app.core.permissions import user_is_admin
+        from app.core.permissions import user_is_penalty_admin
 
         self.fields["user"].queryset = approved_active_users_queryset()
-        if user is not None and not user_is_admin(user):
+        if user is not None and not user_is_penalty_admin(user):
             self.fields["team"].queryset = Team.objects.filter(pk=user.team_id)
         else:
             self.fields["team"].queryset = Team.objects.all()

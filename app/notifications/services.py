@@ -640,13 +640,13 @@ class NotificationService:
         from django.urls import reverse
 
         from app.accounts.models import User
-        from app.core.permissions import GROUP_ADMIN
+        from app.core.permissions import GROUP_ADMIN, user_is_portal_admin
 
-        admin_emails = list(
-            User.objects.filter(groups__name=GROUP_ADMIN, is_active=True)
-            .exclude(email="")
-            .values_list("email", flat=True)
-        )
+        admin_emails = [
+            u.email
+            for u in User.objects.filter(groups__name=GROUP_ADMIN, is_active=True).exclude(email="")
+            if user_is_portal_admin(u)
+        ]
         if settings.SUPPORT_EMAIL:
             recipients: list = [settings.SUPPORT_EMAIL]
             bcc = [email for email in admin_emails if email != settings.SUPPORT_EMAIL]
@@ -732,13 +732,13 @@ class NotificationService:
         from django.urls import reverse
 
         from app.accounts.models import User
-        from app.core.permissions import GROUP_ADMIN
+        from app.core.permissions import GROUP_ADMIN, user_is_portal_admin
 
-        admin_emails = list(
-            User.objects.filter(groups__name=GROUP_ADMIN, is_active=True)
-            .exclude(email="")
-            .values_list("email", flat=True)
-        )
+        admin_emails = [
+            u.email
+            for u in User.objects.filter(groups__name=GROUP_ADMIN, is_active=True).exclude(email="")
+            if user_is_portal_admin(u)
+        ]
         if settings.SUPPORT_EMAIL:
             recipients: list = [settings.SUPPORT_EMAIL]
             bcc = [email for email in admin_emails if email != settings.SUPPORT_EMAIL]

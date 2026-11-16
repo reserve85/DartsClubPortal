@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from app.core.choices import THEME_COOKIE_NAME, ThemeChoice
 from app.core.modules import KNOWN_MODULES, PENALTY, enabled_modules
-from app.core.permissions import user_is_admin
+from app.core.permissions import user_is_portal_admin
 from app.core.version import get_version_info
 from app.matchdays.models import Season
 from app.matchdays.services import season_for_request
@@ -109,7 +109,7 @@ def _pending_approval_count(request) -> int:
     mailbox and drop exactly when an admin decides.
     """
     user = getattr(request, "user", None)
-    if user is None or not user.is_authenticated or not user_is_admin(user):
+    if user is None or not user.is_authenticated or not user_is_portal_admin(user):
         return 0
     from django.contrib.auth import get_user_model
 

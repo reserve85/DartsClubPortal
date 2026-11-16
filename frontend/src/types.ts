@@ -19,6 +19,7 @@ export interface AuthUser {
   playerId: number | null;
   role: "system" | "admin" | "user" | null;
   isAdmin: boolean;
+  adminScopes?: ("elo" | "penalty" | "portal")[];
   isCaptain: boolean;
   captainOf: { id: number; name: string } | null;
   modules: { elo: boolean; penalty: boolean };
