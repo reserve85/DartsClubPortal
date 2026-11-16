@@ -7,12 +7,13 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator
 from django.db.models import Count, Exists, OuterRef, Value
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic import CreateView, ListView, RedirectView, UpdateView
 
+from app.core.inertia_utils import InertiaFormMixin
 from app.core.models import AuditAction
 from app.core.pagination import PAGE_SIZE
 from app.core.permissions import (
@@ -104,6 +105,53 @@ class TeamListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
         context["page_obj"] = page
         return context
 
+    def render_to_response(self, context, **response_kwargs):
+        from inertia import render as inertia_render
+
+        from app.players.avatars import avatar_url
+
+        user = self.request.user
+        is_admin = user_is_admin(user)
+        season = context["season"]
+        editable = context["editable_team_pks"]
+        page = context["page_obj"]
+        props = {
+            "season": season.name if season else "",
+            "seasonScoped": context["season_teams_scoped"],
+            "isAdmin": is_admin,
+            "teams": [
+                {
+                    "id": team.pk,
+                    "name": team.name,
+                    "activeInSeason": bool(team.active_in_season),
+                    "captains": team.captain_count,
+                    "players": team.player_count,
+                    "financeUrl": f"{reverse('dashboard:financial_overview')}?team={team.pk}",
+                    "editUrl": reverse("teams:team_update", args=[team.pk]) if is_admin else None,
+                }
+                for team in context["teams"]
+            ],
+            "columns": [
+                {"id": team.pk, "name": team.name, "editable": team.pk in editable}
+                for team in context["matrix_teams"]
+            ],
+            "players": [
+                {
+                    "id": player.pk,
+                    "name": player.name,
+                    "active": player.active,
+                    "avatar": avatar_url(player),
+                    "assigned": player.assigned_team_pks,
+                    "canEdit": player.can_edit,
+                }
+                for player in page.object_list
+            ],
+            "page": page.number,
+            "pages": page.paginator.num_pages,
+            "total": page.paginator.count,
+        }
+        return inertia_render(self.request, "Penalty/Teams", props=props, template_data=context)
+
     def post(self, request):
         """Save the checkbox matrix for the active season (diff per row)."""
         season = season_for_request(request)
@@ -177,7 +225,7 @@ class TeamDetailRedirectView(GroupRequiredMixin, LoginRequiredMixin, RedirectVie
         return f"{reverse('dashboard:financial_overview')}?team={kwargs['pk']}"
 
 
-class TeamCreateView(GroupRequiredMixin, LoginRequiredMixin, CreateView):
+class TeamCreateView(GroupRequiredMixin, LoginRequiredMixin, InertiaFormMixin, CreateView):
     groups: ClassVar[list] = [GROUP_ADMIN]
     model = Team
     form_class = TeamForm
@@ -188,6 +236,16 @@ class TeamCreateView(GroupRequiredMixin, LoginRequiredMixin, CreateView):
         kwargs = super().get_form_kwargs()
         kwargs["include_season"] = True  # create-only season assignment field
         return kwargs
+
+    def form_page_props(self, form):
+        return {
+            "title": str(_("New team")),
+            "subtitle": str(
+                _("Every catalog entry is assigned to the new team with its default fee.")
+            ),
+            "submitLabel": str(_("Create team")),
+            "cancelUrl": reverse("teams:team_list"),
+        }
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -223,12 +281,26 @@ class TeamCreateView(GroupRequiredMixin, LoginRequiredMixin, CreateView):
         return response
 
 
-class TeamUpdateView(GroupRequiredMixin, LoginRequiredMixin, UpdateView):
+class TeamUpdateView(GroupRequiredMixin, LoginRequiredMixin, InertiaFormMixin, UpdateView):
     groups: ClassVar[list] = [GROUP_ADMIN]
     model = Team
     form_class = TeamForm
     template_name = "teams/team_form.html"
     success_url = reverse_lazy("teams:team_list")
+
+    def form_page_props(self, form):
+        return {
+            "title": str(_("Edit team")),
+            "subtitle": self.object.name,
+            "badge": self.object.name,
+            "submitLabel": str(_("Save changes")),
+            "cancelUrl": reverse("teams:team_list"),
+            "deleteUrl": reverse("teams:team_delete", args=[self.object.pk]),
+            "deleteLabel": str(_("Delete team")),
+            "deleteConfirm": str(
+                _("Delete this team? Only teams without players, matchdays and captains can go.")
+            ),
+        }
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -247,7 +319,7 @@ class TeamDeleteView(GroupRequiredMixin, LoginRequiredMixin, View):
         return get_object_or_404(Team, pk=self.kwargs["pk"])
 
     def get(self, request, pk):
-        return render(request, self.template_name, {"team": self.get_object()})
+        return redirect("teams:team_update", pk=self.get_object().pk)
 
     def post(self, request, pk):
         team = self.get_object()

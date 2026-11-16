@@ -99,9 +99,14 @@ def test_empty_team_deleted_and_audited(admin_client, team):
     assert AuditLog.objects.filter(action=AuditAction.TEAM_DELETED, target_id=team.pk).count() == 1
 
 
-def test_delete_page_renders_confirmation(admin_client, team):
+def test_delete_lives_on_the_edit_page(admin_client, team):
+    from tests.conftest import inertia_props
+
     response = admin_client.get(reverse("teams:team_delete", args=[team.pk]))
-    assert response.status_code == 200
+    assert response.status_code == 302  # GET leads to the edit page with the dialog
+    assert response.url == reverse("teams:team_update", args=[team.pk])
+    edit = inertia_props(admin_client.get(response.url))
+    assert edit["deleteUrl"] == reverse("teams:team_delete", args=[team.pk])
 
 
 # ---------------------------------------------------------------------------

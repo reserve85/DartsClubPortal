@@ -99,9 +99,9 @@ def test_german_financial_overview(admin_client):
 def test_german_new_ui_strings(admin_client, matchday):
     """Combined Teams & Players page + participants editor must be German."""
     _switch_language(admin_client, "de")
-    content = admin_client.get(reverse("teams:team_list")).content.decode()
-    assert "Mannschaften & Spieler" in content
-    assert "Zuordnungen speichern" in content
+    teams_i18n = inertia_props(admin_client.get(reverse("teams:team_list")))["i18n"]
+    assert teams_i18n["Teams & players"] == "Mannschaften & Spieler"
+    assert teams_i18n["Save assignments"] == "Zuordnungen speichern"
     i18n = inertia_props(
         admin_client.get(reverse("matchdays:matchday_detail", args=[matchday.pk]))
     )["i18n"]
@@ -470,6 +470,7 @@ def test_german_season_hint_on_team_list(admin_client, season, team):
     matched the reworded template (msgid drift)."""
     season.teams.add(team)
     _switch_language(admin_client, "de")
-    content = admin_client.get(reverse("teams:team_list")).content.decode()
-    assert "Die Tabelle unten listet alle Mannschaften" in content
-    assert "The table below lists every team" not in content
+    props = inertia_props(admin_client.get(reverse("teams:team_list")))
+    assert props["seasonScoped"] is True
+    hint = "Only teams active in this season appear in the assignment below."
+    assert props["i18n"][hint].startswith("Unten erscheinen nur die Mannschaften")

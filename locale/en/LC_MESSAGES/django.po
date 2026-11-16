@@ -2877,3 +2877,45 @@ msgstr ""
 
 msgid "Search"
 msgstr ""
+
+msgid "Create team"
+msgstr ""
+
+msgid "Every catalog entry is assigned to the new team with its default fee."
+msgstr ""
+
+msgid "Delete this team? Only teams without players, matchdays and captains can go."
+msgstr ""
+
+msgid "%(n)s captain"
+msgstr ""
+
+msgid "%(n)s captains"
+msgstr ""
+
+msgid "Discard"
+msgstr ""
+
+msgid "Discard the unsaved assignment changes?"
+msgstr ""
+
+msgid "Finances"
+msgstr ""
+
+msgid "Only teams active in this season appear in the assignment below."
+msgstr ""
+
+msgid "Only your own team can be changed."
+msgstr ""
+
+msgid "Team assignment"
+msgstr ""
+
+msgid "Teams & players"
+msgstr ""
+
+msgid "Unsaved changes"
+msgstr ""
+
+msgid "You can only view the assignment of these teams."
+msgstr ""

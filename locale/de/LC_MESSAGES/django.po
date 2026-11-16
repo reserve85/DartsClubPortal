@@ -3856,6 +3856,48 @@ msgstr "Nichts gefunden."
 msgid "Search"
 msgstr "Suchen"
 
+msgid "Create team"
+msgstr "Mannschaft anlegen"
+
+msgid "Every catalog entry is assigned to the new team with its default fee."
+msgstr "Jeder Katalogeintrag wird der neuen Mannschaft mit seiner Standardgebühr zugeordnet."
+
+msgid "Delete this team? Only teams without players, matchdays and captains can go."
+msgstr "Diese Mannschaft löschen? Nur Mannschaften ohne Spieler, Spieltage und Kapitäne können gelöscht werden."
+
+msgid "%(n)s captain"
+msgstr "%(n)s Kapitän"
+
+msgid "%(n)s captains"
+msgstr "%(n)s Kapitäne"
+
+msgid "Discard"
+msgstr "Verwerfen"
+
+msgid "Discard the unsaved assignment changes?"
+msgstr "Die nicht gespeicherten Zuordnungen verwerfen?"
+
+msgid "Finances"
+msgstr "Finanzen"
+
+msgid "Only teams active in this season appear in the assignment below."
+msgstr "Unten erscheinen nur die Mannschaften, die in dieser Saison aktiv sind."
+
+msgid "Only your own team can be changed."
+msgstr "Nur die eigene Mannschaft kann geändert werden."
+
+msgid "Team assignment"
+msgstr "Mannschaftszuordnung"
+
+msgid "Teams & players"
+msgstr "Mannschaften & Spieler"
+
+msgid "Unsaved changes"
+msgstr "Nicht gespeicherte Änderungen"
+
+msgid "You can only view the assignment of these teams."
+msgstr "Die Zuordnung dieser Mannschaften kannst du nur ansehen."
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 
