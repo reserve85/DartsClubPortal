@@ -51,7 +51,7 @@ export default function MatchCreate({ players, defaults, bestOfChoices, defaultB
   const ready = d.player_a && d.player_b && d.score_a !== null && d.score_b !== null && d.match_date;
   const submit = (again: boolean, force = false) => {
     form.transform((data) => ({ ...data, again, force, ...joinLists(data) }));
-    form.post("/elo/matches/new/", { preserveScroll: true });
+    form.post("/elo/matches/new/", { preserveScroll: "errors" });
   };
 
   const side = (key: "player_a" | "player_b", p: PickPlayer | undefined, other: number | null, color: string) => (

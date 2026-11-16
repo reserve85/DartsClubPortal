@@ -94,14 +94,15 @@ export function ScoreChips({
 }
 
 /** Red confirm dialog, then POST (Inertia) - for delete / disable actions. */
-export function confirmPost({ title, body, confirm, cancel, url, color = "red" }: { title: string; body: ReactNode; confirm: string; cancel: string; url: string; color?: string }) {
+export function confirmPost({ title, body, confirm, cancel, url, color = "red", data = {} }: { title: string; body: ReactNode; confirm: string; cancel: string; url: string; color?: string; data?: Record<string, string> }) {
   modals.openConfirmModal({
     title: <Text fw={800}>{title}</Text>,
     children: <Text size="sm">{body}</Text>,
     labels: { confirm, cancel },
     confirmProps: { color },
     cancelProps: { variant: "filled", color: "gray" },
-    onConfirm: () => router.post(url),
+    // Keep the scroll position only when the action returns to the same page.
+    onConfirm: () => router.post(url, data, { preserveScroll: (page) => page.url.split("?")[0] === window.location.pathname }),
   });
 }
 

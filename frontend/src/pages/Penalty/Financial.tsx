@@ -165,7 +165,7 @@ export default function Financial({ seasons, seasonId, teams, teamId, own, team 
                       </Box>
                       <Text fw={800} className="num" c={p.amount < 0 ? "orange" : "teal"}>{f.euro(p.amount)}</Text>
                       {team.isCashier && (
-                        <Button size="compact-xs" color="red" onClick={() => confirmPost({ title: t("Revert payment?"), body: `${p.player} · ${f.euro(p.amount)}`, confirm: t("Revert"), cancel: t("Cancel"), url: `/payments/${p.id}/delete/` })}>
+                        <Button size="compact-xs" color="red" onClick={() => confirmPost({ title: t("Revert payment?"), body: `${p.player} · ${f.euro(p.amount)}`, confirm: t("Revert"), cancel: t("Cancel"), url: `/payments/${p.id}/delete/`, data: { next: here } })}>
                           {t("Revert")}
                         </Button>
                       )}
@@ -234,7 +234,7 @@ export default function Financial({ seasons, seasonId, teams, teamId, own, team 
         {pay && (
           <>
             <Group mb="md"><PlayerAvatar name={pay.row.name} src={pay.row.avatar} size={40} /><Box><Text fw={700}>{pay.row.name}</Text><Text size="xs" c="dimmed">{pay.payout ? t("Credit") : t("Penalties open")}: {f.euro(Math.abs(pay.row.balance))}</Text></Box></Group>
-            <NumberInput label={t("Amount (EUR)")} value={amount} onChange={setAmount} min={0.01} max={pay.payout ? Math.abs(pay.row.balance) : undefined} decimalScale={2} fixedDecimalScale step={1} suffix=" €" data-autofocus />
+            <NumberInput label={t("Amount (EUR)")} value={amount} onChange={setAmount} min={0.01} max={pay.payout ? Math.abs(pay.row.balance) : undefined} decimalScale={2} fixedDecimalScale decimalSeparator={f.decimalSeparator} step={1} suffix=" €" data-autofocus />
             <Group mt="lg" justify="flex-end">
               <Button color="gray" onClick={() => setPay(null)}>{t("Cancel")}</Button>
               <Button color="green" onClick={submitPay} disabled={!amount || Number(amount) <= 0}>{pay.payout ? t("Pay out") : t("Record payment")}</Button>

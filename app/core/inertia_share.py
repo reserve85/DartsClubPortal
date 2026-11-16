@@ -135,6 +135,16 @@ def user_payload(user) -> dict | None:
     }
 
 
+def _flash_messages(request) -> list[dict]:
+    """Consume the pending Django messages for the toasts of the React shell."""
+    from django.contrib.messages import get_messages
+
+    return [
+        {"message": str(m.message), "level": m.level_tag, "tags": m.tags}
+        for m in get_messages(request)
+    ]
+
+
 class InertiaShareMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
@@ -151,6 +161,8 @@ class InertiaShareMiddleware:
                 "build": _build_info(),
             },
             auth=lambda: {"user": user_payload(user)},
+            # Django messages (success / error after a save) -> toasts.
+            flash=lambda: {"messages": _flash_messages(request)},
             nav=lambda: navigation(user) if user.is_authenticated else [],
             i18n=lambda: _catalog(language),
             urls=lambda: {

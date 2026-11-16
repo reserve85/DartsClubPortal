@@ -396,7 +396,7 @@ class CashierListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
         from django.utils import timezone
         from inertia import render as inertia_render
 
-        from app.teams.services import cashier_label_for
+        from app.teams.services import person_label
 
         is_admin = context["is_admin"]
 
@@ -419,7 +419,7 @@ class CashierListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
                     "cashier": (
                         {
                             "id": current.pk,
-                            "name": cashier_label_for(current),
+                            "name": person_label(current),
                             "isCaptain": current.pk in team.captain_ids,
                         }
                         if current
@@ -430,7 +430,7 @@ class CashierListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
                             "name": row.user_label,
                             "from": when(row.valid_from),
                             "to": when(row.valid_to),
-                            "by": cashier_label_for(row.created_by) if row.created_by else "",
+                            "by": person_label(row.created_by) if row.created_by else "",
                             "open": row.is_open,
                         }
                         for row in team.history

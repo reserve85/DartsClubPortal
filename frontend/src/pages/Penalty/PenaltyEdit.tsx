@@ -39,7 +39,7 @@ export default function PenaltyEdit({ penalty: p, deleteUrl, groupCount, groupPl
         left={<PlayerAvatar name={p.player} src={p.playerAvatar} size={52} />}
       />
       <Paper withBorder p={{ base: "md", sm: "lg" }} maw={760}>
-        <form onSubmit={(e) => { e.preventDefault(); form.post(`/penalties/${p.id}/edit/`, { preserveScroll: true }); }}>
+        <form onSubmit={(e) => { e.preventDefault(); form.post(`/penalties/${p.id}/edit/`, { preserveScroll: "errors" }); }}>
           <Stack gap="lg">
             {group && (
               <Alert color="grape" icon={<IconUsersGroup />}>

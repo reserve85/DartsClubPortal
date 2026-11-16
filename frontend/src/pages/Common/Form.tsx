@@ -134,7 +134,7 @@ export default function FormPage(p: Props) {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            form.post(p.action, { preserveScroll: true });
+            form.post(p.action, { preserveScroll: "errors" });
           }}
         >
           <Stack gap="lg">

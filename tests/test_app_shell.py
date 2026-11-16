@@ -108,3 +108,12 @@ def test_theme_preference_is_applied_before_first_paint(admin_client, admin_user
 def test_club_logo_url_is_shared(admin_client):
     logo = _props(admin_client)["site"]["logo"]
     assert set(logo) == {"light", "dark"}
+
+
+def test_messages_reach_the_page_as_toasts_once(admin_client):
+    """A save message (Django messages) arrives in the shared ``flash`` prop."""
+    resp = admin_client.post(reverse("season_create"), {"name": "2031/2032"})
+    assert resp.status_code == 302
+    flash = _props(admin_client, resp.url)["flash"]["messages"]
+    assert len(flash) == 1 and flash[0]["level"] == "success"
+    assert _props(admin_client, resp.url)["flash"]["messages"] == []  # shown only once

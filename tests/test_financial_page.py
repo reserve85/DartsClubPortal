@@ -76,7 +76,8 @@ def test_captain_marking(admin_client, team, captain_user, player):
     captain_user.player_link = player
     captain_user.save()
     props = _fin(admin_client, team=team.pk)
-    assert props["team"]["captains"] == [captain_user.full_name or captain_user.email]
+    # Same label as on the cash box page: the linked player's name first.
+    assert props["team"]["captains"] == [player.name]
     row = next(r for r in props["team"]["balances"] if r["playerId"] == player.pk)
     assert row["isCaptain"] is True and row["isCashier"] is False
     assert [t["name"] for t in props["teams"]] == sorted(

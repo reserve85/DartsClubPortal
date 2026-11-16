@@ -76,6 +76,18 @@ def cashier_label_for(user) -> str:
     return name or user.email
 
 
+def person_label(user) -> str:
+    """How a person is shown in the money pages: player name > full name > e-mail.
+
+    One rule for captain, cashier and "received by", so the cash box page and
+    the financial overview never name the same person differently.
+    """
+    if user is None:
+        return ""
+    player = getattr(user, "player_link", None)
+    return (getattr(player, "name", "") if player else "") or user.full_name or user.email
+
+
 def cashier_user_for(team):
     """The ACCOUNT that may record payments for ``team``, or ``None``.
 

@@ -383,6 +383,11 @@ class MatchUpdateView(LoginRequiredMixin, EloAdminMixin, View):
             },
             "bestOfChoices": list(VALID_BEST_OF),
             "today": timezone.localdate().isoformat(),
+            # Earliest allowed date: both players must already be in the ranking.
+            "minDate": max(
+                (p.elo.entry_date for p in (m.player_a, m.player_b) if hasattr(p, "elo")),
+                default=None,
+            ),
             "duplicate": duplicate,
             "errors": form_errors(form) if form is not None else {},
             "limits": _limits(),

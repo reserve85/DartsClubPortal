@@ -71,7 +71,7 @@ export default function MatchDetail({ match, a, b, canEdit }: Props) {
         <Text size="xs" fw={800} tt="uppercase" c="dimmed" mb="xs">{t("Statistics")}</Text>
         <Table verticalSpacing={6} withRowBorders>
           <Table.Tbody>
-            {row("180er", a.n180 || "–", b.n180 || "–")}
+            {row("180er", a.n180 ?? 0, b.n180 ?? 0)}
             {row(t("High finishes"), a.hf.join(", ") || "–", b.hf.join(", ") || "–")}
             {row(t("Low darts"), a.ld.join(", ") || "–", b.ld.join(", ") || "–")}
             {row(t("Average"), a.average !== null ? f.number(a.average, 2) : "–", b.average !== null ? f.number(b.average, 2) : "–")}

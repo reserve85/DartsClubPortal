@@ -72,7 +72,7 @@ export default function PenaltyAssign({ matchday, items, players, values, errors
         onSubmit={(e) => {
           e.preventDefault();
           form.transform((data) => ({ ...data, double_partner: item?.both ? data.double_partner : "", amount_eur: item?.manual ? data.amount_eur : "" }));
-          form.post(`/matchdays/${matchday.id}/penalties/add/`, { preserveScroll: true });
+          form.post(`/matchdays/${matchday.id}/penalties/add/`, { preserveScroll: "errors" });
         }}
       >
         <Stack gap="md">

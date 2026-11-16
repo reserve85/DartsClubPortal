@@ -22,6 +22,7 @@ interface Props {
   };
   bestOfChoices: number[];
   today: string;
+  minDate?: string | null;
   duplicate: boolean;
   errors: Record<string, string>;
   limits: Limits;
@@ -30,7 +31,7 @@ interface Props {
 const list = (v: unknown) => ((v as number[] | null) ?? []).map(String);
 const val = (v: unknown) => (v === null || v === undefined ? "" : (v as number));
 
-export default function MatchEdit({ match, bestOfChoices, today, duplicate, errors, limits }: Props) {
+export default function MatchEdit({ match, bestOfChoices, today, minDate, duplicate, errors, limits }: Props) {
   const t = useT();
   const s = match.stats;
   const form = useForm({
@@ -51,7 +52,7 @@ export default function MatchEdit({ match, bestOfChoices, today, duplicate, erro
   const d = form.data;
   const save = (force = false) => {
     form.transform((data) => ({ ...data, force, ...joinLists(data) }));
-    form.post(`/elo/matches/${match.id}/edit/`, { preserveScroll: true });
+    form.post(`/elo/matches/${match.id}/edit/`, { preserveScroll: "errors" });
   };
   return (
     <>
@@ -67,7 +68,7 @@ export default function MatchEdit({ match, bestOfChoices, today, duplicate, erro
       <Paper withBorder p="md" className="hero">
         <Grid gap="sm" mb="md">
           <Grid.Col span={6}>
-            <DatePickerInput label={t("Date")} value={d.match_date} maxDate={today} onChange={(v) => form.setData("match_date", v ? dayjs(v).format("YYYY-MM-DD") : d.match_date)} error={errors.match_date} />
+            <DatePickerInput label={t("Date")} value={d.match_date} maxDate={today} minDate={minDate ?? undefined} onChange={(v) => form.setData("match_date", v ? dayjs(v).format("YYYY-MM-DD") : d.match_date)} error={errors.match_date} />
           </Grid.Col>
           <Grid.Col span={6}>
             <Select

@@ -29,6 +29,7 @@ from app.penalties.services import (
 from app.teams.services import (
     captains_for_teams,
     cashier_user_for,
+    person_label,
     teams_for_season,
     user_is_cashier,
 )
@@ -262,8 +263,8 @@ def financial_props(request, season, ctx) -> dict:
     props["team"] = {
         "id": team.pk,
         "name": team.name,
-        "captains": [c.full_name or c.email for c in ctx["team_captains"]],
-        "cashier": (cashier.full_name or cashier.email) if cashier else None,
+        "captains": [person_label(c) for c in ctx["team_captains"]],
+        "cashier": person_label(cashier) if cashier else None,
         "canManage": ctx["can_manage"],
         "isCashier": ctx["is_cashier"],
         "total": _money(ctx["team_penalties"]),
@@ -277,9 +278,7 @@ def financial_props(request, season, ctx) -> dict:
                 "date": pay.created_at.date().isoformat(),
                 "player": pay.player.name,
                 "amount": _money(pay.amount_eur),
-                "receivedBy": (pay.received_by.full_name or pay.received_by.email)
-                if pay.received_by
-                else "",
+                "receivedBy": person_label(pay.received_by) if pay.received_by else "",
             }
             for pay in ctx["payments"].select_related("received_by").order_by("-created_at")[:200]
         ],
