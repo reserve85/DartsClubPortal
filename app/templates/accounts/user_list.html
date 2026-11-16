@@ -2,18 +2,22 @@
 {% load i18n %}
 {% block title %}{% translate "Users" %} – {{ site_name }}{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">{% translate "Users" %}</h1>
-    <div class="d-flex gap-2">
-        <a class="btn btn-outline-warning" href="{% url 'accounts:approval_list' %}">
+<div class="ui-hero">
+    <div class="ui-hero-head">
+        <div class="min-w-0"><h1 class="ui-hero-title h3">{% translate "Users" %}</h1></div>
+        <div class="ui-hero-actions">
+        <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary" href="{% url 'accounts:approval_list' %}">
             {% translate "Pending approvals" %}
             {% if pending_count %}<span class="badge text-bg-warning">{{ pending_count }}</span>{% endif %}
         </a>
-        <a class="btn btn-outline-info" href="{% url 'accounts:invite_list' %}">
+        <a class="btn btn-outline-secondary" href="{% url 'accounts:invite_list' %}">
             {% translate "Invitations" %}
             {% if invite_count %}<span class="badge text-bg-info">{{ invite_count }}</span>{% endif %}
         </a>
         <a class="btn btn-primary" href="{% url 'accounts:user_create' %}">{% translate "New user" %}</a>
+    </div>
+        </div>
     </div>
 </div>
 <div class="table-responsive">
@@ -70,10 +74,10 @@
                 {% endif %}
                 <td class="text-end text-nowrap">
                     {% if user.approval_status == "pending" %}
-                        <a class="btn btn-sm btn-outline-warning" href="{% url 'accounts:approval' user.pk %}">{% translate "Review" %}</a>
+                        <a class="btn btn-sm btn-outline-secondary" href="{% url 'accounts:approval' user.pk %}">{% translate "Review" %}</a>
                     {% elif user.approval_status == "requested" %}
                         {# No Edit/Review: a wrong entry is fixed with Cancel/Resend on the invitations screen. #}
-                        <a class="btn btn-sm btn-outline-info" href="{% url 'accounts:invite_list' %}">{% translate "Invitations" %}</a>
+                        <a class="btn btn-sm btn-outline-secondary" href="{% url 'accounts:invite_list' %}">{% translate "Invitations" %}</a>
                     {% endif %}
                     {# No "Deactivate" button anymore — the edit form's "Active" checkbox owns activation (same rule as players). #}
                     {% if user.approval_status != "requested" %}

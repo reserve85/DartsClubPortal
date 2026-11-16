@@ -200,7 +200,7 @@ def create_match(
         **stats,
     )
     match.save()
-    recalculate_timeline({player_a.pk, player_b.pk})
+    recalculate_timeline({player_a.pk, player_b.pk}, from_date=match_date)
     match.refresh_from_db()
     log_action(
         AuditAction.ELO_MATCH_CREATED,
@@ -219,6 +219,7 @@ def update_match(match: Match, *, user=None, force: bool = False, **changes) -> 
     overlaid with the changes) before anything is written.
     """
     old = match_snapshot(match)
+    old_date = match.date
     pa, pb = _profile(match.player_a), _profile(match.player_b)
     eff_date = changes.get("match_date") or match.date
     eff_bol = changes.get("best_of_legs") or match.best_of_legs
@@ -269,7 +270,7 @@ def update_match(match: Match, *, user=None, force: bool = False, **changes) -> 
     for f, value in stats.items():
         setattr(match, f, value)
     match.save()
-    recalculate_timeline({match.player_a_id, match.player_b_id})
+    recalculate_timeline({match.player_a_id, match.player_b_id}, from_date=min(old_date, eff_date))
     match.refresh_from_db()
     log_action(
         AuditAction.ELO_MATCH_UPDATED,
@@ -285,8 +286,9 @@ def delete_match(match: Match, *, user=None) -> None:
     affected = {match.player_a_id, match.player_b_id}
     snapshot = match_snapshot(match)
     match_id = match.pk
+    deleted_date = match.date
     match.delete()
-    recalculate_timeline(affected)
+    recalculate_timeline(affected, from_date=deleted_date)
     log_action(
         AuditAction.ELO_MATCH_DELETED,
         user=_actor(user),
@@ -298,13 +300,19 @@ def _actor(user):
     return user if user is not None and getattr(user, "is_authenticated", False) else None
 
 
-def recalculate_timeline(affected_player_ids: set[int]) -> int:
-    """Replay the Elo timeline from the earliest match of the affected players.
+def recalculate_timeline(affected_player_ids: set[int], from_date=None) -> int:
+    """Replay the Elo timeline; returns the number of replayed matches.
 
-    Returns the number of replayed matches.
+    ``from_date`` (entering, editing, deleting a match): nothing before that
+    day can have changed, so only matches on/after it are replayed and EVERY
+    player enters with the rating after their last match before that day.
+    Without it (start Elo changed, data repair) the replay starts at the
+    earliest match of the affected players, who enter at their start Elo.
     """
     if not affected_player_ids:
         return 0
+    if from_date is not None:
+        return _replay_from_date(affected_player_ids, from_date)
     first = (
         Match.objects.filter(
             Q(player_a_id__in=affected_player_ids) | Q(player_b_id__in=affected_player_ids)
@@ -374,6 +382,56 @@ def recalculate_timeline(affected_player_ids: set[int]) -> int:
     if changed:
         EloProfile.objects.bulk_update(changed, ["current_elo", "last_match_date", "active"])
     _reset(profiles_all, affected_player_ids - set(state))
+    return len(window)
+
+
+def _replay_from_date(affected_player_ids: set[int], from_date) -> int:
+    profiles_all = {p.player_id: p for p in EloProfile.objects.all()}
+    window = list(Match.objects.filter(date__gte=from_date).order_by("date", "created_at", "id"))
+    in_window = {m.player_a_id for m in window} | {m.player_b_id for m in window}
+    state: dict[int, list] = {}
+    for pid in in_window | set(affected_player_ids):
+        profile = profiles_all.get(pid)
+        if profile is None:
+            continue
+        prev = (
+            _player_matches(pid)
+            .filter(date__lt=from_date)
+            .order_by("-date", "-created_at", "-id")
+            .first()
+        )
+        state[pid] = [prev.elo_after(pid), prev.date] if prev else [float(profile.start_elo), None]
+    for m in window:
+        sa, sb = state.get(m.player_a_id), state.get(m.player_b_id)
+        if sa is None or sb is None:
+            continue
+        res = calculate_match_elo(
+            sa[0], sb[0], "A" if m.winner_id == m.player_a_id else "B", k_factor=m.k_factor
+        )
+        m.elo_before_a, m.elo_before_b = sa[0], sb[0]
+        m.elo_after_a, m.elo_after_b = res.new_rating_a, res.new_rating_b
+        m.elo_change_a, m.elo_change_b = res.change_a, res.change_b
+        sa[0], sb[0] = res.new_rating_a, res.new_rating_b
+        sa[1] = sb[1] = m.date
+    Match.objects.bulk_update(
+        window,
+        [
+            "elo_before_a",
+            "elo_before_b",
+            "elo_after_a",
+            "elo_after_b",
+            "elo_change_a",
+            "elo_change_b",
+        ],
+        batch_size=500,
+    )
+    changed = []
+    for pid, (elo, last) in state.items():
+        profile = profiles_all[pid]
+        profile.current_elo, profile.last_match_date, profile.active = elo, last, last is not None
+        changed.append(profile)
+    if changed:
+        EloProfile.objects.bulk_update(changed, ["current_elo", "last_match_date", "active"])
     return len(window)
 
 

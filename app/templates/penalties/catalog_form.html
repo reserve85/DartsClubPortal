@@ -2,18 +2,17 @@
 {% load i18n %}
 {% block title %}{% translate "Catalog item" %} – {{ site_name }}{% endblock %}
 {% block content %}
-<h1 class="h3 mb-3">{% if view.object.pk %}{% translate "Edit catalog item" %}{% else %}{% translate "New catalog item" %}{% endif %}</h1>
+<div class="ui-hero">
+    <div class="ui-hero-head">
+        <div class="min-w-0">
+            <h1 class="ui-hero-title h3">{% if view.object.pk %}{% translate "Edit catalog item" %}{% else %}{% translate "New catalog item" %}{% endif %}</h1>
+        </div>
+    </div>
+</div>
 <form method="post" novalidate class="card card-body">
     {% csrf_token %}
     {% include "includes/_form_errors.html" with form=form %}
-    {% for field in form.core_fields %}
-        <div class="mb-3">
-            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-            {{ field }}
-            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
-            {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
-        </div>
-    {% endfor %}
+    {% for field in form.core_fields %}{% include "includes/_field.html" %}{% endfor %}
 
     {# ------------------------------------------------------------------ #}
     {# Team fees + active flags (former dedicated "Team fees" page).        #}

@@ -2,8 +2,14 @@
 {% load i18n %}
 {% block title %}{% translate "New invitation" %} – {{ site_name }}{% endblock %}
 {% block content %}
-<h1 class="h3 mb-3">{% translate "New invitation" %}</h1>
-<p class="text-muted">{% blocktranslate with days=invite_expire_days %}The invited person receives an e-mail with an acceptance link (valid for {{ days }} days). Setting a password completes the registration — no approval step follows.{% endblocktranslate %}</p>
+<div class="ui-hero">
+    <div class="ui-hero-head">
+        <div class="min-w-0">
+            <h1 class="ui-hero-title h3">{% translate "New invitation" %}</h1>
+            <div class="ui-hero-sub">{% blocktranslate with days=invite_expire_days %}The invited person receives an e-mail with an acceptance link (valid for {{ days }} days). Setting a password completes the registration — no approval step follows.{% endblocktranslate %}</div>
+        </div>
+    </div>
+</div>
 <form method="post" novalidate class="card card-body">
     {% csrf_token %}
     {% include "includes/_form_errors.html" with form=form %}

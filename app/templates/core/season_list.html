@@ -2,9 +2,13 @@
 {% load i18n %}
 {% block title %}{% translate "Seasons" %} – {{ site_name }}{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">{% translate "Seasons" %}</h1>
-    <a class="btn btn-primary" href="{% url 'season_create' %}">{% translate "New season" %}</a>
+<div class="ui-hero">
+    <div class="ui-hero-head">
+        <div class="min-w-0"><h1 class="ui-hero-title h3">{% translate "Seasons" %}</h1></div>
+        <div class="ui-hero-actions">
+        <a class="btn btn-primary" href="{% url 'season_create' %}">{% translate "New season" %}</a>
+        </div>
+    </div>
 </div>
 <p class="text-muted">{% translate "Every season is a closed cash box — open amounts are never carried over to the next season." %}</p>
 <p class="text-muted small">

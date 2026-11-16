@@ -2,9 +2,11 @@
 {% load i18n %}
 {% block title %}{% translate "Penalty" %} – {{ site_name }}{% endblock %}
 {% block content %}
-<h1 class="h3 mb-1">{{ matchday.display_label }}</h1>
-<p class="text-muted">
-    {% if editing %}
+<div class="ui-hero">
+    <div class="ui-hero-head">
+        <div class="min-w-0">
+            <h1 class="ui-hero-title h3">{{ matchday.display_label }}</h1>
+            <div class="ui-hero-sub">{% if editing %}
         {% if group_count > 1 %}
             {# Group penalty: name the affected players instead of the raw group-id hex. #}
             {% blocktranslate with players=group_players %}Editing group penalty ({{ players }}).{% endblocktranslate %}
@@ -13,8 +15,10 @@
         {% endif %}
     {% else %}
         {% translate "Assign a penalty" %}
-    {% endif %}
-</p>
+    {% endif %}</div>
+        </div>
+    </div>
+</div>
 
 <form method="post" novalidate class="card card-body">
     {% csrf_token %}

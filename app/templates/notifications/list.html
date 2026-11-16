@@ -2,9 +2,11 @@
 {% load i18n %}
 {% block title %}{% translate "Notifications" %} – {{ site_name }}{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-    <h1 class="h3 mb-0">{% translate "Notifications" %}</h1>
-    <div class="d-flex gap-2">
+<div class="ui-hero">
+    <div class="ui-hero-head">
+        <div class="min-w-0"><h1 class="ui-hero-title h3">{% translate "Notifications" %}</h1></div>
+        <div class="ui-hero-actions">
+        <div class="d-flex gap-2">
         <a class="btn btn-sm btn-outline-secondary" href="{% url 'notifications:mark_all_as_read' %}?next={{ request.get_full_path|urlencode }}">
             {% translate "Mark all as read" %}
         </a>
@@ -14,6 +16,8 @@
             <input type="hidden" name="next" value="{{ request.get_full_path }}">
             <button type="submit" class="btn btn-sm btn-outline-danger">{% translate "Delete read messages" %}</button>
         </form>
+    </div>
+        </div>
     </div>
 </div>
 
@@ -50,7 +54,7 @@
                        href="{% url 'notifications:mark_as_unread' notice.slug %}?next={{ request.get_full_path|urlencode }}">{% translate "Mark as unread" %}</a>
                 {% endif %}
                 {% if notice.actor.approval_status == "pending" %}
-                    <a class="btn btn-sm btn-outline-warning"
+                    <a class="btn btn-sm btn-outline-secondary"
                        href="{% url 'accounts:approval' notice.actor.pk %}">{% translate "Review" %}</a>
                 {% endif %}
                 <form method="post" action="{% url 'notifications_manage:delete_one' notice.pk %}"

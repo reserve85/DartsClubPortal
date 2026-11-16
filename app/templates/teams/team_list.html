@@ -2,7 +2,13 @@
 {% load i18n %}
 {% block title %}{% translate "Teams & Players" %} – {{ site_name }}{% endblock %}
 {% block content %}
-<h1 class="h3 mb-3">{% translate "Teams & Players" %}</h1>
+<div class="ui-hero">
+    <div class="ui-hero-head">
+        <div class="min-w-0">
+            <h1 class="ui-hero-title h3">{% translate "Teams & Players" %}</h1>
+        </div>
+    </div>
+</div>
 {% if season %}
     <p class="text-muted small">{% translate "The team assignment shown belongs to this season:" %} <strong>{{ season.name }}</strong></p>
 {% endif %}

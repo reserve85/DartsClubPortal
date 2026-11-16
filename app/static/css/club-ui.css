@@ -374,3 +374,8 @@ details.ui-more[open] > summary::before { transform: rotate(90deg); }
 }
 .audit-meta { display: block; font-size: .78rem; color: var(--bs-secondary-color); overflow-wrap: anywhere; word-break: break-word; max-width: 48rem; }
 .form-switch .form-check-input { min-height: 0 !important; }
+/* Hero heads: the title keeps its width, actions wrap below on phones. */
+.ui-hero-head { flex-wrap: wrap; }
+.ui-hero-head > .min-w-0 { flex: 1 1 10rem; }
+.ui-hero-actions > .d-flex { flex-wrap: wrap; justify-content: flex-end; }
+.ui-fee-list { display: flex; flex-wrap: wrap; gap: .3rem; justify-content: flex-end; }

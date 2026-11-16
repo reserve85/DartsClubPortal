@@ -158,7 +158,11 @@ class CatalogItemForm(forms.ModelForm):
                 TeamCatalogAmount.objects.get_or_create(
                     team=other,
                     catalog_item=item,
-                    defaults={"active": False, "amount_eur": item.amount_eur, "updated_by": self.user},
+                    defaults={
+                        "active": False,
+                        "amount_eur": item.amount_eur,
+                        "updated_by": self.user,
+                    },
                 )
         for team in self._teams:
             TeamCatalogAmount.objects.update_or_create(

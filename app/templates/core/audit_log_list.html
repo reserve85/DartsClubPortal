@@ -2,7 +2,13 @@
 {% load i18n %}
 {% block title %}{% translate "Audit log" %} – {{ site_name }}{% endblock %}
 {% block content %}
-<h1 class="h3 mb-3">{% translate "Audit log" %}</h1>
+<div class="ui-hero">
+    <div class="ui-hero-head">
+        <div class="min-w-0">
+            <h1 class="ui-hero-title h3">{% translate "Audit log" %}</h1>
+        </div>
+    </div>
+</div>
 
 <form method="get" class="row g-2 mb-3">
     <div class="col-md-4">

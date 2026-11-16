@@ -2,9 +2,13 @@
 {% load i18n %}
 {% block title %}{% translate "Matchday" %} – {{ site_name }}{% endblock %}
 {% block content %}
-<h1 class="h3 mb-3">
-    {% if view.object.pk %}{% translate "Edit matchday" %}{% else %}{% translate "New matchday" %}{% endif %}
-</h1>
+<div class="ui-hero">
+    <div class="ui-hero-head">
+        <div class="min-w-0">
+            <h1 class="ui-hero-title h3">{% if view.object.pk %}{% translate "Edit matchday" %}{% else %}{% translate "New matchday" %}{% endif %}</h1>
+        </div>
+    </div>
+</div>
 <form method="post" novalidate class="card card-body">
     {% csrf_token %}
     {% include "includes/_form_errors.html" with form=form %}

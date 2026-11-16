@@ -2,9 +2,13 @@
 {% load i18n %}
 {% block title %}{% translate "Penalty catalog" %} – {{ site_name }}{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">{% translate "Penalty catalog" %}</h1>
-    {% if can_create %}<a class="btn btn-primary" href="{% url 'penalties:catalog_create' %}">{% translate "New item" %}</a>{% endif %}
+<div class="ui-hero">
+    <div class="ui-hero-head">
+        <div class="min-w-0"><h1 class="ui-hero-title h3">{% translate "Penalty catalog" %}</h1></div>
+        <div class="ui-hero-actions">
+        {% if can_create %}<a class="btn btn-primary" href="{% url 'penalties:catalog_create' %}">{% translate "New item" %}</a>{% endif %}
+        </div>
+    </div>
 </div>
 <div class="table-responsive">
     <table class="table table-striped align-middle">
@@ -23,7 +27,7 @@
                 <td>{{ item.get_type_display }}</td>
                 <td>
                     {# Read-only status per team: the team's OWN fee + active flag. #}
-                    {% for cfg in item.team_config_list %}{{ cfg.team.name }}: <span class="text-danger">{{ cfg.amount|floatformat:2 }} €</span> {% if cfg.active %}<span class="text-success">✓</span>{% else %}<span class="text-danger">✗</span>{% endif %}<br>{% endfor %}
+                    <span class="ui-fee-list">{% for cfg in item.team_config_list %}<span class="ui-chip{% if cfg.active %} is-ok{% endif %}" title="{% if cfg.active %}{% translate 'active' %}{% else %}{% translate 'inactive' %}{% endif %}">{{ cfg.team.name }} · {{ cfg.amount|floatformat:2 }} €{% if not cfg.active %} ✗{% endif %}</span>{% endfor %}</span>
                 </td>
                 <td class="text-end text-nowrap">
                     {# One single action: fees + active flags live on the edit form. #}

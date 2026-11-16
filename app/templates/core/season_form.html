@@ -2,13 +2,17 @@
 {% load i18n %}
 {% block title %}{% if season %}{% translate "Edit season" %}{% else %}{% translate "New season" %}{% endif %} – {{ site_name }}{% endblock %}
 {% block content %}
-<h1 class="h3 mb-3">
-    {% if season %}
+<div class="ui-hero">
+    <div class="ui-hero-head">
+        <div class="min-w-0">
+            <h1 class="ui-hero-title h3">{% if season %}
         {% blocktranslate with name=season.name %}Edit season "{{ name }}"{% endblocktranslate %}
     {% else %}
         {% translate "New season" %}
-    {% endif %}
-</h1>
+    {% endif %}</h1>
+        </div>
+    </div>
+</div>
 <form method="post" novalidate class="card card-body">
     {% csrf_token %}
     {% include "includes/_form_errors.html" with form=form %}

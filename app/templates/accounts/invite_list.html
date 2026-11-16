@@ -2,11 +2,15 @@
 {% load i18n %}
 {% block title %}{% translate "Invitations" %} – {{ site_name }}{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">{% translate "Invitations" %}</h1>
-    <div class="d-flex gap-2">
+<div class="ui-hero">
+    <div class="ui-hero-head">
+        <div class="min-w-0"><h1 class="ui-hero-title h3">{% translate "Invitations" %}</h1></div>
+        <div class="ui-hero-actions">
+        <div class="d-flex gap-2">
         <a class="btn btn-outline-secondary" href="{% url 'accounts:user_list' %}">{% translate "Back to users" %}</a>
         <a class="btn btn-primary" href="{% url 'accounts:invite_create' %}">{% translate "New invitation" %}</a>
+    </div>
+        </div>
     </div>
 </div>
 <p class="text-muted">{% translate "An invited account is created immediately and becomes active when the invited person sets a password via the link in the e-mail — no approval step." %}</p>
