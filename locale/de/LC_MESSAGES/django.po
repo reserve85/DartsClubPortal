@@ -3826,6 +3826,9 @@ msgstr "Als Standard setzen"
 msgid "all teams"
 msgstr "alle Mannschaften"
 
+msgid "new"
+msgstr "neu"
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 

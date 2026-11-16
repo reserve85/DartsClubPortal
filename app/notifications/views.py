@@ -82,3 +82,65 @@ class UnsubscribeView(View):
             "notifications/unsubscribe.html",
             {"valid": user is not None, "label": KINDS[kind][0] if kind else "", "done": True},
         )
+
+
+class NotificationListView(LoginRequiredMixin, View):
+    """The caller's mailbox as a React page (tabs Unread / All).
+
+    Takes over the package's list views at the same URLs (``notifications:all``
+    and ``notifications:unread`` still reverse to them); mark read/unread and
+    "mark all" stay the package's GET actions, deletes stay POST-only.
+    """
+
+    unread_only = False
+
+    def get(self, request):
+        from django.core.paginator import Paginator
+        from django.utils import timezone
+        from inertia import render as inertia_render
+
+        mailbox = request.user.notifications.select_related("actor_content_type")
+        rows = mailbox.unread() if self.unread_only else mailbox.all()
+        page = Paginator(rows.order_by("-timestamp"), 25).get_page(request.GET.get("page"))
+        here = request.get_full_path()
+
+        def row(notice):
+            actor = notice.actor
+            review = (
+                reverse("accounts:approval", args=[actor.pk])
+                if getattr(actor, "approval_status", None) == "pending"
+                else None
+            )
+            toggle = (
+                "notifications:mark_as_read" if notice.unread else "notifications:mark_as_unread"
+            )
+            return {
+                "id": notice.pk,
+                "verb": notice.verb,
+                "actor": str(actor) if actor else "",
+                "when": timezone.localtime(notice.timestamp).isoformat(),
+                "unread": notice.unread,
+                "reviewUrl": review,
+                "toggleUrl": f"{reverse(toggle, args=[notice.slug])}?next={here}",
+                "deleteUrl": reverse("notifications_manage:delete_one", args=[notice.pk]),
+            }
+
+        props = {
+            "tab": "unread" if self.unread_only else "all",
+            "rows": [row(n) for n in page.object_list],
+            "page": page.number,
+            "pages": page.paginator.num_pages,
+            "unreadCount": mailbox.unread().count(),
+            "urls": {
+                "all": reverse("notifications:all"),
+                "unread": reverse("notifications:unread"),
+                "markAll": f"{reverse('notifications:mark_all_as_read')}?next={here}",
+                "deleteRead": reverse("notifications_manage:delete_read"),
+            },
+        }
+        return inertia_render(
+            request,
+            "Notifications",
+            props=props,
+            template_data={"notifications": page.object_list, "page_obj": page},
+        )

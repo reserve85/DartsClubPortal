@@ -23,6 +23,7 @@ from app.accounts.qr import LegacyAutoLoginView, QrLoginView
 from app.core import views as core_views
 from app.core.branding import LogoAdminView, LogoFileView
 from app.core.modules import ELO, PENALTY, enabled_modules
+from app.notifications.views import NotificationListView
 from app.players.avatars import AvatarFileView, AvatarUploadView
 
 _MODULES = enabled_modules()
@@ -61,6 +62,13 @@ urlpatterns += i18n_patterns(
     path("accounts/", include("allauth.urls")),
     path("accounts/", include("app.accounts.urls")),
     # django-notifications-hq: list/unread/mark-as-read of in-app notifications
+    # The mailbox list is a React page; the package keeps every other route.
+    path("notifications/", NotificationListView.as_view(), name="notification_list"),
+    path(
+        "notifications/unread/",
+        NotificationListView.as_view(unread_only=True),
+        name="notification_list_unread",
+    ),
     path("notifications/", include("notifications.urls")),
     # Custom mailbox actions (delete one / delete read) — mounted AFTER the
     # package include so the package keeps owning every notifications:* name.

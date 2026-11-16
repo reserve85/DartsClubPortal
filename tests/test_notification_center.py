@@ -25,6 +25,7 @@ from app.penalties.services import (
     record_payment,
     soft_delete_penalty,
 )
+from tests.conftest import inertia_props
 
 pytestmark = pytest.mark.django_db
 
@@ -86,8 +87,9 @@ def test_tabs_render_and_split_read_rows(admin_client, admin_user):
     assert "Already read bell" not in unread_html
     assert "Still unread bell" in all_html
     assert "Already read bell" in all_html
-    # active tab highlighting
-    assert "nav-link active" in unread_html and "nav-link active" in all_html
+    # active tab
+    assert inertia_props(admin_client.get(reverse("notifications:unread")))["tab"] == "unread"
+    assert inertia_props(admin_client.get(reverse("notifications:all")))["tab"] == "all"
 
 
 def test_mark_as_read_link_carries_next_and_returns_to_unread_tab(admin_client, admin_user):
