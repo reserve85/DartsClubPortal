@@ -9,6 +9,7 @@ from django.urls import reverse
 from app.penalties.forms import PenaltyAssignForm
 from app.penalties.models import PenaltyType, TeamCatalogAmount
 from app.penalties.services import assign_group_penalty
+from tests.conftest import inertia_props
 
 pytestmark = pytest.mark.django_db
 
@@ -126,14 +127,10 @@ def test_assign_page_renders_the_third_teams_fee_in_the_dropdown(
         team=third, opponent="SV Eichenberg", venue="home", date=date(2026, 9, 24)
     )
 
-    content = admin_client.get(reverse("penalties:penalty_create", args=[md.pk])).content.decode()
-    option = next(
-        line for line in content.splitlines() if "<option" in line and "Late arrival" in line
-    )
+    props = inertia_props(admin_client.get(reverse("penalties:penalty_create", args=[md.pk])))
+    item = next(i for i in props["items"] if i["description"] == "Late arrival")
 
-    assert f"{catalog_normal.amount_for_team(third)} €" in option  # 1.00 € — team 3's fee
-    assert f"{catalog_normal.amount_for_team(other_team)} €" not in option  # no 3.00 €
-    assert f"{catalog_normal.amount_eur} €" not in option  # no default/first-team fee
+    assert item["amount"] == float(catalog_normal.amount_for_team(third)) == 1.0  # team 3's fee
 
 
 # ---------------------------------------------------------------------------

@@ -27,6 +27,8 @@ export function useFormat() {
   const { site } = usePage<SharedProps>().props;
   const locale = site?.language === "en" ? "en-GB" : "de-DE";
   return {
+    /** Decimal separator of the UI language (German: comma). */
+    decimalSeparator: locale === "en-GB" ? "." : ",",
     number: (v: number | null | undefined, digits = 0) =>
       v === null || v === undefined ? "–" : v.toLocaleString(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits }),
     /** Elo values: whole number, no thousands separator (1785, not 1.785). */

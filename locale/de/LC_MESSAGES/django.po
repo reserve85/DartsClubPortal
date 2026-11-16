@@ -3751,6 +3751,48 @@ msgstr "%(n)s Spieltag"
 msgid "%(n)s matchdays"
 msgstr "%(n)s Spieltage"
 
+msgid "Assign group penalty"
+msgstr "Gruppenstrafe verhängen"
+
+msgid "Comment (optional)"
+msgstr "Kommentar (optional)"
+
+msgid "Delete for this player"
+msgstr "Nur für diesen Spieler löschen"
+
+msgid "Delete penalty"
+msgstr "Strafe löschen"
+
+msgid "Delete this penalty for all players of the group?"
+msgstr "Diese Strafe für alle Spieler der Gruppe löschen?"
+
+msgid "Doubles partner (optional)"
+msgstr "Doppelpartner (optional)"
+
+msgid "Edit penalty"
+msgstr "Strafe bearbeiten"
+
+msgid "Group penalty of %(n)s players: %(names)s. Changes apply to every row of the group."
+msgstr "Gruppenstrafe von %(n)s Spielern: %(names)s. Änderungen gelten für alle Einträge der Gruppe."
+
+msgid "Group penalty: every OTHER participant of the matchday pays. Pick the player who triggered it."
+msgstr "Gruppenstrafe: Alle ANDEREN Teilnehmer des Spieltags zahlen. Wähle den Spieler, der sie ausgelöst hat."
+
+msgid "Shown behind the penalty type, e.g. Late arrival (9 points)."
+msgstr "Steht hinter der Strafart, z. B. Zu spät (9 Punkte)."
+
+msgid "This matchday has no participants yet."
+msgstr "Dieser Spieltag hat noch keine Teilnehmer."
+
+msgid "Triggered by"
+msgstr "Ausgelöst von"
+
+msgid "doubles"
+msgstr "Doppel"
+
+msgid "individual"
+msgstr "individuell"
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 

@@ -234,8 +234,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
       <AppShell.Main>
         <Box maw={1100} mx="auto" pb={96}>{children}</Box>
+        <CookieNotice />
       </AppShell.Main>
-      <CookieNotice />
     </AppShell>
   );
 }

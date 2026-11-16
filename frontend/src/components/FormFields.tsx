@@ -15,6 +15,7 @@ import {
   TextInput,
 } from "@mantine/core";
 import { DatePickerInput, TimeInput } from "@mantine/dates";
+import { usePage } from "@inertiajs/react";
 import dayjs from "dayjs";
 import type { ReactNode } from "react";
 
@@ -77,6 +78,7 @@ export function Field({
     error: error || field.error || undefined,
   };
   const choices = field.choices ?? [];
+  const comma = usePage<{ site?: { language: string } }>().props.site?.language !== "en";
   switch (field.type) {
     case "hidden":
     case "file":
@@ -125,6 +127,8 @@ export function Field({
           max={typeof field.max === "number" ? field.max : undefined}
           step={field.step ?? 1}
           decimalScale={field.decimals ?? undefined}
+          fixedDecimalScale={field.decimals === 2}
+          decimalSeparator={comma ? "," : "."}
           allowDecimal={field.decimals !== 0}
           clampBehavior="strict"
           onChange={(v) => onChange(v === "" ? null : Number(v))}

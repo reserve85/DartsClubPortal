@@ -1,4 +1,4 @@
-import { Affix, Button, Group, Paper, Text, Transition } from "@mantine/core";
+import { Affix, Box, Button, Group, Paper, Text, Transition } from "@mantine/core";
 import { IconCookie } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { useT } from "../i18n";
@@ -25,6 +25,9 @@ export function CookieNotice() {
     setShow(false);
   };
   return (
+    <>
+    {/* Room below the page while the notice is open, so it never hides a button. */}
+    {show && <Box h={{ base: 110, sm: 0 }} aria-hidden />}
     <Affix position={{ bottom: 12, left: 12, right: 12 }} zIndex={300}>
       <Transition transition="slide-up" mounted={show}>
         {(styles) => (
@@ -38,5 +41,6 @@ export function CookieNotice() {
         )}
       </Transition>
     </Affix>
+    </>
   );
 }

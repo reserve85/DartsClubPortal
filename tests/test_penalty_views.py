@@ -9,6 +9,7 @@ from app.core.models import AuditAction, AuditLog
 from app.matchdays.models import MatchdayPlayer
 from app.penalties.forms import PenaltyAssignForm
 from app.penalties.models import Penalty, PenaltyCatalogItem
+from tests.conftest import inertia_props
 
 pytestmark = pytest.mark.django_db
 
@@ -232,9 +233,9 @@ def test_assign_form_labels_the_comment_field(admin_client, matchday_with_player
     # follow=True: the middleware redirects unprefixed URLs to /en/...
     response = admin_client.get(reverse("penalties:penalty_create", args=[md.pk]), follow=True)
     assert response.status_code == 200
-    content = response.content.decode()
-    assert "Comment / reason" in content
-    assert "penalty type (comment)" in content
+    i18n = inertia_props(response)["i18n"]
+    assert "Comment / reason" in i18n
+    assert "Shown behind the penalty type, e.g. Late arrival (9 points)." in i18n
 
 
 def test_assign_via_captain_own_team_ok(captain_client, matchday_with_players, catalog_normal):
@@ -502,18 +503,12 @@ def test_group_partner_needs_three_participants_via_view(
 def test_penalty_form_page_renders_partner_select(
     admin_client, matchday_with_players, catalog_doubles, catalog_normal
 ):
-    """The assign page offers the partner select + the JS gating list (both_ids)."""
-    md, _players = matchday_with_players(3)
-    content = admin_client.get(reverse("penalties:penalty_create", args=[md.pk])).content.decode()
-
-    assert 'id="id_double_partner"' in content
-    # Label + the always-available "no partner" option (en / de catalog).
-    assert "Doubles partner" in content or "Doppelspieler" in content
-    assert "No doubles partner" in content or "Kein Doppelspieler" in content
-    # JS only shows the select for flagged items: exactly catalog_doubles.
-    both_ids_line = next(line for line in content.splitlines() if "const bothIds" in line)
-    assert str(catalog_doubles.pk) in both_ids_line
-    assert str(catalog_normal.pk) not in both_ids_line
+    """The assign page offers the partner picker only for flagged items."""
+    md, players = matchday_with_players(3)
+    props = inertia_props(admin_client.get(reverse("penalties:penalty_create", args=[md.pk])))
+    both = {i["id"]: i["both"] for i in props["items"]}
+    assert both[catalog_doubles.pk] is True and both[catalog_normal.pk] is False
+    assert {p["id"] for p in props["players"]} == {p.pk for p in players}
 
 
 def test_group_penalty_row_names_the_trigger_on_matchday_page(
@@ -596,15 +591,19 @@ def test_penalty_form_ships_mutual_partner_exclusion(
     admin_client, matchday_with_players, catalog_doubles
 ):
     """Player -> partner AND partner -> player: the option is taken out of the offer."""
-    md, _players = matchday_with_players(3)
-    content = admin_client.get(reverse("penalties:penalty_create", args=[md.pk])).content.decode()
+    from pathlib import Path
 
-    assert "function excludeOption" in content
-    assert "opt.disabled = excluded" in content
-    assert "opt.hidden = excluded" in content  # not shown, not selectable
-    # Both directions are wired (selected player out of the partner list and back).
-    assert "excludeOption(partner, player" in content
-    assert "excludeOption(player," in content
+    from django.conf import settings
+
+    md, _players = matchday_with_players(3)
+    assert admin_client.get(reverse("penalties:penalty_create", args=[md.pk])).status_code == 200
+    page = Path(settings.BASE_DIR, "frontend/src/pages/Penalty/PenaltyAssign.tsx").read_text(
+        encoding="utf-8"
+    )
+    # The selected player is disabled in the partner picker, and picking the
+    # partner as player clears the partner again.
+    assert "disabled={d.player === String(p.id)}" in page
+    assert 'x.double_partner === String(p.id) ? ""' in page
 
 
 # ---------------------------------------------------------------------------
@@ -662,17 +661,15 @@ def test_group_penalty_edit_page_offers_delete_choice_and_names_players(
 ):
     """Headline = affected player names (no raw hex id) + single/group choice."""
     _md, _players, rows = _assign_group(matchday_with_players, catalog_group)
-    content = admin_client.get(
-        reverse("penalties:penalty_update", args=[rows[0].pk])
-    ).content.decode()
+    response = admin_client.get(reverse("penalties:penalty_update", args=[rows[0].pk]))
+    props = inertia_props(response)
 
-    # The choice: ONLY this row vs. the WHOLE group (each with its own confirm).
-    assert 'name="scope" value="single"' in content
-    assert 'name="scope" value="group"' in content
+    # The choice: ONLY this row vs. the WHOLE group (shown when siblings exist).
+    assert props["groupCount"] == len(rows) > 1
     # Readable headline: names of the charged players, never the group-id hex.
-    assert rows[0].group_id not in content
+    assert rows[0].group_id not in response.content.decode()
     for row in rows:
-        assert row.player.name in content
+        assert row.player.name in props["groupPlayers"]
 
 
 def test_single_penalty_edit_page_keeps_plain_delete(
@@ -689,13 +686,10 @@ def test_single_penalty_edit_page_keeps_plain_delete(
         description_snapshot="Late",
         actor=None,
     )
-    content = admin_client.get(
-        reverse("penalties:penalty_update", args=[penalty.pk])
-    ).content.decode()
+    props = inertia_props(admin_client.get(reverse("penalties:penalty_update", args=[penalty.pk])))
 
-    assert 'name="scope"' not in content  # no group choice without siblings
-    assert reverse("penalties:penalty_delete", args=[penalty.pk]) in content
-    assert "Editing penalty" in content or "Strafe bearbeiten" in content  # en / de catalog
+    assert props["groupCount"] == 1  # no group choice without siblings
+    assert props["deleteUrl"] == reverse("penalties:penalty_delete", args=[penalty.pk])
 
 
 def test_catalog_list_affects_column_and_scope_labels(

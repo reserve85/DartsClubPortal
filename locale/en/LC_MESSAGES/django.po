@@ -2772,3 +2772,45 @@ msgstr ""
 
 msgid "%(n)s matchdays"
 msgstr ""
+
+msgid "Assign group penalty"
+msgstr ""
+
+msgid "Comment (optional)"
+msgstr ""
+
+msgid "Delete for this player"
+msgstr ""
+
+msgid "Delete penalty"
+msgstr ""
+
+msgid "Delete this penalty for all players of the group?"
+msgstr ""
+
+msgid "Doubles partner (optional)"
+msgstr ""
+
+msgid "Edit penalty"
+msgstr ""
+
+msgid "Group penalty of %(n)s players: %(names)s. Changes apply to every row of the group."
+msgstr ""
+
+msgid "Group penalty: every OTHER participant of the matchday pays. Pick the player who triggered it."
+msgstr ""
+
+msgid "Shown behind the penalty type, e.g. Late arrival (9 points)."
+msgstr ""
+
+msgid "This matchday has no participants yet."
+msgstr ""
+
+msgid "Triggered by"
+msgstr ""
+
+msgid "doubles"
+msgstr ""
+
+msgid "individual"
+msgstr ""

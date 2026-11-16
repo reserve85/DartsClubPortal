@@ -11,7 +11,9 @@ from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic import CreateView, UpdateView
+from inertia import render as inertia_render
 
+from app.core.inertia_utils import form_errors, form_schema
 from app.core.models import AuditAction
 from app.core.permissions import (
     GROUP_ADMIN,
@@ -50,6 +52,7 @@ from app.penalties.services import (
     record_payout,
     soft_delete_penalty,
 )
+from app.players.avatars import avatar_url
 from app.teams.models import Team
 from app.teams.services import cashier_user_for, user_is_cashier
 
@@ -206,16 +209,52 @@ class PenaltyCreateView(LoginRequiredMixin, View):
         return matchday
 
     def _render(self, request, matchday, form):
-        return render(
-            request,
-            self.template_name,
+        context = {
+            "form": form,
+            "matchday": matchday,
+            "manual_ids": getattr(form, "manual_ids", []),
+            "both_ids": getattr(form, "both_ids", []),
+        }
+        team = matchday.team
+        items = form.fields["catalog_item"].queryset
+        players = form.fields["player"].queryset
+        values = (
             {
-                "form": form,
-                "matchday": matchday,
-                "manual_ids": getattr(form, "manual_ids", []),
-                "both_ids": getattr(form, "both_ids", []),
-            },
+                name: ("" if form[name].value() is None else str(form[name].value()))
+                for name in (
+                    "catalog_item",
+                    "player",
+                    "double_partner",
+                    "amount_eur",
+                    "description",
+                )
+            }
+            if form.is_bound
+            else {}
         )
+        props = {
+            "matchday": {
+                "id": matchday.pk,
+                "label": matchday.display_label,
+                "team": team.name,
+                "date": matchday.date.isoformat(),
+            },
+            "items": [
+                {
+                    "id": item.pk,
+                    "description": item.description,
+                    "amount": float(item.amount_for_team(team) or 0),
+                    "manual": item.type == PenaltyType.MANUAL,
+                    "group": item.type == PenaltyType.PER_ALL_OTHER_MATCHDAY_PLAYERS,
+                    "both": item.affects_both_players,
+                }
+                for item in items
+            ],
+            "players": [{"id": p.pk, "name": p.name, "avatar": avatar_url(p)} for p in players],
+            "values": values,
+            "errors": form_errors(form) if form.is_bound else {},
+        }
+        return inertia_render(request, "Penalty/PenaltyAssign", props=props, template_data=context)
 
     def get(self, request, matchday_pk):
         matchday = self.get_matchday()
@@ -302,10 +341,28 @@ class PenaltyUpdateView(LoginRequiredMixin, View):
             "group_players": ", ".join(sorted({row.player.name for row in rows})),
         }
 
+    def _render(self, request, penalty, form):
+        context = self._context(penalty, form)
+        props = {
+            "penalty": {
+                "id": penalty.pk,
+                "player": penalty.player.name,
+                "playerAvatar": avatar_url(penalty.player),
+                "catalog": penalty.catalog_item.description if penalty.catalog_item else "",
+                "matchday": penalty.matchday.display_label,
+                "matchdayId": penalty.matchday_id,
+            },
+            "deleteUrl": reverse("penalties:penalty_delete", args=[penalty.pk]),
+            "groupCount": context["group_count"],
+            "groupPlayers": context["group_players"],
+            "fields": form_schema(form),
+            "errors": form_errors(form) if form.is_bound else {},
+        }
+        return inertia_render(request, "Penalty/PenaltyEdit", props=props, template_data=context)
+
     def get(self, request, pk):
         penalty = self.get_penalty()
-        form = PenaltyEditForm(instance=penalty)
-        return render(request, self.template_name, self._context(penalty, form))
+        return self._render(request, penalty, PenaltyEditForm(instance=penalty))
 
     def post(self, request, pk):
         penalty = self.get_penalty()
@@ -319,7 +376,7 @@ class PenaltyUpdateView(LoginRequiredMixin, View):
             )
             messages.success(request, _("Penalty updated (all rows of the group, if any)."))
             return redirect("matchdays:matchday_detail", pk=penalty.matchday.pk)
-        return render(request, self.template_name, self._context(penalty, form))
+        return self._render(request, penalty, form)
 
 
 class PenaltyDeleteView(LoginRequiredMixin, View):
