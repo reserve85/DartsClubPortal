@@ -1,0 +1,7 @@
+{% extends "emails/base_email.txt" %}{% load i18n %}{% block content %}{% translate "Here is everything that happened with your Elo matches today:" %}
+
+{% for row in rows %}{{ row.created_at|date:"H:i" }}  {{ row.text }}{% if row.url %}
+       {{ row.url }}{% endif %}
+{% endfor %}
+{{ ranking_url }}
+{% endblock %}

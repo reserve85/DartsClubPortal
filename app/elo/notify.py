@@ -74,6 +74,9 @@ def match_changed(match, *, actor=None, action: str, request=None) -> None:
         lang = user.preferred_language or settings.LANGUAGE_CODE
         with translation.override(lang):
             subject = str(verb())
+        if user.elo_match_digest:
+            _queue_for_digest(user, subject, match if action != "deleted" else None, request)
+            continue
         ctx = {
             "player": player,
             "opponent": opponent,
@@ -96,6 +99,59 @@ def match_changed(match, *, actor=None, action: str, request=None) -> None:
             context=ctx,
             language=lang,
         )
+
+
+# --------------------------------------------------------------- daily digest
+def _queue_for_digest(user, text: str, match, request) -> None:
+    from app.elo.models import EloMailQueue
+    from app.notifications.services import _next_digest_send_after, absolute_url
+
+    url = absolute_url(reverse("elo:match_detail", args=[match.pk]), request) if match else ""
+    EloMailQueue.objects.create(
+        user=user, text=text[:300], url=url, send_after=_next_digest_send_after(user)
+    )
+
+
+def flush_elo_digests(now: datetime | None = None) -> int:
+    """Send every due Elo summary: ONE e-mail per user. Returns mails sent."""
+    from app.elo.models import EloMailQueue
+    from app.notifications.services import NotificationService, absolute_url, email_configured
+    from app.notifications.unsubscribe import mail_context
+
+    now = now or timezone.now()
+    due = list(EloMailQueue.objects.filter(send_after__lte=now).select_related("user"))
+    if not due:
+        return 0
+    by_user: dict[int, list] = {}
+    for row in due:
+        by_user.setdefault(row.user_id, []).append(row)
+    sent = 0
+    for rows in by_user.values():
+        user = rows[0].user
+        ok = (
+            user.is_active
+            and user.elo_match_notify
+            and user.email
+            and has_module(user, ELO)
+            and email_configured()
+        )
+        if ok:
+            lang = user.preferred_language or settings.LANGUAGE_CODE
+            with translation.override(lang):
+                subject = _("Your Elo matches of the day (%(n)s)") % {"n": len(rows)}
+            sent += NotificationService().send_templated(
+                recipients=[user],
+                template_base="emails/elo_digest",
+                subject=subject,
+                language=lang,
+                context={
+                    "rows": rows,
+                    "ranking_url": absolute_url(reverse("elo:ranking")),
+                    **mail_context(user, "elo_match"),
+                },
+            )
+        EloMailQueue.objects.filter(pk__in=[r.pk for r in rows]).delete()
+    return sent
 
 
 # ----------------------------------------------------------- monthly summary

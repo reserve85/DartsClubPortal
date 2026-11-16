@@ -34,6 +34,7 @@ export default function Settings({ values, fields, choices, player, passwordUrl,
     repayment_notify: on(values.repayment_notify),
     club_news_optin: on(values.club_news_optin),
     elo_match_notify: on(values.elo_match_notify),
+    elo_match_digest: on(values.elo_match_digest),
     elo_monthly_summary: on(values.elo_monthly_summary),
   });
   const d = form.data;
@@ -87,16 +88,34 @@ export default function Settings({ values, fields, choices, player, passwordUrl,
                 <Text size="sm" c="dimmed" mb="md">{t("Invitations, approval decisions, password and verification mails are always sent. Every other mail has an unsubscribe link.")}</Text>
                 <Stack gap="md">
                   {mail("elo_match_notify", `🎯 ${t("Elo match results")}`, t("When a match of yours is entered, corrected or deleted."))}
-                  {mail("elo_monthly_summary", `🎯 ${t("Monthly Elo summary")}`, t("On the 1st of each month: your position, Elo change and matches, plus the club's top 5."))}
+                  {has("elo_match_digest") && d.elo_match_notify && (
+                    <SegmentedControl
+                      ml={54}
+                      data={[
+                        { value: "now", label: t("Each match") },
+                        { value: "daily", label: t("Once a day") },
+                      ]}
+                      value={d.elo_match_digest ? "daily" : "now"}
+                      onChange={(v) => form.setData("elo_match_digest", v === "daily")}
+                    />
+                  )}
+                  {mail("elo_monthly_summary", `🎯 ${t("Monthly Elo summary")}`, t("On the 1st of each month: your position and Elo change, the highlights and the complete table with every player's movement."))}
                   {has("penalty_notify_mode") && (
                     <div>
                       <Text fw={600} size="sm" mb={4}>💶 {t("New penalties")}</Text>
                       <SegmentedControl fullWidth data={choices.penalty_notify_mode} value={d.penalty_notify_mode} onChange={(v) => form.setData("penalty_notify_mode", v)} />
-                      {d.penalty_notify_mode === "daily" && (
-                        <TimeInput mt="xs" label={t("Digest time")} value={d.penalty_notify_time} onChange={(e) => form.setData("penalty_notify_time", e.currentTarget.value)} error={errors.penalty_notify_time} maw={160} />
-                      )}
                       <Text size="xs" c="dimmed" mt={4}>{t("Several penalties entered in a row always arrive as ONE e-mail.")}</Text>
                     </div>
+                  )}
+                  {has("penalty_notify_time") && ((has("penalty_notify_mode") && d.penalty_notify_mode === "daily") || (d.elo_match_notify && d.elo_match_digest)) && (
+                    <TimeInput
+                      label={t("Digest time")}
+                      description={t("Daily summaries (penalties and Elo matches) arrive at this time.")}
+                      value={d.penalty_notify_time}
+                      onChange={(e) => form.setData("penalty_notify_time", e.currentTarget.value)}
+                      error={errors.penalty_notify_time}
+                      maw={260}
+                    />
                   )}
                   {mail("repayment_notify", `💶 ${t("Payment confirmations")}`, t("One e-mail per recorded payment or payout — the confirmation for the money movement."))}
                   {mail("club_news_optin", `📣 ${t("Club news / round mails")}`, t("Round mails and information from your club."))}

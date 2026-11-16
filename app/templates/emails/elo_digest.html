@@ -1,0 +1,16 @@
+{% extends "emails/base_email.html" %}{% load i18n %}
+{% block subject %}{% translate "Your Elo matches of the day" %}{% endblock %}
+{% block content %}
+<p style="font-size:15px;margin:0 0 12px;">{% translate "Here is everything that happened with your Elo matches today:" %}</p>
+<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;font-size:14px;">
+    {% for row in rows %}
+    <tr>
+        <td style="padding:10px 8px;border-bottom:1px solid #edf0f4;{% if forloop.counter|divisibleby:2 %}background:#f8f9fb;{% endif %}">
+            <span style="color:#868e96;font-size:12px;">{{ row.created_at|date:"H:i" }}</span>&nbsp;
+            {% if row.url %}<a href="{{ row.url }}" style="color:#1a2234;text-decoration:none;font-weight:bold;">{{ row.text }}</a>{% else %}<b>{{ row.text }}</b>{% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+<p style="margin:22px 0 0;text-align:center;"><a href="{{ ranking_url }}" style="background:#206bc4;color:#ffffff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block;font-weight:bold;">{% translate "Open the ranking" %}</a></p>
+{% endblock %}

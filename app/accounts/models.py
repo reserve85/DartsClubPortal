@@ -125,6 +125,11 @@ class User(AbstractUser):
         default=True,
         help_text=_("E-mail when a match of yours is entered, edited or deleted."),
     )
+    elo_match_digest = models.BooleanField(
+        _("Elo match results as a daily summary"),
+        default=False,
+        help_text=_("Collect the match mails of a day into one e-mail at the digest time."),
+    )
     elo_monthly_summary = models.BooleanField(
         _("monthly Elo summary"),
         default=True,

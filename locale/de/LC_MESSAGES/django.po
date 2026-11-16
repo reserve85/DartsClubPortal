@@ -4042,6 +4042,33 @@ msgstr "± = im Monat gewonnene oder verlorene Plätze · S = Spiele im Monat"
 msgid "Highlights of the month"
 msgstr "Highlights des Monats"
 
+msgid "Here is everything that happened with your Elo matches today:"
+msgstr "Das ist heute bei deinen Elo-Matches passiert:"
+
+msgid "Your Elo matches of the day"
+msgstr "Deine Elo-Matches des Tages"
+
+msgid "Elo match results as a daily summary"
+msgstr "Elo-Ergebnisse als tägliche Zusammenfassung"
+
+msgid "Collect the match mails of a day into one e-mail at the digest time."
+msgstr "Sammelt die Match-Mails eines Tages in einer E-Mail zur Sammelzeit."
+
+msgid "Your Elo matches of the day (%(n)s)"
+msgstr "Deine Elo-Matches des Tages (%(n)s)"
+
+msgid "Daily summaries (penalties and Elo matches) arrive at this time."
+msgstr "Tägliche Zusammenfassungen (Strafen und Elo-Matches) kommen zu dieser Uhrzeit."
+
+msgid "Each match"
+msgstr "Jedes Match"
+
+msgid "On the 1st of each month: your position and Elo change, the highlights and the complete table with every player's movement."
+msgstr "Am 1. jedes Monats: deine Platzierung und Elo-Änderung, die Highlights und die komplette Tabelle mit den Platzbewegungen aller Spieler."
+
+msgid "Once a day"
+msgstr "Einmal täglich"
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 

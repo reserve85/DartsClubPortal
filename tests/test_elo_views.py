@@ -238,6 +238,49 @@ class TestMessaging:
         _post_match(admin_client, elo_players[1], elo_players[0])
         assert len(mail.outbox) == 0
 
+    def test_daily_summary_collects_the_matches_into_one_mail(
+        self, admin_client, linked_player_user, elo_players
+    ):
+        from datetime import timedelta
+
+        from django.utils import timezone
+
+        from app.elo.models import EloMailQueue
+        from app.elo.notify import flush_elo_digests
+
+        linked_player_user.elo_match_digest = True
+        linked_player_user.save()
+        a, b, c = elo_players
+        _post_match(admin_client, b, a, sa=3, sb=0)
+        _post_match(admin_client, a, c, sa=3, sb=1)
+        assert len(mail.outbox) == 0  # nothing right away
+        assert EloMailQueue.objects.filter(user=linked_player_user).count() == 2
+        assert flush_elo_digests() == 0  # not due before the digest time
+        assert flush_elo_digests(now=timezone.now() + timedelta(days=1, hours=1)) == 1
+        assert len(mail.outbox) == 1  # ONE mail for both matches
+        body = mail.outbox[0].body
+        assert body.count(b.name) >= 1 and body.count(c.name) >= 1
+        assert "/notifications/actions/unsubscribe/" in body
+        assert not EloMailQueue.objects.exists()
+
+    def test_daily_summary_dropped_when_switched_off_meanwhile(
+        self, admin_client, linked_player_user, elo_players
+    ):
+        from datetime import timedelta
+
+        from django.utils import timezone
+
+        from app.elo.models import EloMailQueue
+        from app.elo.notify import flush_elo_digests
+
+        linked_player_user.elo_match_digest = True
+        linked_player_user.save()
+        _post_match(admin_client, elo_players[1], elo_players[0])
+        linked_player_user.elo_match_notify = False
+        linked_player_user.save()
+        assert flush_elo_digests(now=timezone.now() + timedelta(days=2)) == 0
+        assert len(mail.outbox) == 0 and not EloMailQueue.objects.exists()
+
     def test_own_entry_sends_nothing_to_me(self, player_client, linked_player_user, elo_players):
         _post_match(player_client, elo_players[0], elo_players[1])
         assert len(mail.outbox) == 0

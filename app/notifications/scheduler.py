@@ -74,8 +74,9 @@ def _run() -> None:
             # window are dropped on the same tick — never pending ones.
             prune_outbox()
             # Monthly Elo summary (1st of the month from 08:00, once per month).
-            from app.elo.notify import maybe_send_monthly
+            from app.elo.notify import flush_elo_digests, maybe_send_monthly
 
+            flush_elo_digests()
             maybe_send_monthly()
         except Exception:  # pragma: no cover — a dead thread must never be silent
             logger.exception("Outbox flush failed.")

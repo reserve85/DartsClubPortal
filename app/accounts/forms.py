@@ -457,6 +457,10 @@ class SettingsForm(forms.ModelForm):
         label=_("Elo match results"),
         widget=forms.RadioSelect(choices=((True, _("Abonnieren")), (False, _("Off")))),
     )
+    elo_match_digest = forms.BooleanField(
+        required=False,
+        label=_("Elo match results as a daily summary"),
+    )
     elo_monthly_summary = forms.BooleanField(
         required=False,
         label=_("Monthly Elo summary"),
@@ -474,6 +478,7 @@ class SettingsForm(forms.ModelForm):
             "repayment_notify",
             "club_news_optin",
             "elo_match_notify",
+            "elo_match_digest",
             "elo_monthly_summary",
         ]
         widgets: ClassVar[dict] = {
@@ -483,8 +488,8 @@ class SettingsForm(forms.ModelForm):
             "penalty_notify_mode": forms.RadioSelect,
         }
 
-    PENALTY_FIELDS = ("penalty_notify_mode", "penalty_notify_time", "repayment_notify")
-    ELO_FIELDS = ("elo_match_notify", "elo_monthly_summary")
+    PENALTY_FIELDS = ("penalty_notify_mode", "repayment_notify")
+    ELO_FIELDS = ("elo_match_notify", "elo_match_digest", "elo_monthly_summary")
 
     def __init__(self, *args, **kwargs):
         """Only the mails and start pages of modules this account can use."""
@@ -498,6 +503,9 @@ class SettingsForm(forms.ModelForm):
         if not mods.get("elo"):
             for name in self.ELO_FIELDS:
                 self.fields.pop(name, None)
+        if not mods.get("penalty") and not mods.get("elo"):
+            # The digest time serves the penalty AND the Elo daily summary.
+            self.fields.pop("penalty_notify_time", None)
         allowed = {"auto"}
         if mods.get("elo"):
             allowed.add("elo")
@@ -510,7 +518,7 @@ class SettingsForm(forms.ModelForm):
         ]
         # Optional in the POST: an old client without the field keeps the value.
         self.fields["start_page"].required = False
-        for name in ("elo_match_notify", "elo_monthly_summary"):
+        for name in ("elo_match_notify", "elo_match_digest", "elo_monthly_summary"):
             if name in self.fields and self.is_bound and name not in self.data:
                 self.fields[name].disabled = True  # not sent -> keep the stored value
 

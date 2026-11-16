@@ -3063,3 +3063,30 @@ msgstr ""
 
 msgid "Highlights of the month"
 msgstr ""
+
+msgid "Here is everything that happened with your Elo matches today:"
+msgstr ""
+
+msgid "Your Elo matches of the day"
+msgstr ""
+
+msgid "Elo match results as a daily summary"
+msgstr ""
+
+msgid "Collect the match mails of a day into one e-mail at the digest time."
+msgstr ""
+
+msgid "Your Elo matches of the day (%(n)s)"
+msgstr ""
+
+msgid "Daily summaries (penalties and Elo matches) arrive at this time."
+msgstr ""
+
+msgid "Each match"
+msgstr ""
+
+msgid "On the 1st of each month: your position and Elo change, the highlights and the complete table with every player's movement."
+msgstr ""
+
+msgid "Once a day"
+msgstr ""

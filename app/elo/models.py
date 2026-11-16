@@ -74,6 +74,24 @@ class EloMonthlyReport(models.Model):
         return self.month.strftime("%Y-%m")
 
 
+class EloMailQueue(models.Model):
+    """One Elo match message waiting for the user's daily summary mail."""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="elo_mail_queue"
+    )
+    text = models.CharField(max_length=300)
+    url = models.CharField(max_length=500, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    send_after = models.DateTimeField(db_index=True)
+
+    class Meta:
+        ordering: ClassVar[list] = ["created_at", "id"]
+
+    def __str__(self):
+        return f"{self.user_id}: {self.text}"
+
+
 class Match(models.Model):
     """One singles match with its result, Elo snapshots and dart statistics."""
 
