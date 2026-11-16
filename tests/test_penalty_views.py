@@ -100,13 +100,13 @@ def test_catalog_list_has_single_edit_action_and_edit_page_has_delete(admin_clie
     with pytest.raises(NoReverseMatch):
         reverse("penalties:catalog_team_amounts", args=[catalog_normal.pk])
 
-    content = admin_client.get(reverse("penalties:catalog_list")).content.decode()
+    props = inertia_props(admin_client.get(reverse("penalties:catalog_list")))
     edit_url = reverse("penalties:catalog_update", args=[catalog_normal.pk])
-    assert edit_url in content
-    assert content.count(edit_url) == 1  # exactly ONE action button per row
+    rows = [item for item in props["items"] if item["id"] == catalog_normal.pk]
+    assert len(rows) == 1 and rows[0]["editUrl"] == edit_url  # ONE action per row
 
-    edit = admin_client.get(edit_url).content.decode()
-    assert reverse("penalties:catalog_delete", args=[catalog_normal.pk]) in edit
+    edit = inertia_props(admin_client.get(edit_url))
+    assert edit["deleteUrl"] == reverse("penalties:catalog_delete", args=[catalog_normal.pk])
 
 
 def test_catalog_form_rejects_non_positive(admin_client, team):
@@ -701,17 +701,18 @@ def test_catalog_list_affects_column_and_scope_labels(
     the type now answers WHO the penalty hits; MANUAL carries the
     'special penalty' tag (its amount is typed individually).
     """
-    content = admin_client.get(reverse("penalties:catalog_list")).content.decode()
-    assert "<th>Affects</th>" in content or "<th>Betrifft</th>" in content
-    assert "<th>Type</th>" not in content and "<th>Typ</th>" not in content
-    assert "Affects the player" in content or "Betrifft den Spieler" in content
+    labels = {
+        item["typeLabel"]
+        for item in inertia_props(admin_client.get(reverse("penalties:catalog_list")))["items"]
+    }
+    assert "Affects the player" in labels or "Betrifft den Spieler" in labels
     assert (
-        "Affects all other matchday players" in content
-        or "Betrifft alle anderen Spieltagsteilnehmer" in content
+        "Affects all other matchday players" in labels
+        or "Betrifft alle anderen Spieltagsteilnehmer" in labels
     )
     assert (
-        "Affects the player – special penalty" in content
-        or "Betrifft den Spieler – Sonderstrafe" in content
+        "Affects the player – special penalty" in labels
+        or "Betrifft den Spieler – Sonderstrafe" in labels
     )
     # the DB values are untouched (labels are display-only)
     assert {item.type for item in PenaltyCatalogItem.objects.all()} == {

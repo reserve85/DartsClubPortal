@@ -1,11 +1,12 @@
 import { Head, Link, useForm } from "@inertiajs/react";
-import { Alert, Avatar, Button, Group, Paper, Stack } from "@mantine/core";
+import { Alert, Avatar, Box, Button, Group, Paper, Stack, Table, Text } from "@mantine/core";
 import { IconAlertTriangle, IconInfoCircle } from "@tabler/icons-react";
 import { confirmPost } from "../../components/elo";
-import { FormFields, initialData, type FieldDef } from "../../components/FormFields";
+import { Field, FormFields, initialData, type FieldDef } from "../../components/FormFields";
 import { PageHeader } from "../../components/ui";
 import { useT } from "../../i18n";
 import { colorFor } from "../../theme";
+import { useState } from "react";
 
 interface Props {
   title: string;
@@ -21,6 +22,79 @@ interface Props {
   deleteConfirm?: string;
   notice?: string;
   rows?: string[][];
+  table?: FieldTable;
+}
+
+/** Extra fields shown as a table (one row per object, e.g. per-team fees). */
+interface FieldTable {
+  title: string;
+  help?: string;
+  headers: string[];
+  rows: { label: string; fields: string[] }[];
+  /** Create only: typing into this field fills every untouched number cell. */
+  copyFrom?: string;
+  empty?: string;
+}
+
+function TableFields({
+  table,
+  fields,
+  data,
+  setData,
+  errors,
+}: {
+  table: FieldTable;
+  fields: FieldDef[];
+  data: Record<string, unknown>;
+  setData: (n: string, v: unknown) => void;
+  errors: Record<string, string>;
+}) {
+  const byName = new Map(fields.map((f) => [f.name, f]));
+  return (
+    <Stack gap={6}>
+      <Text size="sm" fw={600}>{table.title}</Text>
+      {table.rows.length === 0 ? (
+        <Text size="sm" c="dimmed">{table.empty}</Text>
+      ) : (
+        <Box style={{ overflowX: "auto" }}>
+          <Table verticalSpacing={6} highlightOnHover>
+            <Table.Thead>
+              <Table.Tr>
+                {table.headers.map((h, i) => (
+                  <Table.Th key={h} ta={i === 1 ? "center" : undefined}>{h}</Table.Th>
+                ))}
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {table.rows.map((row) => (
+                <Table.Tr key={row.label}>
+                  <Table.Td fw={600} style={{ whiteSpace: "nowrap" }}>{row.label}</Table.Td>
+                  {row.fields.map((name) => {
+                    const f = byName.get(name);
+                    if (!f) return <Table.Td key={name} />;
+                    const compact = { ...f, label: "", help: "" };
+                    return (
+                      <Table.Td key={name} ta={f.type === "switch" ? "center" : undefined} miw={f.type === "number" ? 130 : undefined}>
+                        <Box display="inline-block" aria-label={`${f.label}: ${row.label}`}>
+                          <Field
+                            field={compact}
+                            value={f.disabled ? f.value : data[name]}
+                            onChange={(v) => setData(name, v)}
+                            error={errors[name]}
+                          />
+                        </Box>
+                      </Table.Td>
+                    );
+                  })}
+                </Table.Tr>
+              ))}
+            </Table.Tbody>
+          </Table>
+        </Box>
+      )}
+      {table.help && <Text size="xs" c="dimmed">{table.help}</Text>}
+    </Stack>
+  );
 }
 
 /** Generic page for every plain Django form (create / edit, optional delete). */
@@ -30,6 +104,18 @@ export default function FormPage(p: Props) {
   const form = useForm<Record<string, any>>(initialData(p.fields) as Record<string, any>);
   const errors: Record<string, string> = { ...p.errors, ...(form.errors as Record<string, string>) };
   const deleteLabel = p.deleteLabel ?? t("Delete");
+  const tableNames = new Set((p.table?.rows ?? []).flatMap((r) => r.fields));
+  const [touched] = useState(() => new Set<string>());
+  const setField = (n: string, v: unknown) =>
+    form.setData((d: Record<string, unknown>) => {
+      const next = { ...d, [n]: v };
+      if (p.table?.copyFrom && n === p.table.copyFrom) {
+        // New entry: the default amount is copied into every untouched cell.
+        for (const name of tableNames)
+          if (!touched.has(name) && p.fields.find((f) => f.name === name)?.type === "number") next[name] = v;
+      } else if (tableNames.has(n)) touched.add(n);
+      return next;
+    });
   return (
     <>
       <Head title={p.title} />
@@ -63,12 +149,15 @@ export default function FormPage(p: Props) {
               </Alert>
             )}
             <FormFields
-              fields={p.fields}
+              fields={p.fields.filter((f) => !tableNames.has(f.name))}
               data={form.data}
-              setData={(n, v) => form.setData((d: Record<string, unknown>) => ({ ...d, [n]: v }))}
+              setData={setField}
               errors={errors}
               rows={p.rows}
             />
+            {p.table && (
+              <TableFields table={p.table} fields={p.fields} data={form.data} setData={setField} errors={errors} />
+            )}
             <Group justify="space-between" gap="sm">
               <Group gap="sm">
                 <Button type="submit" loading={form.processing}>

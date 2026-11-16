@@ -79,12 +79,12 @@ def test_detail_pages_200(admin_client, team, matchday, catalog_normal, player):
 
 
 def test_catalog_list_drops_amount_and_global_active_columns(admin_client, catalog_normal):
-    """Columns are Description | Type | Team fees | actions — no global Amount/Active."""
-    content = admin_client.get(reverse("penalties:catalog_list")).content.decode()
-    # base.html carries no table headers, so a page-wide count is exact:
-    # 4x bare <th> + 1x <thead> is NOT counted (<th> without attributes only).
-    assert content.count("<th>") == 4
-    assert content.count("<thead>") == 1
+    """Each row: description, type, per-team fees, edit — no global Active flag."""
+    from tests.conftest import inertia_props
+
+    (item,) = inertia_props(admin_client.get(reverse("penalties:catalog_list")))["items"]
+    assert "active" not in item  # the active state lives per team only
+    assert {"description", "typeLabel", "teams", "editUrl"} <= set(item)
 
 
 def test_old_team_detail_redirects_to_financial_overview(admin_client, team):

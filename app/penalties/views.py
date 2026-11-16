@@ -6,14 +6,14 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic import CreateView, UpdateView
 from inertia import render as inertia_render
 
-from app.core.inertia_utils import form_errors, form_schema
+from app.core.inertia_utils import InertiaFormMixin, form_errors, form_schema
 from app.core.models import AuditAction
 from app.core.permissions import (
     GROUP_ADMIN,
@@ -93,14 +93,77 @@ class CatalogListView(LoginRequiredMixin, View):
                     }
                 )
         can_create = user_is_admin(request.user) or user_is_captain(request.user)
-        return render(
+        props = {
+            "items": [
+                {
+                    "id": item.pk,
+                    "description": item.description,
+                    "type": item.type,
+                    "typeLabel": str(item.get_type_display()),
+                    "amount": float(item.amount_eur) if item.amount_eur is not None else None,
+                    "bothPlayers": bool(item.affects_both_players),
+                    "editUrl": reverse("penalties:catalog_update", args=[item.pk]),
+                    "teams": [
+                        {
+                            "name": cfg["team"].name,
+                            "active": cfg["active"],
+                            "amount": float(cfg["amount"]) if cfg["amount"] is not None else None,
+                        }
+                        for cfg in item.team_config_list
+                    ],
+                }
+                for item in items
+            ],
+            "canCreate": can_create,
+            "createUrl": reverse("penalties:catalog_create"),
+        }
+        return inertia_render(
             request,
-            self.template_name,
-            {"items": items, "can_create": can_create},
+            "Penalty/Catalog",
+            props=props,
+            template_data={"items": items, "can_create": can_create},
         )
 
 
-class CatalogCreateView(GroupRequiredMixin, LoginRequiredMixin, CreateView):
+class CatalogFormMixin(InertiaFormMixin):
+    """Catalog create/edit as the generic form page + a per-team fee table."""
+
+    def form_page_props(self, form):
+        is_create = form.instance.pk is None
+        props = {
+            "title": str(_("New catalog item") if is_create else _("Edit catalog item")),
+            "subtitle": "" if is_create else form.instance.description,
+            "cancelUrl": reverse("penalties:catalog_list"),
+            "rows": [["amount_eur", "type"]],
+            "table": {
+                "title": str(_("Team fees")),
+                "help": str(
+                    _(
+                        "All fees must be filled — when creating an entry the default "
+                        "amount is copied into every row automatically."
+                    )
+                ),
+                "headers": [str(_("Team")), str(_("Active")), str(_("Fee (EUR)"))],
+                "rows": [
+                    {
+                        "label": row["team"].name,
+                        "fields": [row["active"].name, row["amount"].name],
+                    }
+                    for row in form.team_field_rows
+                ],
+                "copyFrom": "amount_eur" if is_create else "",
+                "empty": str(_("No teams yet.")),
+            },
+        }
+        if not is_create and user_is_admin(self.request.user):
+            props.update(
+                deleteUrl=reverse("penalties:catalog_delete", args=[form.instance.pk]),
+                deleteConfirm=str(_("Delete this catalog item?")),
+            )
+        return props
+
+
+class CatalogCreateView(GroupRequiredMixin, LoginRequiredMixin, CatalogFormMixin, CreateView):
     """Admin + Captain create — the form also owns the per-team fees/flags."""
 
     groups: ClassVar[list] = [GROUP_ADMIN, GROUP_CAPTAIN]
@@ -126,7 +189,7 @@ class CatalogCreateView(GroupRequiredMixin, LoginRequiredMixin, CreateView):
         return response
 
 
-class CatalogUpdateView(GroupRequiredMixin, LoginRequiredMixin, UpdateView):
+class CatalogUpdateView(GroupRequiredMixin, LoginRequiredMixin, CatalogFormMixin, UpdateView):
     """Admin + Captain edit — core fields + per-team fees/flags + delete entry."""
 
     groups: ClassVar[list] = [GROUP_ADMIN, GROUP_CAPTAIN]

@@ -2865,3 +2865,15 @@ msgstr ""
 
 msgid "today"
 msgstr ""
+
+msgid "Doubles: both players"
+msgstr ""
+
+msgid "Fees and active flags per team; the edit page holds everything."
+msgstr ""
+
+msgid "Nothing found."
+msgstr ""
+
+msgid "Search"
+msgstr ""

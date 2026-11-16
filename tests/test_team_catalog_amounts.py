@@ -267,17 +267,15 @@ def test_anonymous_redirected_from_edit_form(db, catalog_normal):
 
 
 def test_catalog_list_shows_team_fee_overrides(admin_client, catalog_normal, team, other_team):
-    import re
+    from tests.conftest import inertia_props
 
     TeamCatalogAmount.objects.create(team=team, catalog_item=catalog_normal, amount_eur=1)
-    content = admin_client.get(reverse("penalties:catalog_list")).content.decode()
-    # amounts are wrapped in a color span (penalties are red) -> compare plain text
-    plain = re.sub(r"<[^>]+>", "", content)
-    assert f"{team.name} · 1.00 €" in plain or f"{team.name} · 1,00 €" in plain
+    props = inertia_props(admin_client.get(reverse("penalties:catalog_list")))
+    (item,) = [i for i in props["items"] if i["id"] == catalog_normal.pk]
+    fees = {row["name"]: row["amount"] for row in item["teams"]}
+    assert fees[team.name] == 1.0
     # EVERY team shows its real fee — no "Default"/"Standard" placeholder,
     # even for a team without an explicit row yet (legacy: default amount).
-    assert f"{other_team.name} · 5.00 €" in plain or f"{other_team.name} · 5,00 €" in plain
-    # a single action button per row — the dedicated fee page is gone
-    edit_url = reverse("penalties:catalog_update", args=[catalog_normal.pk])
-    assert content.count(edit_url) == 1
-    assert "team-amounts" not in content
+    assert fees[other_team.name] == 5.0
+    # a single action per row — the dedicated fee page is gone
+    assert item["editUrl"] == reverse("penalties:catalog_update", args=[catalog_normal.pk])

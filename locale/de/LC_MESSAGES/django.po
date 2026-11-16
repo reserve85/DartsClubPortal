@@ -3844,6 +3844,18 @@ msgstr "gesetzt von %(name)s"
 msgid "today"
 msgstr "heute"
 
+msgid "Doubles: both players"
+msgstr "Doppel: beide Spieler"
+
+msgid "Fees and active flags per team; the edit page holds everything."
+msgstr "Gebühren und Aktiv-Status je Mannschaft; alles Weitere auf der Bearbeiten-Seite."
+
+msgid "Nothing found."
+msgstr "Nichts gefunden."
+
+msgid "Search"
+msgstr "Suchen"
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 

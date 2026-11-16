@@ -214,12 +214,16 @@ def test_admin_create_stores_individual_team_fees(admin_client, team, other_team
 
 
 def test_create_form_ships_auto_copy_script(admin_client, team):
-    """The create page auto-copies the typed default into every fee row (JS)."""
-    content = admin_client.get(reverse("penalties:catalog_create")).content.decode()
-    assert "input[id^='id_team_amount_']" in content  # auto-copy selector
-    assert f"id_team_amount_{team.pk}" in content  # one input per team
+    """The create page auto-copies the typed default into every fee row."""
+    from tests.conftest import inertia_props
+
+    props = inertia_props(admin_client.get(reverse("penalties:catalog_create")))
+    table = props["table"]
+    assert table["copyFrom"] == "amount_eur"  # auto-copy source
+    names = [name for row in table["rows"] for name in row["fields"]]
+    assert f"team_amount_{team.pk}" in names  # one input per team
     # no "apply all" checkbox anymore
-    assert "id_apply_all" not in content
+    assert all(field["name"] != "apply_all" for field in props["fields"])
 
 
 # ---------------------------------------------------------------------------
