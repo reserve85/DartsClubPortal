@@ -54,6 +54,33 @@ class OverviewView(LoginRequiredMixin, View):
         return inertia_render(request, "Overview", props=build_overview(request.user))
 
 
+class RightsView(LoginRequiredMixin, View):
+    """ "Who may do what": the role matrix plus what THIS account can do."""
+
+    def get(self, request):
+        from app.core.access import user_modules
+        from app.core.permissions import user_is_admin
+        from app.teams.models import TeamCashier
+
+        user = request.user
+        cashier_of = list(
+            TeamCashier.objects.filter(user=user, valid_to__isnull=True)
+            .select_related("team")
+            .values_list("team__name", flat=True)
+        )
+        props = {
+            "me": {
+                "role": user.role or "",
+                "isAdmin": user_is_admin(user),
+                "captainOf": user.team.name if user.team_id else None,
+                "cashierOf": cashier_of,
+                "hasPlayer": user.player_link_id is not None,
+                "modules": user_modules(user),
+            }
+        }
+        return inertia_render(request, "Rights", props=props)
+
+
 class ImprintView(View):
     """Imprint page driven by CONTACT_* / IMPRINT_* settings (public)."""
 

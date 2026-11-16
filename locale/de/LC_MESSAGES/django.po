@@ -4069,6 +4069,96 @@ msgstr "Am 1. jedes Monats: deine Platzierung und Elo-Änderung, die Highlights 
 msgid "Once a day"
 msgstr "Einmal täglich"
 
+msgid "As captain you manage matchdays, penalties, players and fees of %(team)s."
+msgstr "Als Kapitän verwaltest du Spieltage, Strafen, Spieler und Gebühren von %(team)s."
+
+msgid "As cashier you record payments and payouts of %(teams)s."
+msgstr "Als Kassier erfasst du Zahlungen und Auszahlungen von %(teams)s."
+
+msgid "Assign and edit penalties"
+msgstr "Strafen verhängen und bearbeiten"
+
+msgid "Audit log, import, QR codes"
+msgstr "Audit-Protokoll, Import, QR-Codes"
+
+msgid "Captain and cashier are assignments: an admin can be captain of a team, a user can be cashier. A captain who is not an admin only changes the team they lead."
+msgstr "Kapitän und Kassier sind Zuweisungen: Ein Admin kann Kapitän einer Mannschaft sein, ein User Kassier. Ein Kapitän ohne Admin-Rolle ändert nur die Mannschaft, die er führt."
+
+msgid "Cash box: choose the cashier"
+msgstr "Kasse: Kassier festlegen"
+
+msgid "Catalog: fee and active state per team"
+msgstr "Katalog: Gebühr und Aktiv-Status je Mannschaft"
+
+msgid "Catalog: new entries, default fee, delete"
+msgstr "Katalog: neue Einträge, Standardgebühr, löschen"
+
+msgid "Edit or delete matches"
+msgstr "Matches bearbeiten oder löschen"
+
+msgid "Enter a match"
+msgstr "Match eintragen"
+
+msgid "Everything else of the penalty module is read only for you."
+msgstr "Alles andere im Penalty-Bereich kannst du nur ansehen."
+
+msgid "Manage Elo players, recalculate, CSV exports"
+msgstr "Elo-Spieler verwalten, neu berechnen, CSV-Exporte"
+
+msgid "Matchdays: create, edit, add players"
+msgstr "Spieltage: anlegen, bearbeiten, Spieler eintragen"
+
+msgid "Overview of all roles"
+msgstr "Übersicht aller Rollen"
+
+msgid "Players and team assignment"
+msgstr "Spieler und Mannschaftszuordnung"
+
+msgid "Record payments and payouts"
+msgstr "Zahlungen und Auszahlungen erfassen"
+
+msgid "Seasons, teams, club logo"
+msgstr "Saisons, Mannschaften, Vereinslogo"
+
+msgid "See the own balance and the financial overview"
+msgstr "Eigenen Kontostand und Finanzübersicht sehen"
+
+msgid "See the ranking, statistics, head-to-head and matches"
+msgstr "Rangliste, Statistiken, Direktvergleich und Matches sehen"
+
+msgid "Users, invitations, approvals"
+msgstr "Benutzer, Einladungen, Freigaben"
+
+msgid "You manage users, seasons, teams and every team's penalties."
+msgstr "Du verwaltest Benutzer, Saisons, Mannschaften und die Strafen aller Mannschaften."
+
+msgid "You run the Elo ranking: matches, players, corrections."
+msgstr "Du betreust die Elo-Rangliste: Matches, Spieler, Korrekturen."
+
+msgid "You see the Elo ranking and enter your matches."
+msgstr "Du siehst die Elo-Rangliste und trägst deine Matches ein."
+
+msgid "You see your balance and the financial overview of every team."
+msgstr "Du siehst deinen Kontostand und die Finanzübersicht jeder Mannschaft."
+
+msgid "Your account"
+msgstr "Dein Konto"
+
+msgid "allowed"
+msgstr "erlaubt"
+
+msgid "not allowed"
+msgstr "nicht erlaubt"
+
+msgid "only as the team's cashier"
+msgstr "nur als Kassier der Mannschaft"
+
+msgid "own team only"
+msgstr "nur eigene Mannschaft"
+
+msgid "you"
+msgstr "du"
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 

@@ -84,6 +84,7 @@ urlpatterns += i18n_patterns(
     path("club-logo/", LogoAdminView.as_view(), name="club_logo_admin"),
     path("avatars/upload/", AvatarUploadView.as_view(), name="avatar_upload"),
     path("avatars/<str:name>", AvatarFileView.as_view(), name="player_avatar"),
+    path("rights/", core_views.RightsView.as_view(), name="rights"),
     path("imprint/", core_views.ImprintView.as_view(), name="imprint"),
     path("privacy/", core_views.PrivacyView.as_view(), name="privacy"),
     prefix_default_language=False,

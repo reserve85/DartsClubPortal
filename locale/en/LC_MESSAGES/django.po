@@ -3090,3 +3090,93 @@ msgstr ""
 
 msgid "Once a day"
 msgstr ""
+
+msgid "As captain you manage matchdays, penalties, players and fees of %(team)s."
+msgstr ""
+
+msgid "As cashier you record payments and payouts of %(teams)s."
+msgstr ""
+
+msgid "Assign and edit penalties"
+msgstr ""
+
+msgid "Audit log, import, QR codes"
+msgstr ""
+
+msgid "Captain and cashier are assignments: an admin can be captain of a team, a user can be cashier. A captain who is not an admin only changes the team they lead."
+msgstr ""
+
+msgid "Cash box: choose the cashier"
+msgstr ""
+
+msgid "Catalog: fee and active state per team"
+msgstr ""
+
+msgid "Catalog: new entries, default fee, delete"
+msgstr ""
+
+msgid "Edit or delete matches"
+msgstr ""
+
+msgid "Enter a match"
+msgstr ""
+
+msgid "Everything else of the penalty module is read only for you."
+msgstr ""
+
+msgid "Manage Elo players, recalculate, CSV exports"
+msgstr ""
+
+msgid "Matchdays: create, edit, add players"
+msgstr ""
+
+msgid "Overview of all roles"
+msgstr ""
+
+msgid "Players and team assignment"
+msgstr ""
+
+msgid "Record payments and payouts"
+msgstr ""
+
+msgid "Seasons, teams, club logo"
+msgstr ""
+
+msgid "See the own balance and the financial overview"
+msgstr ""
+
+msgid "See the ranking, statistics, head-to-head and matches"
+msgstr ""
+
+msgid "Users, invitations, approvals"
+msgstr ""
+
+msgid "You manage users, seasons, teams and every team's penalties."
+msgstr ""
+
+msgid "You run the Elo ranking: matches, players, corrections."
+msgstr ""
+
+msgid "You see the Elo ranking and enter your matches."
+msgstr ""
+
+msgid "You see your balance and the financial overview of every team."
+msgstr ""
+
+msgid "Your account"
+msgstr ""
+
+msgid "allowed"
+msgstr ""
+
+msgid "not allowed"
+msgstr ""
+
+msgid "only as the team's cashier"
+msgstr ""
+
+msgid "own team only"
+msgstr ""
+
+msgid "you"
+msgstr ""
