@@ -47,6 +47,18 @@ export default function Settings({ values, fields, choices, player, passwordUrl,
         description={help}
       />
     );
+  const frequency = (each: string, daily: boolean, onChange: (daily: boolean) => void) => (
+    <SegmentedControl
+      ml={54}
+      data={[
+        { value: "each", label: each },
+        { value: "daily", label: t("Once a day") },
+      ]}
+      value={daily ? "daily" : "each"}
+      onChange={(v) => onChange(v === "daily")}
+    />
+  );
+  const penaltyOn = d.penalty_notify_mode !== "off";
   return (
     <>
       <Head title={t("Settings")} />
@@ -88,25 +100,21 @@ export default function Settings({ values, fields, choices, player, passwordUrl,
                 <Text size="sm" c="dimmed" mb="md">{t("Invitations, approval decisions, password and verification mails are always sent. Every other mail has an unsubscribe link.")}</Text>
                 <Stack gap="md">
                   {mail("elo_match_notify", `🎯 ${t("Elo match results")}`, t("When a match of yours is entered, corrected or deleted."))}
-                  {has("elo_match_digest") && d.elo_match_notify && (
-                    <SegmentedControl
-                      ml={54}
-                      data={[
-                        { value: "now", label: t("Each match") },
-                        { value: "daily", label: t("Once a day") },
-                      ]}
-                      value={d.elo_match_digest ? "daily" : "now"}
-                      onChange={(v) => form.setData("elo_match_digest", v === "daily")}
-                    />
-                  )}
+                  {has("elo_match_digest") && d.elo_match_notify &&
+                    frequency(t("Each match"), d.elo_match_digest, (daily) => form.setData("elo_match_digest", daily))}
                   {mail("elo_monthly_summary", `🎯 ${t("Monthly Elo summary")}`, t("On the 1st of each month: your position and Elo change, the highlights and the complete table with every player's movement."))}
                   {has("penalty_notify_mode") && (
-                    <div>
-                      <Text fw={600} size="sm" mb={4}>💶 {t("New penalties")}</Text>
-                      <SegmentedControl fullWidth data={choices.penalty_notify_mode} value={d.penalty_notify_mode} onChange={(v) => form.setData("penalty_notify_mode", v)} />
-                      <Text size="xs" c="dimmed" mt={4}>{t("Several penalties entered in a row always arrive as ONE e-mail.")}</Text>
-                    </div>
+                    <Switch
+                      checked={penaltyOn}
+                      onChange={(e) => form.setData("penalty_notify_mode", e.currentTarget.checked ? "immediate" : "off")}
+                      label={<Text fw={600}>💶 {t("New penalties")}</Text>}
+                      description={t("When a penalty is assigned to you. Several penalties entered in a row always arrive as ONE e-mail.")}
+                    />
                   )}
+                  {has("penalty_notify_mode") && penaltyOn &&
+                    frequency(t("Each penalty"), d.penalty_notify_mode === "daily", (daily) =>
+                      form.setData("penalty_notify_mode", daily ? "daily" : "immediate"),
+                    )}
                   {has("penalty_notify_time") && ((has("penalty_notify_mode") && d.penalty_notify_mode === "daily") || (d.elo_match_notify && d.elo_match_digest)) && (
                     <TimeInput
                       label={t("Digest time")}

@@ -3201,3 +3201,9 @@ msgstr ""
 
 msgid "Remembers light or dark mode before login. Essential for the display."
 msgstr ""
+
+msgid "Each penalty"
+msgstr ""
+
+msgid "When a penalty is assigned to you. Several penalties entered in a row always arrive as ONE e-mail."
+msgstr ""

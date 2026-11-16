@@ -4180,6 +4180,12 @@ msgstr "Elo-Daten: Matches, Ergebnisse, Elo-Werte und Dart-Statistiken; ein opti
 msgid "Remembers light or dark mode before login. Essential for the display."
 msgstr "Merkt sich hellen oder dunklen Modus vor der Anmeldung. Notwendig für die Darstellung."
 
+msgid "Each penalty"
+msgstr "Jede Strafe"
+
+msgid "When a penalty is assigned to you. Several penalties entered in a row always arrive as ONE e-mail."
+msgstr "Wenn dir eine Strafe eingetragen wird. Mehrere Strafen hintereinander kommen immer als EINE E-Mail."
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 
