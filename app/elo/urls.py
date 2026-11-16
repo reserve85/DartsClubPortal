@@ -22,5 +22,4 @@ urlpatterns = [
     path("export/matches.csv", views.ExportMatchesCsvView.as_view(), name="export_matches"),
     path("export/players.csv", views.ExportPlayersCsvView.as_view(), name="export_players"),
     path("export/ranking.csv", views.ExportRankingCsvView.as_view(), name="export_ranking"),
-    path("export/ranking.pdf", views.ExportRankingPdfView.as_view(), name="export_ranking_pdf"),
 ]

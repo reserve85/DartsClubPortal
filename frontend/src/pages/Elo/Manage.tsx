@@ -69,7 +69,6 @@ export default function Manage({ players, matchTotal }: { players: P[]; matchTot
           <Text size="xs" fw={800} tt="uppercase" c="dimmed" mb="sm">{t("Exports")}</Text>
           <Group gap="xs">
             {[
-              ["/elo/export/ranking.pdf", t("Ranking (PDF)")],
               ["/elo/export/ranking.csv", t("Ranking (CSV)")],
               ["/elo/export/matches.csv", t("Matches (CSV)")],
               ["/elo/export/players.csv", t("Players (CSV)")],

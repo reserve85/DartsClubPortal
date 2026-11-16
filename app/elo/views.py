@@ -761,20 +761,5 @@ class ExportRankingCsvView(LoginRequiredMixin, EloAdminMixin, View):
         return response
 
 
-class ExportRankingPdfView(LoginRequiredMixin, EloAdminMixin, View):
-    def get(self, request):
-        from app.elo.pdf import ranking_pdf
-
-        period = resolve_period(request)
-        ranking = ranking_service.generate_ranking(
-            period["from"], period["to"], include_inactive=request.GET.get("inactive", "1") != "0"
-        )
-        response = HttpResponse(ranking_pdf(ranking), content_type="application/pdf")
-        response["Content-Disposition"] = (
-            f'attachment; filename="elo-ranking-{period["from"]}-{period["to"]}.pdf"'
-        )
-        return response
-
-
 def chart_json(data) -> str:
     return json.dumps(data)

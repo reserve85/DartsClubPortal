@@ -119,7 +119,6 @@ class TestPermissions:
             ("elo:player_add", []),
             ("elo:player_edit", [a.player_id]),
             ("elo:export_matches", []),
-            ("elo:export_ranking_pdf", []),
         ):
             assert player_client.get(reverse(name, args=args)).status_code == 403, name
         assert player_client.post(reverse("elo:recalculate")).status_code == 403
@@ -171,8 +170,6 @@ class TestPermissions:
         for name in ("export_matches", "export_players", "export_ranking"):
             resp = admin_client.get(reverse(f"elo:{name}"))
             assert resp.status_code == 200 and resp["Content-Type"].startswith("text/csv")
-        pdf = admin_client.get(reverse("elo:export_ranking_pdf"))
-        assert pdf.status_code == 200 and pdf.content[:4] == b"%PDF"
         assert admin_client.post(reverse("elo:recalculate")).status_code == 302
 
 
