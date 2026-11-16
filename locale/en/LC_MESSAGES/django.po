@@ -2814,3 +2814,36 @@ msgstr ""
 
 msgid "individual"
 msgstr ""
+
+msgid "Create season"
+msgstr ""
+
+msgid "Delete season"
+msgstr ""
+
+msgid "Delete this season? Only empty seasons without open amounts can be deleted."
+msgstr ""
+
+msgid "%(n)s payment"
+msgstr ""
+
+msgid "%(n)s payments"
+msgstr ""
+
+msgid "%(n)s team"
+msgstr ""
+
+msgid "%(n)s teams"
+msgstr ""
+
+msgid "Choose a penalty type"
+msgstr ""
+
+msgid "Every season is a closed cash box. The default season is what every user sees first."
+msgstr ""
+
+msgid "Make default"
+msgstr ""
+
+msgid "all teams"
+msgstr ""

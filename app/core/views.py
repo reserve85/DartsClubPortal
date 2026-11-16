@@ -10,9 +10,12 @@ from django.db import transaction
 from django.db.models import Count
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views import View
+from inertia import render as inertia_render
 
+from app.core.inertia_utils import form_errors, form_schema
 from app.core.models import AuditAction, AuditLog
 from app.core.permissions import GROUP_ADMIN, GroupRequiredMixin
 from app.core.services import log_action
@@ -108,11 +111,47 @@ class SeasonListView(GroupRequiredMixin, LoginRequiredMixin, View):
             payment_count=Count("payments", distinct=True),
             team_count=Count("teams", distinct=True),
         ).order_by("-name")
-        return render(
-            request,
-            self.template_name,
-            {"seasons": seasons, "default_season": Season.default()},
+        context = {"seasons": seasons, "default_season": Season.default()}
+        props = {
+            "seasons": [
+                {
+                    "id": s.pk,
+                    "name": s.name,
+                    "isDefault": s.is_default,
+                    "matchdays": s.matchday_count,
+                    "payments": s.payment_count,
+                    "teams": s.team_count,
+                    "editUrl": reverse("season_update", args=[s.pk]),
+                    "defaultUrl": reverse("season_set_default", args=[s.pk]),
+                }
+                for s in seasons
+            ],
+        }
+        return inertia_render(request, "Admin/Seasons", props=props, template_data=context)
+
+
+def _season_form_page(request, form, season=None):
+    """The season create/edit form as the generic React form page."""
+    props = {
+        "fields": form_schema(form),
+        "errors": form_errors(form) if form.is_bound else {},
+        "action": request.get_full_path(),
+        "title": str(_("Edit season")) if season else str(_("New season")),
+        "subtitle": season.name if season else "",
+        "submitLabel": str(_("Save changes")) if season else str(_("Create season")),
+        "cancelUrl": reverse("season_list"),
+    }
+    if season is not None:
+        props.update(
+            deleteUrl=reverse("season_delete", args=[season.pk]),
+            deleteLabel=str(_("Delete season")),
+            deleteConfirm=str(
+                _("Delete this season? Only empty seasons without open amounts can be deleted.")
+            ),
         )
+    return inertia_render(
+        request, "Common/Form", props=props, template_data={"form": form, "season": season}
+    )
 
 
 class SeasonCreateView(GroupRequiredMixin, LoginRequiredMixin, View):
@@ -122,7 +161,7 @@ class SeasonCreateView(GroupRequiredMixin, LoginRequiredMixin, View):
     template_name = "core/season_form.html"
 
     def get(self, request):
-        return render(request, self.template_name, {"form": SeasonForm()})
+        return _season_form_page(request, SeasonForm())
 
     def post(self, request):
         form = SeasonForm(request.POST)
@@ -137,11 +176,8 @@ class SeasonCreateView(GroupRequiredMixin, LoginRequiredMixin, View):
                     bind_unassigned_memberships(season)
                 log_action(AuditAction.SEASON_CREATED, user=request.user, target=season)
             messages.success(request, _("Season created."))
-        else:
-            for errors in form.errors.values():
-                for error in errors:
-                    messages.error(request, error)
-        return redirect("season_list")
+            return redirect("season_list")
+        return _season_form_page(request, form)
 
 
 class SeasonUpdateView(GroupRequiredMixin, LoginRequiredMixin, View):
@@ -155,9 +191,7 @@ class SeasonUpdateView(GroupRequiredMixin, LoginRequiredMixin, View):
 
     def get(self, request, pk):
         season = self.get_object()
-        return render(
-            request, self.template_name, {"form": SeasonForm(instance=season), "season": season}
-        )
+        return _season_form_page(request, SeasonForm(instance=season), season)
 
     def post(self, request, pk):
         season = self.get_object()
@@ -171,11 +205,8 @@ class SeasonUpdateView(GroupRequiredMixin, LoginRequiredMixin, View):
                 metadata={"is_default": season.is_default},
             )
             messages.success(request, _("Season updated."))
-        else:
-            for errors in form.errors.values():
-                for error in errors:
-                    messages.error(request, error)
-        return redirect("season_list")
+            return redirect("season_list")
+        return _season_form_page(request, form, season)
 
 
 class SeasonSetDefaultView(GroupRequiredMixin, LoginRequiredMixin, View):

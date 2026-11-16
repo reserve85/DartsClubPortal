@@ -1,5 +1,5 @@
 import { Head, Link, useForm } from "@inertiajs/react";
-import { Alert, Badge, Box, Button, Group, NumberInput, Paper, SimpleGrid, Stack, Text, TextInput, UnstyledButton } from "@mantine/core";
+import { Alert, Badge, Box, Button, Group, NumberInput, Paper, Select, SimpleGrid, Stack, Text, TextInput, UnstyledButton } from "@mantine/core";
 import { IconAlertTriangle, IconCheck, IconUsersGroup } from "@tabler/icons-react";
 import type { ReactNode } from "react";
 import { PlayerAvatar } from "../../components/PlayerAvatar";
@@ -85,19 +85,33 @@ export default function PenaltyAssign({ matchday, items, players, values, errors
           )}
 
           <Section title={`1 · ${t("Penalty type")}`}>
-            <SimpleGrid cols={{ base: 2, sm: 3 }} spacing="xs">
-              {items.map((i) => (
-                <Pick key={i.id} on={d.catalog_item === String(i.id)} onClick={() => set("catalog_item", String(i.id))}>
-                  <Text fw={700} size="sm" lh={1.25} pr={18}>{i.description}</Text>
-                  <Group gap={4} mt={6}>
-                    <Text fw={800} c={i.manual ? "dimmed" : "red"} size="sm" className="num">{i.manual ? t("individual") : f.euro(i.amount)}</Text>
-                    {i.group && <Badge size="xs" color="grape" variant="light">{t("group")}</Badge>}
-                    {i.both && <Badge size="xs" color="cyan" variant="light">{t("doubles")}</Badge>}
+            <Select
+              placeholder={t("Choose a penalty type")}
+              data={items.map((i) => ({ value: String(i.id), label: i.manual ? `${i.description} (${t("individual")})` : `${i.description} (${f.euro(i.amount)})` }))}
+              value={d.catalog_item || null}
+              onChange={(v) => set("catalog_item", v ?? "")}
+              searchable={items.length > 8}
+              nothingFoundMessage="—"
+              size="md"
+              maxDropdownHeight={360}
+              error={errors.catalog_item}
+              renderOption={({ option, checked }) => {
+                const i = items.find((x) => String(x.id) === option.value)!;
+                return (
+                  <Group justify="space-between" wrap="nowrap" w="100%" gap="xs">
+                    <Group gap={6} wrap="nowrap" style={{ minWidth: 0 }}>
+                      {checked && <IconCheck size={14} />}
+                      <Text size="sm" fw={600} truncate>{i.description}</Text>
+                      {i.group && <Badge size="xs" color="grape" variant="light">{t("group")}</Badge>}
+                      {i.both && <Badge size="xs" color="cyan" variant="light">{t("doubles")}</Badge>}
+                    </Group>
+                    <Text size="sm" fw={800} c={i.manual ? "dimmed" : "red"} className="num" style={{ flexShrink: 0 }}>
+                      {i.manual ? t("individual") : f.euro(i.amount)}
+                    </Text>
                   </Group>
-                </Pick>
-              ))}
-            </SimpleGrid>
-            {errors.catalog_item && <Text c="red" size="sm" mt={6}>{errors.catalog_item}</Text>}
+                );
+              }}
+            />
           </Section>
 
           {item?.group && (

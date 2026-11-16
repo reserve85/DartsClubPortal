@@ -3793,6 +3793,39 @@ msgstr "Doppel"
 msgid "individual"
 msgstr "individuell"
 
+msgid "Create season"
+msgstr "Saison anlegen"
+
+msgid "Delete season"
+msgstr "Saison löschen"
+
+msgid "Delete this season? Only empty seasons without open amounts can be deleted."
+msgstr "Diese Saison löschen? Nur leere Saisons ohne offene Beträge können gelöscht werden."
+
+msgid "%(n)s payment"
+msgstr "%(n)s Zahlung"
+
+msgid "%(n)s payments"
+msgstr "%(n)s Zahlungen"
+
+msgid "%(n)s team"
+msgstr "%(n)s Mannschaft"
+
+msgid "%(n)s teams"
+msgstr "%(n)s Mannschaften"
+
+msgid "Choose a penalty type"
+msgstr "Strafart wählen"
+
+msgid "Every season is a closed cash box. The default season is what every user sees first."
+msgstr "Jede Saison ist eine abgeschlossene Kasse. Die Standardsaison sieht jeder Nutzer zuerst."
+
+msgid "Make default"
+msgstr "Als Standard setzen"
+
+msgid "all teams"
+msgstr "alle Mannschaften"
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 

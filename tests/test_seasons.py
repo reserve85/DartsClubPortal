@@ -20,6 +20,7 @@ from app.penalties.services import (
     record_payment,
 )
 from app.players.models import Player
+from tests.conftest import inertia_props
 
 pytestmark = pytest.mark.django_db
 User = get_user_model()
@@ -106,7 +107,8 @@ def test_admin_creates_season(admin_client):
 def test_season_duplicate_name_rejected(admin_client):
     Season.objects.create(name="2027/2028")
     response = admin_client.post(reverse("season_create"), {"name": "2027/2028"})
-    assert response.status_code == 302  # back with an error message
+    assert response.status_code == 200  # the form again, with the error at the field
+    assert inertia_props(response)["errors"]["name"]
     assert Season.objects.filter(name="2027/2028").count() == 1
 
 
