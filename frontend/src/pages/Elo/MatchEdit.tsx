@@ -7,6 +7,7 @@ import { ScoreChips } from "../../components/elo";
 import { type Limits, StatsFields, type StatValues } from "../../components/StatsFields";
 import { PageHeader } from "../../components/ui";
 import { useT } from "../../i18n";
+import { joinLists } from "../../components/StatsFields";
 
 interface Props {
   match: {
@@ -49,7 +50,7 @@ export default function MatchEdit({ match, bestOfChoices, today, duplicate, erro
   });
   const d = form.data;
   const save = (force = false) => {
-    form.transform((data) => ({ ...data, force }));
+    form.transform((data) => ({ ...data, force, ...joinLists(data) }));
     form.post(`/elo/matches/${match.id}/edit/`, { preserveScroll: true });
   };
   return (

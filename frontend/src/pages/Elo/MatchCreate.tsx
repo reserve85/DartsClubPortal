@@ -8,6 +8,7 @@ import { PlayerAvatar } from "../../components/PlayerAvatar";
 import { type Limits, StatsFields, type StatValues } from "../../components/StatsFields";
 import { PageHeader } from "../../components/ui";
 import { useT } from "../../i18n";
+import { joinLists } from "../../components/StatsFields";
 
 interface Props {
   players: PickPlayer[];
@@ -49,7 +50,7 @@ export default function MatchCreate({ players, defaults, bestOfChoices, defaultB
   const minDate = [pa?.entryDate, pb?.entryDate].filter(Boolean).sort().pop();
   const ready = d.player_a && d.player_b && d.score_a !== null && d.score_b !== null && d.match_date;
   const submit = (again: boolean, force = false) => {
-    form.transform((data) => ({ ...data, again, force }));
+    form.transform((data) => ({ ...data, again, force, ...joinLists(data) }));
     form.post("/elo/matches/new/", { preserveScroll: true });
   };
 

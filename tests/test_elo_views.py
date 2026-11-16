@@ -419,3 +419,46 @@ def test_date_helpers_month_edges():
 
     assert previous_month(date(2026, 3, 15)) == (date(2026, 2, 1), date(2026, 2, 28))
     assert previous_month(date(2026, 1, 1)) == (date(2025, 12, 1), date(2025, 12, 31))
+
+
+@pytest.mark.django_db
+def test_react_json_post_creates_match(player_client, elo_players):
+    """The React page posts JSON with the Inertia header (InertiaJsonFormMiddleware)."""
+    import json as _json
+
+    a, b, _c = elo_players
+    payload = {
+        "player_a": a.player_id,
+        "player_b": b.player_id,
+        "match_date": TODAY.isoformat(),
+        "best_of_legs": 5,
+        "score_a": 3,
+        "score_b": 2,
+        "a_180s": 1,
+        "b_180s": "",
+        "a_high_finishes": "121",
+        "b_high_finishes": "",
+        "a_low_darts": "",
+        "b_low_darts": "15",
+        "a_average": 55.5,
+        "b_average": None,
+        "force": False,
+        "again": False,
+    }
+    resp = player_client.post(
+        reverse("elo:match_create"),
+        data=_json.dumps(payload),
+        content_type="application/json",
+        HTTP_X_INERTIA="true",
+    )
+    assert resp.status_code in (302, 303)
+    assert "/elo/matches/" in resp.headers["Location"] and "?a=" not in resp.headers["Location"]
+    m = Match.objects.get()
+    assert (m.score_a, m.score_b, m.a_180s, m.a_high_finishes, m.b_low_darts, m.a_average) == (
+        3,
+        2,
+        1,
+        [121],
+        [15],
+        55.5,
+    )

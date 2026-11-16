@@ -101,3 +101,12 @@ export function StatsFields({
     </Grid>
   );
 }
+
+/** Statistics lists go to Django as "121, 100" (one text field per list). */
+export function joinLists(d: Record<string, unknown>) {
+  const out: Record<string, string> = {};
+  for (const k of ["a_high_finishes", "b_high_finishes", "a_low_darts", "b_low_darts"]) {
+    out[k] = ((d[k] as string[]) ?? []).join(", ");
+  }
+  return out;
+}

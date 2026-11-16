@@ -312,7 +312,7 @@ class MatchCreateView(LoginRequiredMixin, View):
                         "b": match.player_b.name,
                     },
                 )
-                if form.data.get("again"):
+                if form.data.get("again") in ("1", "true", "True", "on"):
                     return redirect(reverse("elo:match_create") + f"?a={match.player_a_id}")
                 return redirect("elo:match_detail", pk=match.pk)
         initial = {

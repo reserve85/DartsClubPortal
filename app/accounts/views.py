@@ -471,8 +471,10 @@ class SettingsView(LoginRequiredMixin, View):
         user = request.user
         player = user.player_link
         fields = form.fields
+
         def choice(name):
             return [{"value": str(v), "label": str(lbl)} for v, lbl in fields[name].choices]
+
         values = {}
         for name in fields:
             value = form[name].value()

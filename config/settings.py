@@ -265,6 +265,7 @@ MIDDLEWARE = [
     # Per-user module access (Elo / Penalty) - 403 for foreign modules.
     "app.core.access.ModuleAccessMiddleware",
     # Inertia: React + Mantine pages; shared props (user, menu, rights, i18n).
+    "app.core.inertia_utils.InertiaJsonFormMiddleware",
     "inertia.middleware.InertiaMiddleware",
     "app.core.inertia_share.InertiaShareMiddleware",
     "app.core.inertia_share.InertiaFallbackMiddleware",
