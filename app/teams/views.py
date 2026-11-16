@@ -427,7 +427,7 @@ class CashierListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
                     ),
                     "history": [
                         {
-                            "name": row.user_label,
+                            "name": row.user_label or person_label(row.user),
                             "from": when(row.valid_from),
                             "to": when(row.valid_to),
                             "by": person_label(row.created_by) if row.created_by else "",
