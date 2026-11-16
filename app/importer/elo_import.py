@@ -192,6 +192,32 @@ def _db_from_zip_for_preview(path: str) -> str:
     return target
 
 
+def suggest_account(username: str):
+    """Portal account an Elo login most likely belongs to - or ``None``.
+
+    Elo logins are first names or nicknames ("Dennis", "Flo"); the portal
+    knows people by e-mail, full name and linked player. A suggestion is
+    only made when exactly ONE account fits: same login name stored before,
+    or the login is the start of the first name ("Flo" -> "Florian Muster").
+    """
+    User = get_user_model()
+    login = (username or "").strip().lower()
+    if not login or "@" in login:
+        return None
+    known = User.objects.filter(legacy_username__iexact=login).first()
+    if known:
+        return known
+    hits = []
+    for user in User.objects.select_related("player_link").filter(is_active=True):
+        names = [user.full_name or ""]
+        if user.player_link_id:
+            names.append(user.player_link.name)
+        firsts = {n.strip().split()[0].lower() for n in names if n.strip()}
+        if any(f == login or (len(login) >= 3 and f.startswith(login)) for f in firsts):
+            hits.append(user)
+    return hits[0] if len(hits) == 1 else None
+
+
 def elo_accounts(path: str) -> list[dict]:
     """Accounts of an Elo database (for the mapping step of the import page)."""
     import zipfile

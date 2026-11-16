@@ -265,3 +265,18 @@ def test_import_page_sends_the_player_merge(admin_client, tmp_path):
     assert resp.status_code == 200
     bertl.refresh_from_db()
     assert bertl.elo is not None and not Player.objects.filter(name="Bert").exists()
+
+
+@pytest.mark.django_db
+def test_account_suggestion_by_first_name_or_nickname(role_groups):
+    from app.importer.elo_import import suggest_account
+
+    U = get_user_model()
+    flo = U.objects.create_user(email="flo@example.org", password="pw", approval_status="approved")
+    flo.player_link = Player.objects.create(name="Florian Muster")
+    flo.save()
+    U.objects.create_user(email="d1@example.org", password="pw", full_name="Dennis A")
+    U.objects.create_user(email="d2@example.org", password="pw", full_name="Dennis B")
+    assert suggest_account("Flo") == flo  # nickname = start of the first name
+    assert suggest_account("Dennis") is None  # two people fit: no guess
+    assert suggest_account("Wildboars") is None  # shared club account: new

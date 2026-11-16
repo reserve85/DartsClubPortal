@@ -18,7 +18,12 @@ from django.views import View
 from inertia import render as inertia_render
 
 from app.core.permissions import user_is_admin
-from app.importer.elo_import import elo_accounts, elo_player_suggestions, import_elo
+from app.importer.elo_import import (
+    elo_accounts,
+    elo_player_suggestions,
+    import_elo,
+    suggest_account,
+)
 from app.importer.penalty_import import import_penalty
 from app.importer.report import ImportAborted
 from app.players.models import Player
@@ -79,7 +84,12 @@ class ImportView(LoginRequiredMixin, View):
                     "name": pending.get("name", ""),
                     "kind": pending.get("kind", ""),
                     "accounts": [
-                        {"id": a["id"], "username": a["username"], "role": str(a.get("role", ""))}
+                        {
+                            "id": a["id"],
+                            "username": a["username"],
+                            "role": str(a.get("role", "")),
+                            "suggestion": a.get("suggestion"),
+                        }
                         for a in pending.get("accounts", [])
                     ],
                     "players": pending.get("players", []),
@@ -149,6 +159,14 @@ class ImportView(LoginRequiredMixin, View):
         try:
             if kind == "elo":
                 pending["accounts"] = elo_accounts(path)
+                for acc in pending["accounts"]:
+                    hit = suggest_account(acc["username"])
+                    acc["suggestion"] = hit.pk if hit else None
+                    acc["suggestionLabel"] = (
+                        (hit.player_link.name if hit.player_link_id else hit.full_name or hit.email)
+                        if hit
+                        else ""
+                    )
                 pending["players"] = elo_player_suggestions(path)
                 report = import_elo(path, dry_run=True, **self._options(request, pending))
             else:

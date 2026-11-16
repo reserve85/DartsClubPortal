@@ -20,7 +20,7 @@ interface Props {
   pending: {
     name: string;
     kind: string;
-    accounts: { id: number; username: string; role: string }[];
+    accounts: { id: number; username: string; role: string; suggestion?: number | null }[];
     players?: { id: number; name: string; match: number | null; suggestion: number | null }[];
   } | null;
   portalUsers: { value: string; label: string }[];
@@ -85,7 +85,10 @@ export default function Import({ stage, report, pending, portalUsers, portalPlay
     replace: false,
     email_domain: "",
   });
-  const [map, setMap] = useState<Record<string, string>>({});
+  // Elo logins: the suggested portal account (same person) is preselected.
+  const [map, setMap] = useState<Record<string, string>>(() =>
+    Object.fromEntries((pending?.accounts ?? []).filter((a) => a.suggestion).map((a) => [String(a.id), String(a.suggestion)])),
+  );
   // Player merge: same name -> that player, similar name -> suggestion, else new.
   const [players, setPlayers] = useState<Record<string, string>>(() =>
     Object.fromEntries(
