@@ -38,7 +38,7 @@ Order matters: **penalty first** (it has the e-mail addresses), **then Elo**.
      every match; new names are created).
    - Elo logins have no e-mail: link each admin login (e.g. `Dennis`) to the
      person's portal account; leave the club account (e.g. `Wildboars`) on
-     *create a new account* – it becomes an Elo-only account.
+     *create a new account* – it becomes a User account (enters Elo matches, sees the penalties read-only).
    - Every match is recalculated and compared with the old values; all checks
      must be green.
    → **Import now**.

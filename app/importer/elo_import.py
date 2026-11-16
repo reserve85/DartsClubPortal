@@ -8,7 +8,7 @@ What happens (one transaction - all or nothing):
    disabled flag and disable periods.
 2. Matches: copied with date, original creation time (keeps the timeline
    order), result, format, K-factor and dart statistics.
-3. Accounts: ADMIN -> portal Admin, USER -> Player with Elo access only;
+3. Accounts: ADMIN -> portal Admin, USER -> User with Elo access and read-only penalty pages;
    the SYSTEM bootstrap account is skipped (the portal has its own).
    Passwords keep working (argon2 hashes are taken over), old printed QR
    codes keep working (legacy login name / id are stored).
@@ -360,7 +360,9 @@ def _import_users(src_users, report: ImportReport, email_domain: str, account_ma
                 user.set_unusable_password()
                 report.warnings.append(f"Account '{username}': password could not be taken over.")
             user.is_active = bool(row.get("active", True))
-            user.penalty_access = role == "ADMIN"  # Elo-only unless admin
+            # Penalty pages are read-only for users anyway (only admins and
+            # captains enter penalties), so imported accounts may view them.
+            user.penalty_access = True
             user.elo_access = True
         if not User.objects.filter(legacy_username=username).exclude(pk=user.pk).exists():
             user.legacy_username = username

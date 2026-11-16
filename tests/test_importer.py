@@ -91,7 +91,7 @@ class TestEloImport:
         assert admin_user.legacy_username == "Dennis"
         club = User.objects.get(legacy_username="Wildboars")
         assert club.check_password("club-pw")  # argon2 hash taken over
-        assert club.elo_access and not club.penalty_access and not club.is_admin
+        assert club.elo_access and club.penalty_access and not club.is_admin
         assert not User.objects.filter(legacy_username="system").exists()
 
     def test_dry_run_saves_nothing(self, tmp_path, db):
