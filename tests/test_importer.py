@@ -14,6 +14,7 @@ from app.elo.services.elo import calculate_match_elo
 from app.importer.elo_import import import_elo
 from app.importer.report import ImportAborted
 from app.players.models import Player
+from tests.conftest import inertia_props
 
 User = get_user_model()
 D0 = date(2025, 1, 10)
@@ -207,3 +208,60 @@ def test_import_page_preview_and_run(admin_client, tmp_path, admin_user):
     assert Match.objects.count() == 4
     admin_user.refresh_from_db()
     assert admin_user.legacy_username == "Dennis"
+
+
+# ---------------------------------------------------------------------------
+# Merging Elo players with the penalty players (preview decides)
+# ---------------------------------------------------------------------------
+@pytest.mark.django_db
+def test_player_suggestions_same_name_similar_name_and_new(tmp_path):
+    from app.importer.elo_import import elo_player_suggestions
+
+    anna = Player.objects.create(name="anna beispiel")  # same name, other case
+    bertl = Player.objects.create(name="Bertl")  # similar to "Bert"
+    rows = {r["name"]: r for r in elo_player_suggestions(make_elo_db(tmp_path / "elo.db"))}
+    assert rows["Anna Beispiel"]["match"] == anna.pk
+    assert rows["Bert"]["match"] is None and rows["Bert"]["suggestion"] == bertl.pk
+    assert rows["Carl"]["match"] is None and rows["Carl"]["suggestion"] is None
+
+
+@pytest.mark.django_db
+def test_manual_merge_and_forced_new_player(tmp_path):
+    anna = Player.objects.create(name="Anna Beispiel")
+    bertl = Player.objects.create(name="Bertl")
+    report = import_elo(
+        make_elo_db(tmp_path / "elo.db"),
+        player_map={1: "new", 2: bertl.pk},  # Anna stays separate, Bert -> Bertl
+    )
+    assert report.ok
+    bertl.refresh_from_db()
+    assert bertl.elo is not None  # merged: the penalty player now has the Elo profile
+    assert Player.objects.filter(name="Anna Beispiel").count() == 2  # forced new person
+    assert not EloProfile.objects.filter(player=anna).exists()
+    assert Player.objects.filter(name="Bert").count() == 0  # no duplicate created
+
+
+@pytest.mark.django_db
+def test_unknown_merge_target_aborts_the_whole_import(tmp_path):
+    with pytest.raises(ImportAborted):
+        import_elo(make_elo_db(tmp_path / "elo.db"), player_map={2: 999999})
+    assert not Match.objects.exists() and not EloProfile.objects.exists()  # all or nothing
+
+
+def test_import_page_sends_the_player_merge(admin_client, tmp_path):
+    bertl = Player.objects.create(name="Bertl")
+    path = make_elo_db(tmp_path / "elo.db")
+    with open(path, "rb") as fh:
+        resp = admin_client.post(
+            reverse("importer:import"), {"action": "preview", "kind": "elo", "file": fh}
+        )
+    props = inertia_props(resp)
+    bert = next(p for p in props["pending"]["players"] if p["name"] == "Bert")
+    assert bert["suggestion"] == bertl.pk
+    assert {"value": str(bertl.pk), "label": "Bertl"} in props["portalPlayers"]
+    resp = admin_client.post(
+        reverse("importer:import"), {"action": "run", "player_2": str(bertl.pk)}
+    )
+    assert resp.status_code == 200
+    bertl.refresh_from_db()
+    assert bertl.elo is not None and not Player.objects.filter(name="Bert").exists()

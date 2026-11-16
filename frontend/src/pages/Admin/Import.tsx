@@ -17,8 +17,14 @@ interface Report {
 interface Props {
   stage: "upload" | "preview" | "done";
   report: Report | null;
-  pending: { name: string; kind: string; accounts: { id: number; username: string; role: string }[] } | null;
+  pending: {
+    name: string;
+    kind: string;
+    accounts: { id: number; username: string; role: string }[];
+    players?: { id: number; name: string; match: number | null; suggestion: number | null }[];
+  } | null;
   portalUsers: { value: string; label: string }[];
+  portalPlayers: { value: string; label: string }[];
 }
 
 function ReportView({ report }: { report: Report }) {
@@ -70,7 +76,7 @@ function ReportView({ report }: { report: Report }) {
   );
 }
 
-export default function Import({ stage, report, pending, portalUsers }: Props) {
+export default function Import({ stage, report, pending, portalUsers, portalPlayers }: Props) {
   const t = useT();
   const upload = useForm<{ action: string; kind: string; file: File | null; replace: boolean; email_domain: string }>({
     action: "preview",
@@ -80,6 +86,12 @@ export default function Import({ stage, report, pending, portalUsers }: Props) {
     email_domain: "",
   });
   const [map, setMap] = useState<Record<string, string>>({});
+  // Player merge: same name -> that player, similar name -> suggestion, else new.
+  const [players, setPlayers] = useState<Record<string, string>>(() =>
+    Object.fromEntries(
+      (pending?.players ?? []).map((p) => [String(p.id), p.match ? String(p.match) : p.suggestion ? String(p.suggestion) : "new"]),
+    ),
+  );
   const [busy, setBusy] = useState(false);
   const run = () =>
     modals.openConfirmModal({
@@ -91,7 +103,11 @@ export default function Import({ stage, report, pending, portalUsers }: Props) {
       onConfirm: () =>
         router.post(
           "/import/",
-          { action: "run", ...Object.fromEntries(Object.entries(map).filter(([, v]) => v).map(([k, v]) => [`map_${k}`, v])) },
+          {
+            action: "run",
+            ...Object.fromEntries(Object.entries(map).filter(([, v]) => v).map(([k, v]) => [`map_${k}`, v])),
+            ...Object.fromEntries(Object.entries(players).map(([k, v]) => [`player_${k}`, v])),
+          },
           { onStart: () => setBusy(true), onFinish: () => setBusy(false) },
         ),
     });
@@ -161,6 +177,45 @@ export default function Import({ stage, report, pending, portalUsers }: Props) {
 
       {stage === "preview" && pending && (
         <>
+          {(pending.players?.length ?? 0) > 0 && (
+            <Section title={t("Merge players")}>
+              <Text size="sm" c="dimmed" mb="sm">
+                {t("Each Elo player becomes ONE person in the portal: with the same name it is merged automatically, a similar name is suggested, otherwise a new player is created. Change it where needed.")}
+              </Text>
+              <Group gap="xs" mb="sm">
+                <Badge color="teal" variant="light">{t("same name")}: {pending.players!.filter((p) => p.match).length}</Badge>
+                <Badge color="orange" variant="light">{t("suggestion")}: {pending.players!.filter((p) => !p.match && p.suggestion).length}</Badge>
+                <Badge color="gray" variant="light">{t("new player")}: {pending.players!.filter((p) => !p.match && !p.suggestion).length}</Badge>
+              </Group>
+              <Paper withBorder radius="md">
+                <Table verticalSpacing={6}>
+                  <Table.Tbody>
+                    {pending.players!.map((p) => {
+                      const v = players[String(p.id)] ?? "new";
+                      const kind = p.match && v === String(p.match) ? "teal" : p.suggestion && v === String(p.suggestion) ? "orange" : v === "new" ? "gray" : "brand";
+                      return (
+                        <Table.Tr key={p.id} bg={kind === "orange" ? "var(--mantine-color-orange-light)" : undefined}>
+                          <Table.Td fw={600} style={{ whiteSpace: "nowrap" }}>{p.name}</Table.Td>
+                          <Table.Td c="dimmed">→</Table.Td>
+                          <Table.Td miw={180}>
+                            <Select
+                              size="xs"
+                              data={[{ value: "new", label: t("— create a new player —") }, ...portalPlayers]}
+                              value={v}
+                              onChange={(x) => setPlayers((m) => ({ ...m, [String(p.id)]: x ?? "new" }))}
+                              searchable
+                              allowDeselect={false}
+                              aria-label={p.name}
+                            />
+                          </Table.Td>
+                        </Table.Tr>
+                      );
+                    })}
+                  </Table.Tbody>
+                </Table>
+              </Paper>
+            </Section>
+          )}
           {pending.accounts.length > 0 && (
             <Section title={t("Elo accounts")}>
               <Text size="sm" c="dimmed" mb="sm">

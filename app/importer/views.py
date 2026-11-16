@@ -18,9 +18,10 @@ from django.views import View
 from inertia import render as inertia_render
 
 from app.core.permissions import user_is_admin
-from app.importer.elo_import import elo_accounts, import_elo
+from app.importer.elo_import import elo_accounts, elo_player_suggestions, import_elo
 from app.importer.penalty_import import import_penalty
 from app.importer.report import ImportAborted
+from app.players.models import Player
 
 SESSION_KEY = "importer_pending"
 MAX_BYTES = 200 * 1024 * 1024
@@ -81,10 +82,17 @@ class ImportView(LoginRequiredMixin, View):
                         {"id": a["id"], "username": a["username"], "role": str(a.get("role", ""))}
                         for a in pending.get("accounts", [])
                     ],
+                    "players": pending.get("players", []),
                 }
                 if pending
                 else None
             ),
+            "portalPlayers": [
+                {"value": str(p.pk), "label": p.name}
+                for p in Player.objects.filter(elo__isnull=True).order_by("name")
+            ]
+            if pending and pending.get("kind") == "elo"
+            else [],
             "portalUsers": [
                 {"value": str(u.pk), "label": u.email} for u in context.get("portal_users", [])
             ],
@@ -108,6 +116,13 @@ class ImportView(LoginRequiredMixin, View):
                 acc["username"]: request.POST.get(f"map_{acc['id']}")
                 for acc in pending.get("accounts", [])
                 if request.POST.get(f"map_{acc['id']}")
+            }
+            # Player merge decided in the preview: "" = automatic (same name),
+            # "new" = separate person, <pk> = merge into that portal player.
+            opts["player_map"] = {
+                str(p["id"]): request.POST.get(f"player_{p['id']}")
+                for p in pending.get("players", [])
+                if request.POST.get(f"player_{p['id']}")
             }
         return opts
 
@@ -134,6 +149,7 @@ class ImportView(LoginRequiredMixin, View):
         try:
             if kind == "elo":
                 pending["accounts"] = elo_accounts(path)
+                pending["players"] = elo_player_suggestions(path)
                 report = import_elo(path, dry_run=True, **self._options(request, pending))
             else:
                 report = import_penalty(path, dry_run=True)

@@ -3,7 +3,8 @@
 What happens (one transaction - all or nothing):
 
 1. Players: matched to existing portal people by name (case-insensitive),
-   otherwise created. Each gets an EloProfile with the old start Elo,
+   otherwise created - unless the admin decided per player in the preview
+   (``player_map``: Elo player id -> portal player id or "new"). Each gets an EloProfile with the old start Elo,
    entry date (fallback: creation date, never after the first match),
    disabled flag and disable periods.
 2. Matches: copied with date, original creation time (keeps the timeline
@@ -142,6 +143,7 @@ def import_elo(
     replace: bool = False,
     email_domain: str = "elo.invalid",
     account_map: dict | None = None,
+    player_map: dict | None = None,
     actor=None,
 ) -> ImportReport:
     """``account_map``: Elo login name -> existing portal account (pk or e-mail)."""
@@ -162,6 +164,7 @@ def import_elo(
                 replace=replace,
                 email_domain=email_domain,
                 account_map=account_map or {},
+                player_choice={str(k): str(v) for k, v in (player_map or {}).items() if v},
                 actor=actor,
             )
             if dry_run:
@@ -206,9 +209,55 @@ def elo_accounts(path: str) -> list[dict]:
         con.close()
 
 
+def elo_player_suggestions(path: str) -> list[dict]:
+    """Elo players + the portal person each one will be merged with (preview).
+
+    ``match`` is the exact (case-insensitive) name match the import would
+    use; without one, ``suggestion`` names a similar portal player (e.g. a
+    different spelling) so the admin can merge it by hand.
+    """
+    import difflib
+    import zipfile
+
+    if zipfile.is_zipfile(path):
+        path = _db_from_zip_for_preview(path)
+    con = _connect(path)
+    try:
+        rows = _rows(con, "players")
+    finally:
+        con.close()
+    portal = {p.pk: p.name for p in Player.objects.filter(elo__isnull=True).order_by("name")}
+    by_lower = {name.strip().lower(): pk for pk, name in portal.items()}
+    out = []
+    for r in rows:
+        name = (r["name"] or "").strip()
+        exact = by_lower.get(name.lower())
+        suggestion = None
+        if exact is None and portal:
+            scored = sorted(
+                (
+                    (difflib.SequenceMatcher(None, name.lower(), n.lower()).ratio(), pk)
+                    for pk, n in portal.items()
+                ),
+                reverse=True,
+            )
+            if scored and scored[0][0] >= 0.75:
+                suggestion = scored[0][1]
+        out.append({"id": r["id"], "name": name, "match": exact, "suggestion": suggestion})
+    return out
+
+
 def _run(
-    con, report: ImportReport, *, replace: bool, email_domain: str, account_map: dict, actor
+    con,
+    report: ImportReport,
+    *,
+    replace: bool,
+    email_domain: str,
+    account_map: dict,
+    actor,
+    player_choice: dict | None = None,
 ) -> None:
+    player_choice = player_choice or {}
     if EloProfile.objects.exists() or Match.objects.exists():
         if not replace:
             raise ImportAborted(
@@ -248,7 +297,18 @@ def _run(
                 f"Duplicate player name in the Elo database, renamed to '{name}'."
             )
         seen_names.add(key)
-        person = by_name.pop(key, None)
+        choice = player_choice.get(str(row["id"]))
+        if choice == "new":
+            person = None  # the admin wants a separate person
+        elif choice:
+            person = Player.objects.filter(pk=int(choice), elo__isnull=True).first()
+            if person is None:
+                raise ImportAborted(
+                    f"The portal player chosen for '{name}' does not exist or already has Elo data."
+                )
+            by_name = {k: v for k, v in by_name.items() if v.pk != person.pk}
+        else:
+            person = by_name.pop(key, None)
         if person is not None:
             report.matched.append(("player", row["name"], person.name))
             report.add("players matched")

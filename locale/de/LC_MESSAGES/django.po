@@ -4207,6 +4207,24 @@ msgstr "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es gleich noch e
 msgid "Something went wrong"
 msgstr "Da ist etwas schiefgelaufen"
 
+msgid "Each Elo player becomes ONE person in the portal: with the same name it is merged automatically, a similar name is suggested, otherwise a new player is created. Change it where needed."
+msgstr "Jeder Elo-Spieler wird EINE Person im Portal: Bei gleichem Namen wird automatisch zusammengelegt, bei ähnlichem Namen gibt es einen Vorschlag, sonst wird ein neuer Spieler angelegt. Passe es an, wo nötig."
+
+msgid "Merge players"
+msgstr "Spieler zusammenführen"
+
+msgid "new player"
+msgstr "neuer Spieler"
+
+msgid "same name"
+msgstr "gleicher Name"
+
+msgid "suggestion"
+msgstr "Vorschlag"
+
+msgid "— create a new player —"
+msgstr "— neuen Spieler anlegen —"
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 

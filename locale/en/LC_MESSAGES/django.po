@@ -3228,3 +3228,21 @@ msgstr ""
 
 msgid "Something went wrong"
 msgstr ""
+
+msgid "Each Elo player becomes ONE person in the portal: with the same name it is merged automatically, a similar name is suggested, otherwise a new player is created. Change it where needed."
+msgstr ""
+
+msgid "Merge players"
+msgstr ""
+
+msgid "new player"
+msgstr ""
+
+msgid "same name"
+msgstr ""
+
+msgid "suggestion"
+msgstr ""
+
+msgid "— create a new player —"
+msgstr ""
