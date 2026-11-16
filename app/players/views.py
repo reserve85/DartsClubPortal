@@ -6,11 +6,12 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic import CreateView, DetailView, RedirectView, UpdateView
 
+from app.core.inertia_utils import InertiaFormMixin
 from app.core.models import AuditAction
 from app.core.permissions import (
     GROUP_ADMIN,
@@ -72,6 +73,57 @@ class PlayerDetailView(LoginRequiredMixin, DetailView):
         context["penalties"] = assigned_penalties_qs(season=season).filter(player=player)[:50]
         return context
 
+    def render_to_response(self, context, **response_kwargs):
+        from django.utils import timezone
+        from inertia import render as inertia_render
+
+        from app.players.avatars import avatar_url
+
+        player = self.object
+        season = season_for_request(self.request)
+        props = {
+            "player": {
+                "id": player.pk,
+                "name": player.name,
+                "active": player.active,
+                "avatar": avatar_url(player),
+            },
+            "season": season.name if season else "",
+            "canEdit": context["can_edit"],
+            "totals": {
+                "total": float(context["total"]),
+                "paid": float(context["paid"]),
+                "balance": float(context["balance"]),
+            },
+            "teams": [
+                {
+                    "id": row["team"].pk,
+                    "name": row["team"].name,
+                    "total": float(row["total"]),
+                    "paid": float(row["paid"]),
+                    "balance": float(row["balance"]),
+                    "financeUrl": (
+                        f"{reverse('dashboard:financial_overview')}?team={row['team'].pk}"
+                    ),
+                }
+                for row in context["team_rows"]
+            ],
+            "penalties": [
+                {
+                    "id": pen.pk,
+                    "when": timezone.localtime(pen.created_at).isoformat(),
+                    "matchday": pen.matchday.display_label,
+                    "matchdayId": pen.matchday_id,
+                    "description": pen.display_description,
+                    "amount": float(pen.amount_eur),
+                }
+                for pen in context["penalties"]
+            ],
+        }
+        return inertia_render(
+            self.request, "Penalty/PlayerDetail", props=props, template_data=context
+        )
+
 
 class PlayerListRedirectView(GroupRequiredMixin, LoginRequiredMixin, RedirectView):
     """The standalone players list was merged into the Teams & Players page."""
@@ -81,7 +133,7 @@ class PlayerListRedirectView(GroupRequiredMixin, LoginRequiredMixin, RedirectVie
     url = reverse_lazy("teams:team_list")
 
 
-class PlayerCreateView(LoginRequiredMixin, CreateView):
+class PlayerCreateView(LoginRequiredMixin, InertiaFormMixin, CreateView):
     model = Player
     form_class = PlayerForm
     template_name = "players/player_form.html"
@@ -96,6 +148,14 @@ class PlayerCreateView(LoginRequiredMixin, CreateView):
         kwargs["season"] = season_for_request(self.request)
         return kwargs
 
+    def form_page_props(self, form):
+        return {
+            "title": str(_("New player")),
+            "subtitle": str(_("Assign the teams afterwards in the team assignment.")),
+            "submitLabel": str(_("Create player")),
+            "cancelUrl": reverse("teams:team_list"),
+        }
+
     def form_valid(self, form):
         response = super().form_valid(form)
         log_action(
@@ -108,7 +168,7 @@ class PlayerCreateView(LoginRequiredMixin, CreateView):
         return response
 
 
-class PlayerUpdateView(LoginRequiredMixin, UpdateView):
+class PlayerUpdateView(LoginRequiredMixin, InertiaFormMixin, UpdateView):
     model = Player
     form_class = PlayerForm
     template_name = "players/player_form.html"
@@ -130,6 +190,21 @@ class PlayerUpdateView(LoginRequiredMixin, UpdateView):
         if not user_can_edit_player(self.request.user, player):
             raise PermissionDenied
         return player
+
+    def form_page_props(self, form):
+        return {
+            "title": str(_("Edit player")),
+            "subtitle": self.object.name,
+            "badge": self.object.name,
+            "submitLabel": str(_("Save changes")),
+            "cancelUrl": reverse("players:player_detail", args=[self.object.pk]),
+            "notice": str(
+                _(
+                    'Players are never deleted: switch off "active" instead. '
+                    "Their penalties and payments stay in the history."
+                )
+            ),
+        }
 
     def form_valid(self, form):
         response = super().form_valid(form)

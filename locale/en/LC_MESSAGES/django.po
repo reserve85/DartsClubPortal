@@ -2919,3 +2919,15 @@ msgstr ""
 
 msgid "You can only view the assignment of these teams."
 msgstr ""
+
+msgid "Create player"
+msgstr ""
+
+msgid "Players are never deleted: switch off \"active\" instead. Their penalties and payments stay in the history."
+msgstr ""
+
+msgid "Assign the teams afterwards in the team assignment."
+msgstr ""
+
+msgid "Per team"
+msgstr ""

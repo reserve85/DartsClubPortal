@@ -3898,6 +3898,18 @@ msgstr "Nicht gespeicherte Änderungen"
 msgid "You can only view the assignment of these teams."
 msgstr "Die Zuordnung dieser Mannschaften kannst du nur ansehen."
 
+msgid "Create player"
+msgstr "Spieler anlegen"
+
+msgid "Players are never deleted: switch off \"active\" instead. Their penalties and payments stay in the history."
+msgstr "Spieler werden nie gelöscht: Schalte stattdessen „aktiv“ aus. Ihre Strafen und Zahlungen bleiben im Verlauf erhalten."
+
+msgid "Assign the teams afterwards in the team assignment."
+msgstr "Die Mannschaften ordnest du danach in der Mannschaftszuordnung zu."
+
+msgid "Per team"
+msgstr "Je Mannschaft"
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 

@@ -195,6 +195,7 @@ MSGIDS: list[str] = [
     "Penalties total",
     "Penalty catalog",
     "Penalty type",
+    "Per team",
     "Period",
     "Pick a person who is already in the club portal (e.g. from the penalty module).",
     "Picture",

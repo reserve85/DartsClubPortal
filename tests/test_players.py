@@ -6,6 +6,7 @@ from django.urls import reverse
 from app.core.models import AuditAction, AuditLog
 from app.players.models import Player
 from app.players.services import assign_teams, teams_for
+from tests.conftest import inertia_props
 
 pytestmark = pytest.mark.django_db
 
@@ -237,10 +238,8 @@ def test_player_detail_permission_matrix(
     assert Client().get(url).status_code == 302  # anonymous -> login
 
     # WRITE stays scoped: the "Edit" button only shows for actual editors …
-    content = captain_client.get(url).content.decode()
-    assert reverse("players:player_update", args=[player.pk]) in content
-    content = other_captain_client.get(url).content.decode()
-    assert reverse("players:player_update", args=[player.pk]) not in content
+    assert inertia_props(captain_client.get(url))["canEdit"] is True
+    assert inertia_props(other_captain_client.get(url))["canEdit"] is False
 
     player_user.player_link = player
     player_user.save()
@@ -309,7 +308,8 @@ def test_player_detail_shows_per_team_balance(
     assert response.context["balance"] == 5
     team_rows = {row["team"].pk: row["balance"] for row in response.context["team_rows"]}
     assert team_rows[md.team.pk] == 5
-    content = response.content.decode()
-    assert players[0].name in content
+    props = inertia_props(response)
+    assert props["player"]["name"] == players[0].name
     # team link now points at the financial overview (team page removed)
-    assert f"{reverse('dashboard:financial_overview')}?team={md.team.pk}" in content
+    (row,) = [t for t in props["teams"] if t["id"] == md.team.pk]
+    assert row["financeUrl"] == f"{reverse('dashboard:financial_overview')}?team={md.team.pk}"
