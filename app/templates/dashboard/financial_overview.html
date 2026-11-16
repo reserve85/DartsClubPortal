@@ -184,7 +184,7 @@
                             </button>
                             {% if row.balance < 0 %}
                             {# Credit row: pay it out — capped at the credit server-side. #}
-                            <button type="button" class="btn btn-sm btn-outline-success"
+                            <button type="button" class="btn btn-sm btn-success"
                                     data-bs-toggle="modal" data-bs-target="#payoutModal"
                                     data-player="{{ row.pk }}" data-player-name="{{ row.name }}"
                                     data-balance="{{ row.balance }}">
@@ -240,7 +240,7 @@
                             </button>
                             {% if row.balance < 0 %}
                             {# Credit row: pay it out — capped at the credit server-side. #}
-                            <button type="button" class="btn btn-sm btn-outline-success"
+                            <button type="button" class="btn btn-sm btn-success"
                                     data-bs-toggle="modal" data-bs-target="#payoutModal"
                                     data-player="{{ row.pk }}" data-player-name="{{ row.name }}"
                                     data-balance="{{ row.balance }}">
@@ -295,7 +295,7 @@
                                   data-confirm="{% translate 'Revert this payment?' %}">
                                 {% csrf_token %}
                                 <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                                <button class="btn btn-sm btn-outline-danger" type="submit">{% translate "Revert payment" %}</button>
+                                <button class="btn btn-sm btn-danger" type="submit">{% translate "Revert payment" %}</button>
                             </form>
                         </td>
                         {% endif %}
@@ -426,17 +426,17 @@
                             <div class="form-text">{% translate "Partial payment — any positive amount up to the full debt." %}</div>
 
                             <div class="d-flex flex-wrap gap-2 mt-3">
-                                <button type="button" class="btn btn-outline-secondary payment-quick-amount" data-amount="5">5 €</button>
-                                <button type="button" class="btn btn-outline-secondary payment-quick-amount" data-amount="10">10 €</button>
-                                <button type="button" class="btn btn-outline-secondary payment-quick-amount" data-amount="20">20 €</button>
-                                <button type="button" class="btn btn-outline-secondary payment-quick-amount"
+                                <button type="button" class="btn btn-primary payment-quick-amount" data-amount="5">5 €</button>
+                                <button type="button" class="btn btn-primary payment-quick-amount" data-amount="10">10 €</button>
+                                <button type="button" class="btn btn-primary payment-quick-amount" data-amount="20">20 €</button>
+                                <button type="button" class="btn btn-primary payment-quick-amount"
                                         id="paymentFullAmount" data-full data-money-full
                                         data-label="{% translate 'Full amount' %}"
                                         hidden>{% translate "Full amount" %}</button>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% translate "Cancel" %}</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% translate "Cancel" %}</button>
                             <button type="submit" class="btn btn-success">{% translate "Record payment" %}</button>
                         </div>
                     </div>
@@ -486,17 +486,17 @@
                             <div class="form-text">{% translate "Payout of the credit — any amount up to the available credit." %}</div>
 
                             <div class="d-flex flex-wrap gap-2 mt-3">
-                                <button type="button" class="btn btn-outline-secondary payment-quick-amount" data-amount="5">5 €</button>
-                                <button type="button" class="btn btn-outline-secondary payment-quick-amount" data-amount="10">10 €</button>
-                                <button type="button" class="btn btn-outline-secondary payment-quick-amount" data-amount="20">20 €</button>
-                                <button type="button" class="btn btn-outline-secondary payment-quick-amount"
+                                <button type="button" class="btn btn-primary payment-quick-amount" data-amount="5">5 €</button>
+                                <button type="button" class="btn btn-primary payment-quick-amount" data-amount="10">10 €</button>
+                                <button type="button" class="btn btn-primary payment-quick-amount" data-amount="20">20 €</button>
+                                <button type="button" class="btn btn-primary payment-quick-amount"
                                         id="payoutFullAmount" data-full data-money-full
                                         data-label="{% translate 'Full amount' %}"
                                         hidden>{% translate "Full amount" %}</button>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% translate "Cancel" %}</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% translate "Cancel" %}</button>
                             <button type="submit" class="btn btn-success">{% translate "Record payout" %}</button>
                         </div>
                     </div>

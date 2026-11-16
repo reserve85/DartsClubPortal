@@ -30,11 +30,16 @@ User = get_user_model()
 
 # Single source of truth: rebuilt from RoleChoice (labels unchanged) so the
 # model field choices and every form choice can never drift apart.
-ROLE_CHOICES = list(RoleChoice.choices)
+# Roles: Admin and User. Captain/cashier of a team are assignments any account
+# can hold (team field / cash box), so "Captain" is no role to pick anymore.
+ROLE_CHOICES = [
+    (RoleChoice.ADMIN.value, RoleChoice.ADMIN.label),
+    (RoleChoice.PLAYER.value, RoleChoice.PLAYER.label),
+]
 
 # Roles that may hold the optional captaincy (``User.team``) — the edit form
 # renders the team dropdown disabled for every other role (see UserUpdateForm).
-CAPTAINCY_ROLES = (GROUP_ADMIN, GROUP_CAPTAIN)
+CAPTAINCY_ROLES = (GROUP_ADMIN, GROUP_CAPTAIN, GROUP_PLAYER)
 
 
 class ApprovalLoginForm(AllauthLoginForm):
@@ -171,8 +176,6 @@ class UserCreateForm(forms.ModelForm):
         cleaned = super().clean()
         # The team field is a captaincy assignment, NOT a role requirement:
         # optional for Captain, allowed for Admin, never valid for Player.
-        if cleaned.get("role") == GROUP_PLAYER and cleaned.get("team"):
-            self.add_error("team", _("A team can only be assigned to Admin or Captain accounts."))
         return cleaned
 
     def clean_password2(self):
@@ -271,8 +274,6 @@ class InviteCreateForm(forms.ModelForm):
         cleaned = super().clean()
         # The team is a captaincy: optional for Captain, allowed for Admin,
         # never valid for Player (same rule as UserCreateForm).
-        if cleaned.get("role") == GROUP_PLAYER and cleaned.get("team"):
-            self.add_error("team", _("A team can only be assigned to Admin or Captain accounts."))
         # Server-side reservation guard (the field queryset already enforces
         # it; this keeps the intent explicit if the queryset is ever relaxed).
         player = cleaned.get("player")
@@ -375,8 +376,8 @@ class UserUpdateForm(forms.ModelForm):
             role = None
             if self.instance.is_admin:
                 role = GROUP_ADMIN
-            elif self.instance.is_captain:
-                role = GROUP_CAPTAIN
+            elif self.instance.groups.filter(name=GROUP_CAPTAIN).exists():
+                role = GROUP_PLAYER  # legacy captain group -> User role + team
             elif self.instance.is_player:
                 role = GROUP_PLAYER
             self.fields["role"].initial = role
@@ -402,8 +403,6 @@ class UserUpdateForm(forms.ModelForm):
         cleaned = super().clean()
         # Same rule as UserCreateForm: the team is an optional captaincy for
         # Captain/Admin accounts and invalid for the Player role.
-        if cleaned.get("role") == GROUP_PLAYER and cleaned.get("team"):
-            self.add_error("team", _("A team can only be assigned to Admin or Captain accounts."))
         return cleaned
 
     def save(self, commit=True):

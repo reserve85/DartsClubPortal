@@ -47,7 +47,7 @@
                 {% if request.user.is_admin %}
                     <td class="text-end text-nowrap">
                         {# Deleting a team lives on its edit page (Bearbeiten). #}
-                        <a class="btn btn-sm btn-outline-secondary" href="{% url 'teams:team_update' team.pk %}">{% translate "Edit" %}</a>
+                        <a class="btn btn-sm btn-warning" href="{% url 'teams:team_update' team.pk %}">{% translate "Edit" %}</a>
                     </td>
                 {% endif %}
             </tr>
@@ -100,7 +100,7 @@
                     <td class="text-end text-nowrap">
                         {# Deactivation lives on the edit page (Bearbeiten); only editors get the button (no dead links). #}
                         {% if player.can_edit %}
-                            <a class="btn btn-sm btn-outline-secondary" href="{% url 'players:player_update' player.pk %}">{% translate "Edit" %}</a>
+                            <a class="btn btn-sm btn-warning" href="{% url 'players:player_update' player.pk %}">{% translate "Edit" %}</a>
                         {% endif %}
                     </td>
                 </tr>

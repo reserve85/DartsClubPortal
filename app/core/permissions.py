@@ -69,6 +69,15 @@ def user_is_admin(user) -> bool:
 
 
 def user_is_captain(user) -> bool:
+    """Captain = the account leads a team (``User.team``), whatever its role.
+
+    Captaincy is an assignment, not a role: an Admin or a User can be the
+    captain of a team. The legacy "Captain" group still counts.
+    """
+    if not user or not user.is_authenticated:
+        return False
+    if getattr(user, "team_id", None) is not None:
+        return True
     return _group_flag(user, GROUP_CAPTAIN, _CACHE_CAPTAIN)
 
 
@@ -157,7 +166,10 @@ class GroupRequiredMixin:
             return HttpResponseRedirect(reverse("account_login"))
         if request.user.is_superuser:
             return super().dispatch(request, *args, **kwargs)  # system account: always allowed
-        if not any(request.user.groups.filter(name=group).exists() for group in self.groups):
+        allowed = any(request.user.groups.filter(name=group).exists() for group in self.groups)
+        if not allowed and GROUP_CAPTAIN in self.groups and user_is_captain(request.user):
+            allowed = True  # captaincy is an assignment (User.team), not only a group
+        if not allowed:
             raise PermissionDenied
         return super().dispatch(request, *args, **kwargs)
 

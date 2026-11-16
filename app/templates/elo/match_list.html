@@ -29,7 +29,7 @@
             <input id="f-to" type="date" name="to" class="form-control" value="{{ date_to|date:'Y-m-d' }}">
         </div>
         <div class="col-12 col-md-1 d-grid">
-            <button type="submit" class="btn btn-outline-secondary">{% translate "Filter" %}</button>
+            <button type="submit" class="btn btn-primary">{% translate "Filter" %}</button>
         </div>
     </form>
 </div>
@@ -46,16 +46,16 @@
             </span>
             <span class="sub d-block">{{ m.date|date:"d.m.Y" }} · {% blocktranslate with n=m.best_of_legs %}Best of {{ n }}{% endblocktranslate %}{% if m.a_average or m.b_average %} · Ø {{ m.a_average|default:"–"|floatformat:1 }} / {{ m.b_average|default:"–"|floatformat:1 }}{% endif %}</span>
         </span>
-        <span class="val"><span class="big">{{ m.score_a|default_if_none:"–" }}:{{ m.score_b|default_if_none:"–" }}</span></span>
+        <span class="val"><span class="big">{{ m.score_a|default_if_none:0 }}:{{ m.score_b|default_if_none:0 }}</span></span>
         <span class="chev" aria-hidden="true">›</span>
     </a>
     {% endfor %}
 </div>
 {% if page.has_other_pages %}
 <nav class="ui-pager" aria-label="{% translate 'Pages' %}">
-    {% if page.has_previous %}<a class="btn btn-outline-secondary btn-sm" href="?{% if query %}{{ query }}&amp;{% endif %}page={{ page.previous_page_number }}">‹ {% translate "Newer" %}</a>{% else %}<span></span>{% endif %}
+    {% if page.has_previous %}<a class="btn btn-primary btn-sm" href="?{% if query %}{{ query }}&amp;{% endif %}page={{ page.previous_page_number }}">‹ {% translate "Newer" %}</a>{% else %}<span></span>{% endif %}
     <span class="small text-muted">{% blocktranslate with n=page.number total=page.paginator.num_pages %}Page {{ n }} of {{ total }}{% endblocktranslate %}</span>
-    {% if page.has_next %}<a class="btn btn-outline-secondary btn-sm" href="?{% if query %}{{ query }}&amp;{% endif %}page={{ page.next_page_number }}">{% translate "Older" %} ›</a>{% else %}<span></span>{% endif %}
+    {% if page.has_next %}<a class="btn btn-primary btn-sm" href="?{% if query %}{{ query }}&amp;{% endif %}page={{ page.next_page_number }}">{% translate "Older" %} ›</a>{% else %}<span></span>{% endif %}
 </nav>
 {% endif %}
 {% else %}
@@ -63,7 +63,7 @@
 {% endif %}
 {% if is_admin %}
 <div class="ui-actions mt-3">
-    <a class="btn btn-outline-secondary btn-sm" href="{% url 'elo:export_matches' %}">⬇ {% translate "Matches as CSV" %}</a>
+    <a class="btn btn-primary btn-sm" href="{% url 'elo:export_matches' %}">⬇ {% translate "Matches as CSV" %}</a>
 </div>
 {% endif %}
 <a class="btn btn-primary ui-fab" href="{% url 'elo:match_create' %}">＋ {% translate "Match" %}</a>

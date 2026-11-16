@@ -7,7 +7,7 @@
         <div class="min-w-0"><h1 class="ui-hero-title h3">{% translate "Invitations" %}</h1></div>
         <div class="ui-hero-actions">
         <div class="d-flex gap-2">
-        <a class="btn btn-outline-secondary" href="{% url 'accounts:user_list' %}">{% translate "Back to users" %}</a>
+        <a class="btn btn-secondary" href="{% url 'accounts:user_list' %}">{% translate "Back to users" %}</a>
         <a class="btn btn-primary" href="{% url 'accounts:invite_create' %}">{% translate "New invitation" %}</a>
     </div>
         </div>
@@ -55,7 +55,7 @@
                             <input type="text" class="form-control" readonly
                                    aria-label="{% translate 'Accept link' %}"
                                    value="{{ request.scheme }}://{{ request.get_host }}{% url 'accounts:invite_accept' invitation.token %}">
-                            <button type="button" class="btn btn-outline-secondary"
+                            <button type="button" class="btn btn-primary"
                                     data-copy="{{ request.scheme }}://{{ request.get_host }}{% url 'accounts:invite_accept' invitation.token %}">{% translate "Copy link" %}</button>
                         </div>
                     {% elif invitation.status == "expired" %}
@@ -64,12 +64,12 @@
                     {% if not invitation.accepted_at %}
                         <form method="post" action="{% url 'accounts:invite_resend' invitation.pk %}" class="d-inline">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-outline-primary">{% translate "Resend" %}</button>
+                            <button type="submit" class="btn btn-sm btn-primary">{% translate "Resend" %}</button>
                         </form>
                         <form method="post" action="{% url 'accounts:invite_cancel' invitation.pk %}" class="d-inline"
                               data-confirm="{% translate 'Cancel this invitation? The account will be deleted.' %}">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-outline-danger">{% translate "Cancel" %}</button>
+                            <button type="submit" class="btn btn-sm btn-danger">{% translate "Cancel" %}</button>
                         </form>
                     {% endif %}
                 </td>

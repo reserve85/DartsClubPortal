@@ -2592,3 +2592,6 @@ msgstr ""
 
 msgid "The upload has expired. Please upload the file again."
 msgstr ""
+
+msgid "Optional captaincy: the team this account leads (any role)."
+msgstr ""

@@ -9,7 +9,7 @@
     <form method="post" class="ui-actions">
         {% csrf_token %}
         <button type="submit" class="btn btn-danger">{% translate "Delete" %}</button>
-        <a class="btn btn-outline-secondary" href="{% url 'elo:match_detail' match.pk %}">{% translate "Cancel" %}</a>
+        <a class="btn btn-secondary" href="{% url 'elo:match_detail' match.pk %}">{% translate "Cancel" %}</a>
     </form>
 </div>
 {% endblock %}

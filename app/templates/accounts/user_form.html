@@ -15,7 +15,7 @@
     {% for field in form %}{% include "includes/_field.html" %}{% endfor %}
     <div class="d-flex gap-2">
         <button type="submit" class="btn btn-primary">{% translate "Save" %}</button>
-        <a class="btn btn-outline-secondary" href="{% url 'accounts:user_list' %}">{% translate "Cancel" %}</a>
+        <a class="btn btn-secondary" href="{% url 'accounts:user_list' %}">{% translate "Cancel" %}</a>
     </div>
 </form>
 {% endblock %}

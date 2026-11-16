@@ -21,8 +21,8 @@ class RoleChoice(models.TextChoices):
     """
 
     ADMIN = GROUP_ADMIN, _("Admin")
-    CAPTAIN = GROUP_CAPTAIN, _("Captain")
-    PLAYER = GROUP_PLAYER, _("Player")
+    CAPTAIN = GROUP_CAPTAIN, _("Captain")  # legacy group - captaincy is User.team now
+    PLAYER = GROUP_PLAYER, _("User")
 
 
 class PenaltyNotifyChoice(models.TextChoices):

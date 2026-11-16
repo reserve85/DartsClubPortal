@@ -6,7 +6,7 @@
     <div class="ui-hero-head">
         <div class="min-w-0"><h1 class="ui-hero-title h3">{% translate "Pending approvals" %}</h1></div>
         <div class="ui-hero-actions">
-        <a class="btn btn-outline-secondary" href="{% url 'accounts:user_list' %}">{% translate "Back to users" %}</a>
+        <a class="btn btn-secondary" href="{% url 'accounts:user_list' %}">{% translate "Back to users" %}</a>
         </div>
     </div>
 </div>
@@ -30,7 +30,7 @@
                 <td>{{ pending_user.date_joined|date:"d.m.Y H:i" }}</td>
                 <td>{{ pending_user.get_preferred_language_display|default:"–" }}</td>
                 <td class="text-end">
-                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'accounts:approval' pending_user.pk %}">
+                    <a class="btn btn-sm btn-primary" href="{% url 'accounts:approval' pending_user.pk %}">
                         {% translate "Review" %}
                     </a>
                 </td>

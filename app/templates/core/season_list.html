@@ -49,11 +49,11 @@
                 <td class="text-end">{{ season.matchday_count }}</td>
                 <td class="text-end">{{ season.payment_count }}</td>
                 <td class="text-end text-nowrap">
-                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'season_update' season.pk %}">{% translate "Edit" %}</a>
+                    <a class="btn btn-sm btn-warning" href="{% url 'season_update' season.pk %}">{% translate "Edit" %}</a>
                     {% if not default_season or season.pk != default_season.pk %}
                         <form method="post" action="{% url 'season_set_default' season.pk %}" class="d-inline">
                             {% csrf_token %}
-                            <button class="btn btn-sm btn-outline-secondary" type="submit">{% translate "Set as default" %}</button>
+                            <button class="btn btn-sm btn-primary" type="submit">{% translate "Set as default" %}</button>
                         </form>
                     {% endif %}
                     {# "Delete" is NOT here — it lives on the edit page (see season_form.html). #}

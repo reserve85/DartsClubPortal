@@ -31,7 +31,7 @@
                 </td>
                 <td class="text-end text-nowrap">
                     {# One single action: fees + active flags live on the edit form. #}
-                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'penalties:catalog_update' item.pk %}">{% translate "Edit" %}</a>
+                    <a class="btn btn-sm btn-warning" href="{% url 'penalties:catalog_update' item.pk %}">{% translate "Edit" %}</a>
                 </td>
             </tr>
         {% empty %}

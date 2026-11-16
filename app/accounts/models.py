@@ -73,9 +73,7 @@ class User(AbstractUser):
         blank=True,
         related_name="users",
         verbose_name=_("team"),
-        help_text=_(
-            "Optional captaincy: the team this account leads. Allowed for Captain and Admin."
-        ),
+        help_text=_("Optional captaincy: the team this account leads (any role)."),
     )
     player_link = models.OneToOneField(
         "players.Player",
@@ -162,13 +160,14 @@ class User(AbstractUser):
 
     @property
     def role(self) -> str | None:
-        """Derived role precedence: admin > captain > player > None."""
+        """Role: system (the operator account) > admin > user. Captaincy is
+        separate (``team`` / ``is_captain``)."""
+        if self.is_superuser:
+            return "system"
         if self.is_admin:
             return "admin"
-        if self.is_captain:
-            return "captain"
-        if self.is_player:
-            return "player"
+        if self.is_player or self.is_captain:
+            return "user"
         return None
 
     @property

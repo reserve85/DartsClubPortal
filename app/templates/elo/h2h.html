@@ -82,7 +82,7 @@
         <span class="ui-avatar sm {% if r.winner_id == A.player_id %}is-a{% else %}is-b{% endif %}" data-name="{% if r.winner_id == A.player_id %}{{ A.name }}{% else %}{{ B.name }}{% endif %}" title="{% translate 'Winner' %}"></span>
         <span class="main"><span class="name d-block">{{ r.date|date:"d.m.Y" }}</span>
             <span class="sub d-block">Ø {{ r.average_a|floatformat:1|default:"–" }} / {{ r.average_b|floatformat:1|default:"–" }}</span></span>
-        <span class="val"><span class="big d-block">{{ r.score_a|default_if_none:"–" }}:{{ r.score_b|default_if_none:"–" }}</span>{% include "elo/_delta.html" with value=r.elo_change_a %}</span>
+        <span class="val"><span class="big d-block">{{ r.score_a|default_if_none:0 }}:{{ r.score_b|default_if_none:0 }}</span>{% include "elo/_delta.html" with value=r.elo_change_a %}</span>
     </a>
     {% endfor %}
 </div>

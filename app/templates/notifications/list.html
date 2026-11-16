@@ -7,14 +7,14 @@
         <div class="min-w-0"><h1 class="ui-hero-title h3">{% translate "Notifications" %}</h1></div>
         <div class="ui-hero-actions">
         <div class="d-flex gap-2">
-        <a class="btn btn-sm btn-outline-secondary" href="{% url 'notifications:mark_all_as_read' %}?next={{ request.get_full_path|urlencode }}">
+        <a class="btn btn-sm btn-primary" href="{% url 'notifications:mark_all_as_read' %}?next={{ request.get_full_path|urlencode }}">
             {% translate "Mark all as read" %}
         </a>
         <form method="post" action="{% url 'notifications_manage:delete_read' %}"
               data-confirm="{% translate 'Delete all read messages?' %}">
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ request.get_full_path }}">
-            <button type="submit" class="btn btn-sm btn-outline-danger">{% translate "Delete read messages" %}</button>
+            <button type="submit" class="btn btn-sm btn-danger">{% translate "Delete read messages" %}</button>
         </form>
     </div>
         </div>
@@ -47,21 +47,21 @@
             </div>
             <div class="d-flex gap-2 align-items-center">
                 {% if notice.unread %}
-                    <a class="btn btn-sm btn-outline-secondary"
+                    <a class="btn btn-sm btn-primary"
                        href="{% url 'notifications:mark_as_read' notice.slug %}?next={{ request.get_full_path|urlencode }}">{% translate "Mark as read" %}</a>
                 {% else %}
-                    <a class="btn btn-sm btn-outline-secondary"
+                    <a class="btn btn-sm btn-primary"
                        href="{% url 'notifications:mark_as_unread' notice.slug %}?next={{ request.get_full_path|urlencode }}">{% translate "Mark as unread" %}</a>
                 {% endif %}
                 {% if notice.actor.approval_status == "pending" %}
-                    <a class="btn btn-sm btn-outline-secondary"
+                    <a class="btn btn-sm btn-primary"
                        href="{% url 'accounts:approval' notice.actor.pk %}">{% translate "Review" %}</a>
                 {% endif %}
                 <form method="post" action="{% url 'notifications_manage:delete_one' notice.pk %}"
                       data-confirm="{% translate 'Delete this message?' %}">
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                    <button type="submit" class="btn btn-sm btn-outline-danger">{% translate "Delete" %}</button>
+                    <button type="submit" class="btn btn-sm btn-danger">{% translate "Delete" %}</button>
                 </form>
             </div>
         </li>

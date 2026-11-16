@@ -92,7 +92,7 @@ def test_role_mapping_and_precedence(role_groups):
     user.groups.add(role_groups[GROUP_PLAYER])
     assert user.is_captain is True
     assert user.is_player is True
-    assert user.role == "captain"
+    assert user.role == "user"  # captaincy is no role
     user.groups.add(role_groups[GROUP_ADMIN])
     assert user.role == "admin"
 
@@ -151,7 +151,7 @@ def test_admin_creates_captain_with_team(admin_client, team):
         reverse("accounts:user_create"),
         {
             "email": "cap2@example.com",
-            "role": GROUP_CAPTAIN,
+            "role": GROUP_PLAYER,
             "team": team.pk,
             "password1": "Strong-Pass-123!",
             "password2": "Strong-Pass-123!",
@@ -161,7 +161,7 @@ def test_admin_creates_captain_with_team(admin_client, team):
     assert response.status_code == 302
     user = User.objects.get(email="cap2@example.com")
     assert user.is_staff is False
-    assert user.groups.filter(name=GROUP_CAPTAIN).exists()
+    assert user.groups.filter(name=GROUP_PLAYER).exists() and user.is_captain
     assert user.team_id == team.pk
 
 
@@ -171,7 +171,7 @@ def test_captain_without_team_is_allowed(admin_client):
         reverse("accounts:user_create"),
         {
             "email": "noclub@example.com",
-            "role": GROUP_CAPTAIN,
+            "role": GROUP_PLAYER,
             "password1": "Strong-Pass-123!",
             "password2": "Strong-Pass-123!",
             "preferred_language": "de",
@@ -179,7 +179,7 @@ def test_captain_without_team_is_allowed(admin_client):
     )
     assert response.status_code == 302
     user = User.objects.get(email="noclub@example.com")
-    assert user.is_captain is True
+    assert user.is_captain is False  # captain = leads a team
     assert user.team_id is None
 
 
@@ -216,8 +216,8 @@ def test_player_role_rejects_assigned_team(admin_client, team):
             "preferred_language": "de",
         },
     )
-    assert response.status_code == 200  # form validation error
-    assert not User.objects.filter(email="plr@example.com").exists()
+    assert response.status_code == 302  # any role may lead a team
+    assert User.objects.get(email="plr@example.com").is_captain
 
 
 def test_update_user_rejects_team_for_player_role(admin_client, player_user, team):
@@ -232,10 +232,10 @@ def test_update_user_rejects_team_for_player_role(admin_client, player_user, tea
             "preferred_language": "de",
         },
     )
-    assert response.status_code == 200  # form re-rendered with an error
+    assert response.status_code == 302  # a User may be captain
     player_user.refresh_from_db()
     assert player_user.is_player is True
-    assert player_user.team_id is None
+    assert player_user.team_id == team.pk and player_user.is_captain
 
 
 def test_update_user_keeps_staff_consistent(admin_client, player_user, team):
@@ -243,7 +243,7 @@ def test_update_user_keeps_staff_consistent(admin_client, player_user, team):
         reverse("accounts:user_update", args=[player_user.pk]),
         {
             "email": player_user.email,
-            "role": GROUP_CAPTAIN,
+            "role": GROUP_PLAYER,
             "team": team.pk,
             "is_active": "on",
             "preferred_language": "de",
@@ -297,9 +297,9 @@ def test_edit_form_team_dropdown_disabled_for_player(admin_client, player_user):
     response = admin_client.get(reverse("accounts:user_update", args=[player_user.pk]))
     assert response.status_code == 200
     attrs = response.context["form"].fields["team"].widget.attrs
-    assert attrs["data-team-roles"] == "Admin,Captain"
-    assert attrs.get("disabled") is True
-    assert "disabled" in _team_select_tag(response.content.decode())
+    assert attrs["data-team-roles"] == "Admin,Captain,Player"
+    assert "disabled" not in attrs  # every role may lead a team
+    assert "disabled" not in _team_select_tag(response.content.decode())
 
 
 def test_edit_form_team_dropdown_enabled_for_captain_and_admin(
@@ -309,7 +309,7 @@ def test_edit_form_team_dropdown_enabled_for_captain_and_admin(
         response = admin_client.get(reverse("accounts:user_update", args=[user.pk]))
         assert response.status_code == 200
         attrs = response.context["form"].fields["team"].widget.attrs
-        assert attrs["data-team-roles"] == "Admin,Captain"
+        assert attrs["data-team-roles"] == "Admin,Captain,Player"
         assert "disabled" not in attrs
         assert "disabled" not in _team_select_tag(response.content.decode())
 
@@ -394,7 +394,7 @@ def test_admin_demotes_self_when_another_admin_exists(admin_client, admin_user, 
         reverse("accounts:user_update", args=[admin_user.pk]),
         {
             "email": admin_user.email,
-            "role": GROUP_CAPTAIN,
+            "role": GROUP_PLAYER,
             "team": team.pk,
             "is_active": "on",
             "preferred_language": "de",
@@ -430,7 +430,7 @@ def test_superuser_is_always_admin_and_unlockable(db):
 
     assert user_is_admin(root) is True
     assert root.is_admin is True
-    assert root.role == "admin"
+    assert root.role == "system"
 
     client = Client()
     client.force_login(root)

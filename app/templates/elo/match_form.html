@@ -13,7 +13,7 @@
             {% translate "a match with the same result on the same day already exists." %}
             <div class="mt-2 d-flex gap-2 flex-wrap">
                 <button type="submit" name="force" value="True" class="btn btn-warning btn-sm">{% translate "Save anyway" %}</button>
-                <a class="btn btn-outline-secondary btn-sm" href="{% url 'elo:match_list' %}">{% translate "Show matches" %}</a>
+                <a class="btn btn-primary btn-sm" href="{% url 'elo:match_list' %}">{% translate "Show matches" %}</a>
             </div>
         </div>
         {% endif %}
@@ -26,9 +26,9 @@
                 <div class="meta" data-elo-for="{{ form.player_a.id_for_label }}">&nbsp;</div>
                 {% for e in form.player_a.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
                 <div class="ui-stepper mt-2">
-                    <button type="button" class="btn btn-outline-secondary" data-step="-1" data-target="{{ form.score_a.id_for_label }}" aria-label="{% translate 'Legs A minus one' %}">−</button>
+                    <button type="button" class="btn btn-primary" data-step="-1" data-target="{{ form.score_a.id_for_label }}" aria-label="{% translate 'Legs A minus one' %}">−</button>
                     <input type="number" inputmode="numeric" class="form-control" name="score_a" id="{{ form.score_a.id_for_label }}" min="0" max="11" value="{{ form.score_a.value|default_if_none:'' }}" aria-label="{% translate 'Legs player A' %}" required>
-                    <button type="button" class="btn btn-outline-secondary" data-step="1" data-target="{{ form.score_a.id_for_label }}" aria-label="{% translate 'Legs A plus one' %}">+</button>
+                    <button type="button" class="btn btn-primary" data-step="1" data-target="{{ form.score_a.id_for_label }}" aria-label="{% translate 'Legs A plus one' %}">+</button>
                 </div>
             </div>
             <div class="score" aria-hidden="true">:</div>
@@ -39,9 +39,9 @@
                 <div class="meta" data-elo-for="{{ form.player_b.id_for_label }}">&nbsp;</div>
                 {% for e in form.player_b.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
                 <div class="ui-stepper mt-2">
-                    <button type="button" class="btn btn-outline-secondary" data-step="-1" data-target="{{ form.score_b.id_for_label }}" aria-label="{% translate 'Legs B minus one' %}">−</button>
+                    <button type="button" class="btn btn-primary" data-step="-1" data-target="{{ form.score_b.id_for_label }}" aria-label="{% translate 'Legs B minus one' %}">−</button>
                     <input type="number" inputmode="numeric" class="form-control" name="score_b" id="{{ form.score_b.id_for_label }}" min="0" max="11" value="{{ form.score_b.value|default_if_none:'' }}" aria-label="{% translate 'Legs player B' %}" required>
-                    <button type="button" class="btn btn-outline-secondary" data-step="1" data-target="{{ form.score_b.id_for_label }}" aria-label="{% translate 'Legs B plus one' %}">+</button>
+                    <button type="button" class="btn btn-primary" data-step="1" data-target="{{ form.score_b.id_for_label }}" aria-label="{% translate 'Legs B plus one' %}">+</button>
                 </div>
             </div>
         </div>
@@ -68,7 +68,7 @@
 
     <div class="ui-actions mt-3">
         <button type="submit" class="btn btn-primary btn-lg flex-grow-1">{% translate "Save match" %}</button>
-        <button type="submit" name="again" value="1" class="btn btn-outline-primary btn-lg">{% translate "Save + next" %}</button>
+        <button type="submit" name="again" value="1" class="btn btn-primary btn-lg">{% translate "Save + next" %}</button>
     </div>
     <div class="mt-2"><a class="btn btn-link px-0" href="{% url 'elo:ranking' %}">{% translate "Cancel" %}</a></div>
 </form>
@@ -90,7 +90,7 @@
             var p = players[sel.value], av = document.querySelector('[data-avatar-for="' + sel.id + '"]');
             var meta = document.querySelector('[data-elo-for="' + sel.id + '"]');
             if (av) { av.textContent = p ? window.clubUi.initials(p.name) : "?"; }
-            if (meta) { meta.textContent = p ? ("Elo " + p.elo) : ""; }
+            if (meta) { meta.textContent = p ? ("Elo " + p.elo) : " "; }
         });
         form.querySelectorAll("[data-name-of]").forEach(function (el) {
             var sel = el.getAttribute("data-name-of") === "a" ? a : b, p = players[sel.value];

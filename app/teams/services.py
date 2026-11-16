@@ -12,7 +12,6 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from app.core.models import AuditAction
-from app.core.permissions import GROUP_ADMIN, GROUP_CAPTAIN
 from app.core.services import log_action
 from app.teams.models import Team, TeamCashier
 
@@ -45,7 +44,6 @@ def captains_for_teams(teams) -> dict:
     without a captain get an empty list so template lookups never fail.
     """
     from django.contrib.auth import get_user_model
-    from django.db.models import Q
 
     teams = list(teams)
     if not teams:
@@ -53,7 +51,6 @@ def captains_for_teams(teams) -> dict:
     User = get_user_model()
     assigned = (
         User.objects.filter(is_active=True, team_id__in=[t.pk for t in teams])
-        .filter(Q(groups__name__in=[GROUP_CAPTAIN, GROUP_ADMIN]) | Q(is_superuser=True))
         .distinct()
         .select_related("team", "player_link")
         .order_by("email")

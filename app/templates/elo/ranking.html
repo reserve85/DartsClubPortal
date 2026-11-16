@@ -51,9 +51,9 @@
 {% endif %}
 
 <div class="ui-actions mt-3">
-    <a class="btn btn-outline-secondary" href="{% url 'elo:h2h' %}">⚔️ {% translate "Head-to-head" %}</a>
-    <a class="btn btn-outline-secondary" href="{% url 'elo:all_time' %}">🏆 {% translate "All-time Elo" %}</a>
-    <a class="btn btn-outline-secondary" href="{% url 'elo:match_list' %}">📋 {% translate "Matches" %}</a>
+    <a class="btn btn-primary" href="{% url 'elo:h2h' %}">⚔️ {% translate "Head-to-head" %}</a>
+    <a class="btn btn-primary" href="{% url 'elo:all_time' %}">🏆 {% translate "All-time Elo" %}</a>
+    <a class="btn btn-primary" href="{% url 'elo:match_list' %}">📋 {% translate "Matches" %}</a>
 </div>
 <a class="btn btn-primary ui-fab" href="{% url 'elo:match_create' %}">＋ {% translate "Match" %}</a>
 {% endblock %}

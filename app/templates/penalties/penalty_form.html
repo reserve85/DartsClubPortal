@@ -28,7 +28,7 @@
         <button type="submit" class="btn btn-primary">
             {% if editing %}{% translate "Save changes" %}{% else %}{% translate "Assign penalty" %}{% endif %}
         </button>
-        <a class="btn btn-outline-secondary" href="{% url 'matchdays:matchday_detail' matchday.pk %}">{% translate "Cancel" %}</a>
+        <a class="btn btn-secondary" href="{% url 'matchdays:matchday_detail' matchday.pk %}">{% translate "Cancel" %}</a>
     </div>
 </form>
 {% if editing %}
@@ -40,19 +40,19 @@
                   data-confirm="{% translate 'Delete only this single penalty? The other rows of the group stay.' %}">
                 {% csrf_token %}
                 <input type="hidden" name="scope" value="single">
-                <button type="submit" class="btn btn-outline-danger">{% blocktranslate with player=editing.player.name %}Delete only the penalty of {{ player }}{% endblocktranslate %}</button>
+                <button type="submit" class="btn btn-danger">{% blocktranslate with player=editing.player.name %}Delete only the penalty of {{ player }}{% endblocktranslate %}</button>
             </form>
             <form method="post" action="{% url 'penalties:penalty_delete' editing.pk %}" class="d-inline"
                   data-confirm="{% translate 'Delete the penalty for ALL players of the group?' %}">
                 {% csrf_token %}
                 <input type="hidden" name="scope" value="group">
-                <button type="submit" class="btn btn-outline-danger">{% translate "Delete for the whole group" %}</button>
+                <button type="submit" class="btn btn-danger">{% translate "Delete for the whole group" %}</button>
             </form>
         {% else %}
             <form method="post" action="{% url 'penalties:penalty_delete' editing.pk %}" class="d-inline"
                   data-confirm="{% translate 'Delete this penalty?' %}">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-outline-danger">{% translate "Delete" %}</button>
+                <button type="submit" class="btn btn-danger">{% translate "Delete" %}</button>
             </form>
         {% endif %}
     </div>

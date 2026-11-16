@@ -42,7 +42,7 @@
     <p class="text-muted small mt-2">{% translate "Saving recalculates the Elo of every later match of both players." %}</p>
     <div class="ui-actions">
         <button type="submit" class="btn btn-primary">{% translate "Save changes" %}</button>
-        <a class="btn btn-outline-secondary" href="{% url 'elo:match_detail' match.pk %}">{% translate "Cancel" %}</a>
+        <a class="btn btn-secondary" href="{% url 'elo:match_detail' match.pk %}">{% translate "Cancel" %}</a>
     </div>
 </form>
 {% endblock %}

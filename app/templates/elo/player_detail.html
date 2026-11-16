@@ -14,7 +14,7 @@
             </div>
         </div>
         {% if is_admin %}
-        <div class="ui-hero-actions"><a class="btn btn-outline-secondary btn-sm" href="{% url 'elo:player_edit' player.pk %}">{% translate "Edit" %}</a></div>
+        <div class="ui-hero-actions"><a class="btn btn-warning btn-sm" href="{% url 'elo:player_edit' player.pk %}">{% translate "Edit" %}</a></div>
         {% endif %}
     </div>
     <div class="ui-tiles">
@@ -98,11 +98,11 @@
             <span class="name d-block">{% blocktranslate with opp=m.opp.name %}vs {{ opp }}{% endblocktranslate %}</span>
             <span class="sub d-block">{{ m.date|date:"d.m.Y" }}</span>
         </span>
-        <span class="val"><span class="big d-block">{{ m.me_score|default_if_none:"–" }}:{{ m.opp_score|default_if_none:"–" }}</span>{% include "elo/_delta.html" with value=m.me_change %}</span>
+        <span class="val"><span class="big d-block">{{ m.me_score|default_if_none:0 }}:{{ m.opp_score|default_if_none:0 }}</span>{% include "elo/_delta.html" with value=m.me_change %}</span>
     </a>
     {% endfor %}
 </div>
-<div class="mt-2"><a class="btn btn-outline-secondary btn-sm" href="{% url 'elo:match_list' %}?player={{ player.pk }}">{% translate "All matches" %}</a></div>
+<div class="mt-2"><a class="btn btn-primary btn-sm" href="{% url 'elo:match_list' %}?player={{ player.pk }}">{% translate "All matches" %}</a></div>
 {% else %}
 <div class="ui-card text-center text-muted">{% translate "No matches yet." %}</div>
 {% endif %}

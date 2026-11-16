@@ -81,7 +81,7 @@ def _my_player_id(user):
 class RankingView(LoginRequiredMixin, View):
     def get(self, request):
         period = resolve_period(request)
-        include_inactive = request.GET.get("inactive") == "1"
+        include_inactive = request.GET.get("inactive", "1") != "0"
         try:
             ranking = ranking_service.generate_ranking(
                 period["from"], period["to"], include_inactive=include_inactive
@@ -110,7 +110,7 @@ class RankingView(LoginRequiredMixin, View):
 
 class AllTimeView(LoginRequiredMixin, View):
     def get(self, request):
-        include_inactive = request.GET.get("inactive") == "1"
+        include_inactive = request.GET.get("inactive", "1") != "0"
         rows = ranking_service.all_players_all_time_high(include_inactive)
         return render(
             request,
@@ -549,7 +549,7 @@ class ExportRankingCsvView(LoginRequiredMixin, EloAdminMixin, View):
     def get(self, request):
         period = resolve_period(request)
         ranking = ranking_service.generate_ranking(
-            period["from"], period["to"], include_inactive=request.GET.get("inactive") == "1"
+            period["from"], period["to"], include_inactive=request.GET.get("inactive", "1") != "0"
         )
         response, w = _csv_response(f"elo-ranking-{period['from']}-{period['to']}.csv")
         w.writerow(["position", "name", "elo", "change", "matches", "wins", "180s", "best_finish"])
@@ -575,7 +575,7 @@ class ExportRankingPdfView(LoginRequiredMixin, EloAdminMixin, View):
 
         period = resolve_period(request)
         ranking = ranking_service.generate_ranking(
-            period["from"], period["to"], include_inactive=request.GET.get("inactive") == "1"
+            period["from"], period["to"], include_inactive=request.GET.get("inactive", "1") != "0"
         )
         response = HttpResponse(ranking_pdf(ranking), content_type="application/pdf")
         response["Content-Disposition"] = (

@@ -48,7 +48,7 @@
 
     <div class="d-flex gap-2">
         <button type="submit" class="btn btn-primary">{% translate "Save" %}</button>
-        <a class="btn btn-outline-secondary" href="{% url 'penalties:catalog_list' %}">{% translate "Cancel" %}</a>
+        <a class="btn btn-secondary" href="{% url 'penalties:catalog_list' %}">{% translate "Cancel" %}</a>
     </div>
 </form>
 {% if view.object.pk and request.user.is_admin %}
@@ -57,7 +57,7 @@
         <form method="post" action="{% url 'penalties:catalog_delete' view.object.pk %}" class="d-inline"
               data-confirm="{% translate 'Delete this catalog item?' %}">
             {% csrf_token %}
-            <button type="submit" class="btn btn-outline-danger">{% translate "Delete" %}</button>
+            <button type="submit" class="btn btn-danger">{% translate "Delete" %}</button>
         </form>
     </div>
 {% endif %}

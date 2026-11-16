@@ -15,7 +15,7 @@
                     {% csrf_token %}
                     {{ redirect_field }}
                     <button type="submit" class="btn btn-primary">{% translate "Logout" %}</button>
-                    <a href="{% url 'home' %}" class="btn btn-outline-secondary">{% translate "Cancel" %}</a>
+                    <a href="{% url 'home' %}" class="btn btn-secondary">{% translate "Cancel" %}</a>
                 </form>
             </div>
         </div>

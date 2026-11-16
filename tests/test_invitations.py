@@ -130,7 +130,7 @@ def test_create_via_form_builds_requested_user_and_sends_mail(
     admin_client, admin_user, team, player
 ):
     response = _create_via_view(
-        admin_client, email="New@Example.com", role="Captain", team=team, player=player
+        admin_client, email="New@Example.com", role="Player", team=team, player=player
     )
     assert response.status_code == 302
     assert response.url == reverse("accounts:invite_list")
@@ -143,7 +143,7 @@ def test_create_via_form_builds_requested_user_and_sends_mail(
     invitation = Invitation.objects.get(user=user)
     assert len(invitation.token) >= 40  # secrets.token_urlsafe(32)
     assert invitation.invited_by == admin_user
-    assert invitation.role == "Captain"
+    assert invitation.role == "Player"
     assert invitation.team == team
     assert invitation.player == player
     expected = timezone.now() + timedelta(days=settings.INVITE_EXPIRE_DAYS)
@@ -178,9 +178,8 @@ def test_create_rejects_duplicate_email_registered_or_requested(admin_client):
 
 def test_create_rejects_team_for_player_role(admin_client, team):
     response = _create_via_view(admin_client, role=GROUP_PLAYER, team=team)
-    assert response.status_code == 200
-    assert "team" in response.context["form"].errors
-    assert not User.objects.filter(email=INVITEE).exists()
+    assert response.status_code == 302  # a User may lead a team
+    assert User.objects.filter(email=INVITEE).exists()
 
 
 def test_reserved_player_is_not_offered_and_crafted_post_is_rejected(

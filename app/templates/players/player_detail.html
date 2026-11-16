@@ -11,7 +11,7 @@
         </div>
         {% if can_edit %}
         <div class="ui-hero-actions">
-            <a class="btn btn-outline-secondary btn-sm" href="{% url 'players:player_update' player.pk %}">{% translate "Edit" %}</a>
+            <a class="btn btn-warning btn-sm" href="{% url 'players:player_update' player.pk %}">{% translate "Edit" %}</a>
         </div>
         {% endif %}
     </div>

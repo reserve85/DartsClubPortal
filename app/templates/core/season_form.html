@@ -39,7 +39,7 @@
 
     <div class="d-flex gap-2">
         <button type="submit" class="btn btn-primary">{% translate "Save" %}</button>
-        <a class="btn btn-outline-secondary" href="{% url 'season_list' %}">{% translate "Cancel" %}</a>
+        <a class="btn btn-secondary" href="{% url 'season_list' %}">{% translate "Cancel" %}</a>
     </div>
 </form>
 {% if season and not season.matchdays.exists and not season.payments.exists %}
@@ -49,7 +49,7 @@
         <form method="post" action="{% url 'season_delete' season.pk %}" class="d-inline"
               data-confirm="{% translate 'Delete this season?' %}">
             {% csrf_token %}
-            <button type="submit" class="btn btn-outline-danger">{% translate "Delete" %}</button>
+            <button type="submit" class="btn btn-danger">{% translate "Delete" %}</button>
         </form>
     </div>
 {% endif %}

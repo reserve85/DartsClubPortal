@@ -47,14 +47,14 @@ def test_required_fields_empty():
 def test_role_precedence(admin_user, captain_user, player_user):
     assert admin_user.role == "admin"
     assert admin_user.is_admin is True
-    assert captain_user.role == "captain"
+    assert captain_user.role == "user"
     assert captain_user.is_captain is True
-    assert player_user.role == "player"
+    assert player_user.role == "user"
     assert player_user.is_player is True
 
     # Captain + Player membership -> captain wins; Admin wins over both
     captain_user.groups.add(Group.objects.get(name="Player"))
-    assert captain_user.role == "captain"
+    assert captain_user.role == "user"
     captain_user.groups.add(Group.objects.get(name="Admin"))
     assert captain_user.role == "admin"
 

@@ -3571,6 +3571,9 @@ msgstr "Bitte Art der Datenbank und eine Datei wählen."
 msgid "The upload has expired. Please upload the file again."
 msgstr "Der Upload ist abgelaufen. Bitte die Datei erneut hochladen."
 
+msgid "Optional captaincy: the team this account leads (any role)."
+msgstr "Optional: die Mannschaft, deren Kapitän dieses Konto ist (jede Rolle)."
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 

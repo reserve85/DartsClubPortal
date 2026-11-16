@@ -15,7 +15,7 @@
     {% if can_manage %}
     <div class="d-flex gap-2 mt-3 flex-wrap">
         <a class="btn btn-primary" href="{% url 'penalties:penalty_create' matchday.pk %}">{% translate "Add penalty" %}</a>
-        <a class="btn btn-outline-secondary" href="{% url 'matchdays:matchday_update' matchday.pk %}">{% translate "Edit" %}</a>
+        <a class="btn btn-warning" href="{% url 'matchdays:matchday_update' matchday.pk %}">{% translate "Edit" %}</a>
     </div>
     {% endif %}
 </div>
@@ -103,7 +103,7 @@
                 <td class="text-end text-danger">{{ penalty.amount_eur|floatformat:2 }} €</td>
                 <td class="text-end text-nowrap">
                     {% if can_manage %}
-                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'penalties:penalty_update' penalty.pk %}">{% translate "Edit" %}</a>
+                    <a class="btn btn-sm btn-warning" href="{% url 'penalties:penalty_update' penalty.pk %}">{% translate "Edit" %}</a>
                     {% endif %}
                 </td>
             </tr>

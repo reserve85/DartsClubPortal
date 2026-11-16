@@ -276,10 +276,10 @@ def test_catalog_list_shows_team_fee_overrides(admin_client, catalog_normal, tea
     content = admin_client.get(reverse("penalties:catalog_list")).content.decode()
     # amounts are wrapped in a color span (penalties are red) -> compare plain text
     plain = re.sub(r"<[^>]+>", "", content)
-    assert f"{team.name}: 1.00 €" in plain or f"{team.name}: 1,00 €" in plain
+    assert f"{team.name} · 1.00 €" in plain or f"{team.name} · 1,00 €" in plain
     # EVERY team shows its real fee — no "Default"/"Standard" placeholder,
     # even for a team without an explicit row yet (legacy: default amount).
-    assert f"{other_team.name}: 5.00 €" in plain or f"{other_team.name}: 5,00 €" in plain
+    assert f"{other_team.name} · 5.00 €" in plain or f"{other_team.name} · 5,00 €" in plain
     # a single action button per row — the dedicated fee page is gone
     edit_url = reverse("penalties:catalog_update", args=[catalog_normal.pk])
     assert content.count(edit_url) == 1

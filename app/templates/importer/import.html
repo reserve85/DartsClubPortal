@@ -51,7 +51,7 @@
     {% endif %}
     <div class="ui-actions mt-2">
         <button type="submit" class="btn btn-primary" data-confirm="{% translate 'Import the data now?' %}">{% translate "Import now" %}</button>
-        <a class="btn btn-outline-secondary" href="{% url 'importer:import' %}">{% translate "Cancel" %}</a>
+        <a class="btn btn-secondary" href="{% url 'importer:import' %}">{% translate "Cancel" %}</a>
     </div>
 </form>
 {% elif not done %}
@@ -79,6 +79,6 @@
     <button type="submit" class="btn btn-primary">{% translate "Show preview" %}</button>
 </form>
 {% else %}
-<div class="ui-actions"><a class="btn btn-outline-secondary" href="{% url 'importer:import' %}">{% translate "Import another file" %}</a></div>
+<div class="ui-actions"><a class="btn btn-primary" href="{% url 'importer:import' %}">{% translate "Import another file" %}</a></div>
 {% endif %}
 {% endblock %}

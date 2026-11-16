@@ -186,7 +186,7 @@
         document.querySelectorAll("input[data-toggle-param]").forEach(function (sw) {
             sw.addEventListener("change", function () {
                 var u = new URL(window.location.href), key = sw.getAttribute("data-toggle-param");
-                if (sw.checked) u.searchParams.set(key, "1"); else u.searchParams.delete(key);
+                u.searchParams.set(key, sw.checked ? "1" : "0");
                 window.location.href = u.toString();
             });
         });

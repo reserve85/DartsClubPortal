@@ -17,7 +17,7 @@
     {% for field in form %}{% include "includes/_field.html" %}{% endfor %}
     <div class="ui-actions">
         <button type="submit" class="btn btn-primary">{% if profile %}{% translate "Save changes" %}{% else %}{% translate "Add player" %}{% endif %}</button>
-        <a class="btn btn-outline-secondary" href="{% url 'elo:manage' %}">{% translate "Cancel" %}</a>
+        <a class="btn btn-secondary" href="{% url 'elo:manage' %}">{% translate "Cancel" %}</a>
     </div>
 </form>
 {% endblock %}

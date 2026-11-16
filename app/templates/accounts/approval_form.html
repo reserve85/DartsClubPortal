@@ -8,7 +8,7 @@
     <div class="ui-hero-head">
         <div class="min-w-0"><h1 class="ui-hero-title h3">{% translate "Review registration" %}</h1></div>
         <div class="ui-hero-actions">
-        <a class="btn btn-outline-secondary" href="{% url 'accounts:approval_list' %}">{% translate "Back" %}</a>
+        <a class="btn btn-secondary" href="{% url 'accounts:approval_list' %}">{% translate "Back" %}</a>
         </div>
 
         <div class="card mb-4">
@@ -63,7 +63,7 @@
             <form method="post" class="d-inline"
                   data-confirm="{% translate 'Reject this registration?' %}">
                 {% csrf_token %}
-                <button type="submit" name="action" value="reject" class="btn btn-outline-danger">
+                <button type="submit" name="action" value="reject" class="btn btn-danger">
                     {% translate "Reject" %}
                 </button>
             </form>

@@ -1,8 +1,11 @@
 # Roles and permissions
 
-Three roles (Django groups) plus per-module access per account.
+Roles: **System** (the operator account from `DJANGO_SUPERUSER_EMAIL`),
+**Admin** and **User**. *Captain of a team* (Administration → Users → team)
+and *Cashier of a team* (Penalty → Cash box) are **assignments** any account
+can hold – an Admin can be a captain too. Plus per-module access per account.
 
-| | Admin | Captain | Player |
+| | Admin | Captain (any role) | User |
 |---|---|---|---|
 | **Elo** – ranking, statistics, head-to-head, matches | ✓ | ✓ | ✓ |
 | **Elo** – enter a match | ✓ | ✓ | ✓ |
@@ -19,8 +22,8 @@ Three roles (Django groups) plus per-module access per account.
 | Audit log, import | ✓ | – | – |
 | QR codes for shared accounts | ✓ | – | – |
 
-Captains are deliberately **not** admins: everything they can change is
-limited to the team they lead (`User.team`).
+A captain who is not an admin can only change the team they lead
+(`User.team`); an admin who is also captain keeps all admin rights.
 
 ## Module access
 
@@ -31,10 +34,10 @@ answer 403. Admins always have every module the installation runs
 
 Typical accounts:
 
-- **Member** – Player role, both modules.
-- **Elo-only** – Player role, only Elo access (e.g. the shared club account
+- **Member** – User role, both modules.
+- **Elo-only** – User role, only Elo access (e.g. the shared club account
   at the board, logged in by QR code, or guests who only play Elo).
-- **Captain** – Captain role with a team, usually both modules.
+- **Captain** – any role with a team assigned.
 
 ## Start page
 

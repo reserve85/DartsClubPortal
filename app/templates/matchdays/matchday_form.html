@@ -26,13 +26,13 @@
 
     <div class="d-flex gap-2 mt-3">
         <button type="submit" class="btn btn-primary">{% translate "Save" %}</button>
-        <a class="btn btn-outline-secondary" href="{% url 'matchdays:matchday_list' %}">{% translate "Cancel" %}</a>
+        <a class="btn btn-secondary" href="{% url 'matchdays:matchday_list' %}">{% translate "Cancel" %}</a>
     </div>
 </form>
 {% if view.object.pk %}
     {# Deleting a matchday lives here (the detail page only shows "Edit"). #}
     <p class="mt-3">
-        <a class="btn btn-outline-danger" href="{% url 'matchdays:matchday_delete' view.object.pk %}">{% translate "Delete" %}</a>
+        <a class="btn btn-danger" href="{% url 'matchdays:matchday_delete' view.object.pk %}">{% translate "Delete" %}</a>
     </p>
 {% endif %}
 {% endblock %}
