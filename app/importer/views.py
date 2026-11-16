@@ -12,9 +12,10 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 from django.utils.translation import gettext as _
 from django.views import View
+from inertia import render as inertia_render
 
 from app.core.permissions import user_is_admin
 from app.importer.elo_import import elo_accounts, import_elo
@@ -47,7 +48,50 @@ class ImportView(LoginRequiredMixin, View):
 
     def get(self, request):
         _drop(request.session.pop(SESSION_KEY, None))
-        return render(request, self.template_name, {"nav_section": "admin"})
+        return self._render(request, {"nav_section": "admin"})
+
+    def _render(self, request, context):
+        """React page: upload form, preview (with account mapping) or result."""
+        report = context.get("report")
+        pending = context.get("pending")
+        stage = "done" if context.get("done") else ("preview" if report else "upload")
+        props = {
+            "stage": stage,
+            "report": (
+                {
+                    "kind": report.kind,
+                    "ok": report.ok,
+                    "counts": [{"label": str(k), "value": v} for k, v in report.counts.items()],
+                    "checks": [
+                        {"label": str(label), "ok": bool(ok), "detail": str(detail or "")}
+                        for label, ok, detail in report.checks
+                    ],
+                    "warnings": [str(w) for w in report.warnings],
+                    "matched": [
+                        {"what": str(what), "source": str(a), "portal": str(b)}
+                        for what, a, b in report.matched
+                    ],
+                }
+                if report
+                else None
+            ),
+            "pending": (
+                {
+                    "name": pending.get("name", ""),
+                    "kind": pending.get("kind", ""),
+                    "accounts": [
+                        {"id": a["id"], "username": a["username"], "role": str(a.get("role", ""))}
+                        for a in pending.get("accounts", [])
+                    ],
+                }
+                if pending
+                else None
+            ),
+            "portalUsers": [
+                {"value": str(u.pk), "label": u.email} for u in context.get("portal_users", [])
+            ],
+        }
+        return inertia_render(request, "Admin/Import", props=props, template_data=context)
 
     def post(self, request):
         action = request.POST.get("action")
@@ -86,7 +130,7 @@ class ImportView(LoginRequiredMixin, View):
             "kind": kind,
             "path": path,
             "name": upload.name,
-            "replace": request.POST.get("replace") == "on",
+            "replace": request.POST.get("replace") in ("on", "1", "true"),
             "email_domain": (request.POST.get("email_domain") or "").strip(),
         }
         try:
@@ -100,9 +144,8 @@ class ImportView(LoginRequiredMixin, View):
             messages.error(request, str(exc))
             return redirect("importer:import")
         request.session[SESSION_KEY] = pending
-        return render(
+        return self._render(
             request,
-            self.template_name,
             {
                 "pending": pending,
                 "report": report,
@@ -129,6 +172,4 @@ class ImportView(LoginRequiredMixin, View):
         finally:
             _drop(request.session.pop(SESSION_KEY, None))
         messages.success(request, _("Import finished."))
-        return render(
-            request, self.template_name, {"report": report, "done": True, "nav_section": "admin"}
-        )
+        return self._render(request, {"report": report, "done": True, "nav_section": "admin"})

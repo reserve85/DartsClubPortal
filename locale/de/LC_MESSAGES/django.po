@@ -4006,6 +4006,12 @@ msgstr "Benutzer (E-Mail)"
 msgid "system"
 msgstr "System"
 
+msgid "all checks passed"
+msgstr "alle Prüfungen bestanden"
+
+msgid "checks failed"
+msgstr "Prüfungen fehlgeschlagen"
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 

@@ -3027,3 +3027,9 @@ msgstr ""
 
 msgid "system"
 msgstr ""
+
+msgid "all checks passed"
+msgstr ""
+
+msgid "checks failed"
+msgstr ""
