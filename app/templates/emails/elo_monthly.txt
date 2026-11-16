@@ -1,11 +1,15 @@
 {% extends "emails/base_email.txt" %}{% load i18n %}{% block content %}{% blocktranslate with name=player.name %}Hi {{ name }}, here is your month in the Elo ranking:{% endblocktranslate %}
 
-{% translate "Position" %}: #{{ me.position }} ({% blocktranslate with n=field_size %}of {{ n }}{% endblocktranslate %})
+{% translate "Position" %}: #{{ me.position }} ({% blocktranslate with n=field_size %}of {{ n }}{% endblocktranslate %}){% if me.position_change %} {{ me.position_change|stringformat:"+d" }}{% endif %}
 {% translate "Elo" %}: {{ me.elo|floatformat:0 }} ({{ me.elo_change|floatformat:"+1" }})
 {% translate "Matches" %}: {{ stats.wins }}–{{ stats.losses }}
+{% if mover %}
+{% translate "Climber" %}: {{ mover.name }} ({{ mover.elo_change|floatformat:"+1" }}){% endif %}{% if jumper %}
+{% translate "Biggest jump" %}: {{ jumper.name }} (+{{ jumper.position_change }}){% endif %}{% if busiest %}
+{% translate "Most matches" %}: {{ busiest.name }} ({{ busiest.matches }}){% endif %}
 
-{% translate "Top 5 of the club" %}
-{% for e in top %}{{ e.position }}. {{ e.name }} {{ e.elo|floatformat:0 }} ({{ e.elo_change|floatformat:"+1" }})
+{% translate "Ranking at the end of the month" %}
+{% for e in table %}{{ e.position }}. {{ e.name }} {{ e.elo|floatformat:0 }}{% if e.matches %} ({{ e.elo_change|floatformat:"+1" }}){% endif %}{% if e.position_change %} [{{ e.position_change|stringformat:"+d" }}]{% endif %}{% if e.player_id == me.player_id %} <={% endif %}
 {% endfor %}
 {{ ranking_url }}
 {% endblock %}

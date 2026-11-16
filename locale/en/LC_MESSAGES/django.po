@@ -3033,3 +3033,33 @@ msgstr ""
 
 msgid "checks failed"
 msgstr ""
+
+msgid "Elo monthly report"
+msgstr ""
+
+msgid "Climber"
+msgstr ""
+
+msgid "M"
+msgstr ""
+
+msgid "Ranking at the end of the month"
+msgstr ""
+
+msgid "Biggest jump"
+msgstr ""
+
+msgid "Month"
+msgstr ""
+
+msgid "Most matches"
+msgstr ""
+
+msgid "wins"
+msgstr ""
+
+msgid "± = places gained or lost during the month · M = matches in the month"
+msgstr ""
+
+msgid "Highlights of the month"
+msgstr ""

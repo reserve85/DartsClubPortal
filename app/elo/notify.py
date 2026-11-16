@@ -141,8 +141,18 @@ def send_monthly_summaries(*, month_start: date | None = None, force: bool = Fal
             return 0  # already sent (or being sent) for this month
     ranking = ranking_service.generate_ranking(start, end, include_inactive=True)
     shown = [e for e in ranking.entries if e.matches > 0]
-    top = sorted(ranking.entries, key=lambda e: e.position)[:5]
+    table = sorted(ranking.entries, key=lambda e: e.position)
+    top = table[:5]
     mover = max(shown, key=lambda e: e.elo_change, default=None)
+    if mover is not None and mover.elo_change <= 0:
+        mover = None
+    jumper = max(
+        (e for e in table if e.position_change and e.position_change > 0),
+        key=lambda e: (e.position_change, -e.position),
+        default=None,
+    )
+    busiest = max(shown, key=lambda e: (e.matches, e.wins), default=None)
+    logo_url = _logo_absolute_url()
     month_matches = sum(e.matches for e in ranking.entries) // 2
     elo_players = set(EloProfile.objects.values_list("player_id", flat=True))
     users = (
@@ -176,7 +186,11 @@ def send_monthly_summaries(*, month_start: date | None = None, force: bool = Fal
                 "stats": data["stats"],
                 "field_size": data["field_size"],
                 "top": top,
+                "table": table,
                 "mover": mover,
+                "jumper": jumper,
+                "busiest": busiest,
+                "logo_url": logo_url,
                 "month_matches": month_matches,
                 "ranking_url": absolute_url(
                     reverse("elo:ranking") + f"?period=custom&from={start}&to={end}"
@@ -186,6 +200,19 @@ def send_monthly_summaries(*, month_start: date | None = None, force: bool = Fal
         )
     logger.info("Monthly Elo summary %s sent to %s account(s).", start, sent)
     return sent
+
+
+def _logo_absolute_url() -> str:
+    """Absolute URL of the club logo (light variant first) for the mail header."""
+    from app.core.branding import logo_urls
+    from app.notifications.services import absolute_url
+
+    urls = logo_urls()
+    path = urls.get("light") or urls.get("dark") or ""
+    if not path:
+        return ""
+    url = absolute_url(path)
+    return url if url.startswith("http") else ""
 
 
 def monthly_summary_due(now: datetime | None = None) -> bool:

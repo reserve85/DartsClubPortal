@@ -4012,6 +4012,36 @@ msgstr "alle Prüfungen bestanden"
 msgid "checks failed"
 msgstr "Prüfungen fehlgeschlagen"
 
+msgid "Elo monthly report"
+msgstr "Elo-Monatsbericht"
+
+msgid "Climber"
+msgstr "Aufsteiger"
+
+msgid "M"
+msgstr "S"
+
+msgid "Ranking at the end of the month"
+msgstr "Tabelle zum Monatsende"
+
+msgid "Biggest jump"
+msgstr "Größter Sprung"
+
+msgid "Month"
+msgstr "Monat"
+
+msgid "Most matches"
+msgstr "Meiste Spiele"
+
+msgid "wins"
+msgstr "Siege"
+
+msgid "± = places gained or lost during the month · M = matches in the month"
+msgstr "± = im Monat gewonnene oder verlorene Plätze · S = Spiele im Monat"
+
+msgid "Highlights of the month"
+msgstr "Highlights des Monats"
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 
