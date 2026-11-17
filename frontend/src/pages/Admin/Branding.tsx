@@ -1,6 +1,7 @@
 import { Head, router } from "@inertiajs/react";
 import { Box, Button, FileButton, Group, Image, Paper, SimpleGrid, Text } from "@mantine/core";
-import { IconPhotoUp, IconTrash } from "@tabler/icons-react";
+import { IconDownload, IconPhotoUp, IconTrash } from "@tabler/icons-react";
+import { confirmPost } from "../../components/elo";
 import { PageHeader } from "../../components/ui";
 import { useT } from "../../i18n";
 
@@ -17,7 +18,26 @@ export default function Branding({ logo }: { logo: { light: string; dark: string
           {(props) => <Button {...props} leftSection={<IconPhotoUp size={16} />}>{t("Upload")}</Button>}
         </FileButton>
         {logo[kind] && (
-          <Button color="red" leftSection={<IconTrash size={16} />} onClick={() => router.post("/club-logo/", { kind, remove: "1" })}>{t("Remove")}</Button>
+          <Button variant="default" component="a" href={logo[kind]} download={`club-logo-${kind}.png`} leftSection={<IconDownload size={16} />}>{t("Download")}</Button>
+        )}
+        {logo[kind] && (
+          <Button
+            color="red"
+            variant="light"
+            leftSection={<IconTrash size={16} />}
+            onClick={() =>
+              confirmPost({
+                title: t("Remove the logo?"),
+                body: t("Download it first if you want to keep it."),
+                confirm: t("Remove"),
+                cancel: t("Cancel"),
+                url: "/club-logo/",
+                data: { kind, remove: "1" },
+              })
+            }
+          >
+            {t("Remove")}
+          </Button>
         )}
       </Group>
     </Paper>

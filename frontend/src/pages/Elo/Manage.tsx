@@ -67,16 +67,8 @@ export default function Manage({ players, matchTotal }: { players: P[]; matchTot
       <SimpleGrid cols={{ base: 1, sm: 2 }} mt="lg" spacing="md">
         <Paper withBorder p="md">
           <Text size="xs" fw={800} tt="uppercase" c="dimmed" mb="sm">{t("Exports")}</Text>
-          <Group gap="xs">
-            {[
-              ["/elo/export/ranking.csv", t("Ranking (CSV)")],
-              ["/elo/export/matches.csv", t("Matches (CSV)")],
-              ["/elo/export/players.csv", t("Players (CSV)")],
-            ].map(([href, label]) => (
-              <Button key={href} size="xs" component="a" href={href} leftSection={<IconDownload size={14} />}>{label}</Button>
-            ))}
-          </Group>
-          <Text size="xs" c="dimmed" mt="sm">{t("Ranking exports use the current month; open the ranking for other periods.")}</Text>
+          <Text size="sm" c="dimmed" mb="sm">{t("CSV exports and backups are under Import & Export.")}</Text>
+          <Button size="xs" variant="default" component={Link} href="/data/" leftSection={<IconDownload size={14} />}>{t("Import & Export")}</Button>
         </Paper>
         <Paper withBorder p="md">
           <Text size="xs" fw={800} tt="uppercase" c="dimmed" mb="sm">{t("Recalculate")}</Text>

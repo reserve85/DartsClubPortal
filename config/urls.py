@@ -25,6 +25,7 @@ from app.accounts.qr import LegacyAutoLoginView, QrLoginView
 from app.core import views as core_views
 from app.core.branding import LogoAdminView, LogoFileView
 from app.core.modules import ELO, PENALTY, enabled_modules
+from app.importer.export import BackupExportView, DatabaseExportView, DataTransferView
 from app.notifications.views import NotificationListView
 from app.players.avatars import AvatarFileView, AvatarUploadView
 
@@ -89,6 +90,10 @@ urlpatterns += i18n_patterns(
     *([path("elo/", include("app.elo.urls"))] if ELO in _MODULES else []),
     path("audit/", core_views.AuditLogListView.as_view(), name="audit_list"),
     path("import/", include("app.importer.urls")),
+    # Import & Export: database / full backup / CSV exports, import of the old systems.
+    path("data/", DataTransferView.as_view(), name="data_transfer"),
+    path("data/database.sqlite3", DatabaseExportView.as_view(), name="data_export_db"),
+    path("data/backup.zip", BackupExportView.as_view(), name="data_export_zip"),
     path("club-logo/", LogoAdminView.as_view(), name="club_logo_admin"),
     path("avatars/upload/", AvatarUploadView.as_view(), name="avatar_upload"),
     path("avatars/<str:name>", AvatarFileView.as_view(), name="player_avatar"),

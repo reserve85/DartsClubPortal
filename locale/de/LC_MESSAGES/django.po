@@ -4675,6 +4675,54 @@ msgstr "Bild übernehmen"
 msgid "Zoom"
 msgstr "Zoom"
 
+msgid "Import & Export"
+msgstr "Import & Export"
+
+msgid "Data exported"
+msgstr "Daten exportiert"
+
+msgid "Back up the data, export lists, take over the old systems."
+msgstr "Daten sichern, Listen exportieren, alte Systeme übernehmen."
+
+msgid "CSV exports and backups are under Import & Export."
+msgstr "CSV-Exporte und Datensicherung findest du unter Import & Export."
+
+msgid "Database, player pictures and club logo in one ZIP file. Keep it somewhere safe - it contains every account and every penalty."
+msgstr "Datenbank, Spielerbilder und Vereinslogo in einer ZIP-Datei. Sicher aufbewahren – sie enthält alle Konten und alle Strafen."
+
+msgid "Download"
+msgstr "Herunterladen"
+
+msgid "Download backup (ZIP)"
+msgstr "Backup herunterladen (ZIP)"
+
+msgid "Download database"
+msgstr "Datenbank herunterladen"
+
+msgid "Download it first if you want to keep it."
+msgstr "Vorher herunterladen, wenn du es behalten möchtest."
+
+msgid "Elo lists (CSV)"
+msgstr "Elo-Listen (CSV)"
+
+msgid "For Excel: ranking of the current month, all matches, all players."
+msgstr "Für Excel: Rangliste des aktuellen Monats, alle Matches, alle Spieler."
+
+msgid "Full backup"
+msgstr "Komplett-Backup"
+
+msgid "Only the database (.sqlite3), a consistent copy taken while the portal keeps running."
+msgstr "Nur die Datenbank (.sqlite3), eine stimmige Kopie im laufenden Betrieb."
+
+msgid "Open import"
+msgstr "Import öffnen"
+
+msgid "Remove the logo?"
+msgstr "Logo entfernen?"
+
+msgid "Take over the data of the old Elo and penalty systems, with a preview first."
+msgstr "Daten der alten Elo- und Penalty-Systeme übernehmen, vorher mit Vorschau."
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 

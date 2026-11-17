@@ -3696,3 +3696,51 @@ msgstr ""
 
 msgid "Zoom"
 msgstr ""
+
+msgid "Import & Export"
+msgstr ""
+
+msgid "Data exported"
+msgstr ""
+
+msgid "Back up the data, export lists, take over the old systems."
+msgstr ""
+
+msgid "CSV exports and backups are under Import & Export."
+msgstr ""
+
+msgid "Database, player pictures and club logo in one ZIP file. Keep it somewhere safe - it contains every account and every penalty."
+msgstr ""
+
+msgid "Download"
+msgstr ""
+
+msgid "Download backup (ZIP)"
+msgstr ""
+
+msgid "Download database"
+msgstr ""
+
+msgid "Download it first if you want to keep it."
+msgstr ""
+
+msgid "Elo lists (CSV)"
+msgstr ""
+
+msgid "For Excel: ranking of the current month, all matches, all players."
+msgstr ""
+
+msgid "Full backup"
+msgstr ""
+
+msgid "Only the database (.sqlite3), a consistent copy taken while the portal keeps running."
+msgstr ""
+
+msgid "Open import"
+msgstr ""
+
+msgid "Remove the logo?"
+msgstr ""
+
+msgid "Take over the data of the old Elo and penalty systems, with a preview first."
+msgstr ""

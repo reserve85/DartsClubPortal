@@ -93,7 +93,7 @@ def test_menu_shows_only_the_own_areas(role_groups):
     _u, pen = _admin(role_groups, "pen@example.com", admin_penalty=True)
     _u, por = _admin(role_groups, "por@example.com", admin_portal=True)
     members = reverse("players:player_list")  # every admin area manages members
-    assert _admin_menu(elo) == [members, reverse("elo:manage")]
+    assert _admin_menu(elo) == [members, reverse("elo:manage"), reverse("data_transfer")]
     assert _admin_menu(pen) == [members, reverse("season_list")]
     assert reverse("accounts:user_list") in _admin_menu(por) and reverse(
         "elo:manage"

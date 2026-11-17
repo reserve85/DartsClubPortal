@@ -1,6 +1,7 @@
 import { router } from "@inertiajs/react";
 import { Button, FileButton, Group, Paper, Text } from "@mantine/core";
-import { IconCrop, IconPhotoUp, IconTrash } from "@tabler/icons-react";
+import { IconCrop, IconDownload, IconPhotoUp, IconTrash } from "@tabler/icons-react";
+import { confirmPost } from "./elo";
 import { useRef, useState } from "react";
 import { useT } from "../i18n";
 import { AvatarCropDialog } from "./AvatarCrop";
@@ -42,7 +43,24 @@ export function AvatarUpload({ playerId, name, avatar }: { playerId: number; nam
           <Button variant="default" leftSection={<IconCrop size={16} />} onClick={recrop}>{t("Change section")}</Button>
         )}
         {avatar && (
-          <Button color="red" variant="light" leftSection={<IconTrash size={16} />} onClick={() => router.post("/avatars/upload/", { player: playerId, remove: "1", next: window.location.pathname }, { preserveScroll: true })}>
+          <Button variant="default" component="a" href={avatar} download={`${name}.jpg`} leftSection={<IconDownload size={16} />}>{t("Download")}</Button>
+        )}
+        {avatar && (
+          <Button
+            color="red"
+            variant="light"
+            leftSection={<IconTrash size={16} />}
+            onClick={() =>
+              confirmPost({
+                title: t("Remove picture"),
+                body: t("Download it first if you want to keep it."),
+                confirm: t("Remove"),
+                cancel: t("Cancel"),
+                url: "/avatars/upload/",
+                data: { player: String(playerId), remove: "1", next: window.location.pathname },
+              })
+            }
+          >
             {t("Remove picture")}
           </Button>
         )}

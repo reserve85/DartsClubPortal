@@ -43,7 +43,7 @@ def test_admin_menu_contents(admin_client):
         "accounts:user_list",
         "season_list",
         "audit_list",
-        "importer:import",
+        "data_transfer",  # Import & Export (the import is linked there)
         "elo:manage",
     ):
         assert reverse(name) in admin

@@ -63,6 +63,7 @@ class AuditAction(models.TextChoices):
     ELO_PLAYER_DISABLED = "elo_player_disabled", _("Elo player disabled")
     ELO_PLAYER_REACTIVATED = "elo_player_reactivated", _("Elo player reactivated")
     DATA_IMPORTED = "data_imported", _("Data imported")
+    DATA_EXPORTED = "data_exported", _("Data exported")
 
 
 class AuditLog(models.Model):

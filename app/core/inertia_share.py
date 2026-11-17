@@ -101,7 +101,9 @@ def navigation(user) -> list[dict]:
             _item(_("Seasons"), "season_list", "calendar-cog")
             if "penalty" in scopes and PENALTY in enabled_modules()
             else None,
-            _item(_("Import"), "importer:import", "upload") if portal else None,
+            _item(_("Import & Export"), "data_transfer", "upload")
+            if portal or ("elo" in scopes and has_module(user, ELO))
+            else None,
             _item(_("Club logo"), "club_logo_admin", "photo") if portal else None,
             _item(_("Audit"), "audit_list", "history") if portal else None,
         ]

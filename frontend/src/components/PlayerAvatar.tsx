@@ -17,7 +17,7 @@ export function PlayerAvatar({ name, src, muted, ...rest }: { name: string; src?
       alt={name}
       color={muted ? "gray" : colorFor(name)}
       variant="filled"
-      radius="xl"
+      radius={9999} // always a circle, whatever the size
       {...rest}
       style={{ opacity: muted ? 0.55 : 1, ...(rest.style as object) }}
     >
