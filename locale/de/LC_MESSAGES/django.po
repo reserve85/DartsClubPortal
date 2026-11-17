@@ -4651,6 +4651,30 @@ msgstr "Code mit der Handykamera scannen."
 msgid "Subline"
 msgstr "Unterzeile"
 
+msgid "Change section"
+msgstr "Ausschnitt ändern"
+
+msgid "Choose a picture, then move and zoom it inside the circle."
+msgstr "Bild wählen, dann im Kreis verschieben und zoomen."
+
+msgid "Choose the picture section"
+msgstr "Bildausschnitt wählen"
+
+msgid "Drag to move, pinch or use the slider to zoom."
+msgstr "Ziehen zum Verschieben, mit zwei Fingern oder dem Regler zoomen."
+
+msgid "New picture"
+msgstr "Neues Bild"
+
+msgid "The browser cannot show this picture. Please choose a JPG or PNG."
+msgstr "Dieses Bild kann der Browser nicht anzeigen. Bitte ein JPG oder PNG wählen."
+
+msgid "Use picture"
+msgstr "Bild übernehmen"
+
+msgid "Zoom"
+msgstr "Zoom"
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 

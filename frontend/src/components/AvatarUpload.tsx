@@ -1,34 +1,54 @@
 import { router } from "@inertiajs/react";
 import { Button, FileButton, Group, Paper, Text } from "@mantine/core";
-import { IconPhotoUp, IconTrash } from "@tabler/icons-react";
-import { useState } from "react";
+import { IconCrop, IconPhotoUp, IconTrash } from "@tabler/icons-react";
+import { useRef, useState } from "react";
 import { useT } from "../i18n";
+import { AvatarCropDialog } from "./AvatarCrop";
 import { PlayerAvatar } from "./PlayerAvatar";
 
-/** Picture upload for one player (own picture or, for admins, anyone's). */
+/** Picture of one player (own picture or, for admins, anyone's): choose, crop round, upload. */
 export function AvatarUpload({ playerId, name, avatar }: { playerId: number; name: string; avatar: string }) {
   const t = useT();
   const [busy, setBusy] = useState(false);
-  const upload = (file: File | null) => {
-    if (!file) return;
+  const [file, setFile] = useState<File | null>(null);
+  const resetRef = useRef<() => void>(null);
+  const choose = (f: File | null) => {
+    setFile(f);
+    resetRef.current?.(); // the same file can be chosen again
+  };
+  const upload = (cropped: File) => {
+    setFile(null);
     setBusy(true);
-    router.post("/avatars/upload/", { player: playerId, avatar: file, next: window.location.pathname }, { forceFormData: true, preserveScroll: true, onFinish: () => setBusy(false) });
+    router.post("/avatars/upload/", { player: playerId, avatar: cropped, next: window.location.pathname }, {
+      forceFormData: true,
+      preserveScroll: true,
+      onFinish: () => setBusy(false),
+    });
+  };
+  // Adjust the section of the current picture without choosing a new file.
+  const recrop = async () => {
+    const blob = await fetch(avatar, { credentials: "same-origin" }).then((r) => r.blob());
+    setFile(new File([blob], "avatar.jpg", { type: blob.type || "image/jpeg" }));
   };
   return (
     <Paper withBorder p="md" mt="md">
       <Text size="xs" fw={800} tt="uppercase" c="dimmed" mb="sm">{t("Picture")}</Text>
       <Group gap="md">
         <PlayerAvatar name={name} src={avatar} size={72} />
-        <FileButton onChange={upload} accept="image/png,image/jpeg,image/webp,image/heic">
-          {(props) => <Button {...props} loading={busy} leftSection={<IconPhotoUp size={16} />}>{t("Upload")}</Button>}
+        <FileButton resetRef={resetRef} onChange={choose} accept="image/png,image/jpeg,image/webp,image/heic,image/heif">
+          {(props) => <Button {...props} loading={busy} leftSection={<IconPhotoUp size={16} />}>{avatar ? t("New picture") : t("Upload")}</Button>}
         </FileButton>
         {avatar && (
-          <Button color="red" leftSection={<IconTrash size={16} />} onClick={() => router.post("/avatars/upload/", { player: playerId, remove: "1", next: window.location.pathname }, { preserveScroll: true })}>
+          <Button variant="default" leftSection={<IconCrop size={16} />} onClick={recrop}>{t("Change section")}</Button>
+        )}
+        {avatar && (
+          <Button color="red" variant="light" leftSection={<IconTrash size={16} />} onClick={() => router.post("/avatars/upload/", { player: playerId, remove: "1", next: window.location.pathname }, { preserveScroll: true })}>
             {t("Remove picture")}
           </Button>
         )}
       </Group>
-      <Text size="xs" c="dimmed" mt="sm">{t("Shown in every round avatar of the portal (cropped to a square).")}</Text>
+      <Text size="xs" c="dimmed" mt="sm">{t("Choose a picture, then move and zoom it inside the circle.")}</Text>
+      <AvatarCropDialog file={file} onCancel={() => setFile(null)} onDone={upload} />
     </Paper>
   );
 }

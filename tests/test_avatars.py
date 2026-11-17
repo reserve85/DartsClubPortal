@@ -61,3 +61,47 @@ def test_admin_changes_anyone_and_bad_files_are_rejected(admin_client):
 @pytest.mark.django_db
 def test_pictures_need_login(client):
     assert client.get(reverse("player_avatar", args=["x.jpg"])).status_code == 302
+
+
+@pytest.mark.django_db
+def test_every_admin_area_may_change_pictures(role_groups, captain_client):
+    from django.contrib.auth import get_user_model
+    from django.contrib.auth.models import Group
+    from django.test import Client
+
+    from app.core.permissions import GROUP_ADMIN
+
+    user = get_user_model().objects.create_user(
+        email="portal@example.com", password="pw", approval_status="approved", admin_portal=True
+    )
+    user.groups.add(Group.objects.get(name=GROUP_ADMIN))
+    portal = Client()
+    portal.force_login(user)
+    target = Player.objects.create(name="Picture Target")
+    portal.post(reverse("avatar_upload"), {"player": target.pk, "avatar": _png(512, 512)})
+    target.refresh_from_db()
+    assert target.avatar
+    # a captain may not change somebody else's picture
+    other = Player.objects.create(name="Not Mine")
+    response = captain_client.post(reverse("avatar_upload"), {"player": other.pk, "avatar": _png()})
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_cropped_square_stays_square(player_client, player_user, settings):
+    """The browser sends the round crop as a 512 px square: stored as 256 px."""
+    player_user.player_link = Player.objects.create(name="Square Me")
+    player_user.save(update_fields=["player_link"])
+    player_client.post(reverse("avatar_upload"), {"avatar": _png(512, 512)})
+    player_user.player_link.refresh_from_db()
+    path = settings.MEDIA_ROOT / "avatars" / player_user.player_link.avatar
+    with Image.open(path) as img:
+        assert img.size == (256, 256)
+
+
+@pytest.mark.django_db
+def test_member_page_offers_the_picture_to_admins(admin_client, captain_client, team):
+    player = Player.objects.create(name="Pic Member", team=team)
+    url = reverse("players:player_update", args=[player.pk])
+    assert inertia_props(admin_client.get(url))["canPicture"] is True
+    assert inertia_props(captain_client.get(url))["canPicture"] is False

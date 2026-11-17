@@ -4,6 +4,7 @@ import { DatePickerInput } from "@mantine/dates";
 import { IconChartLine, IconEdit, IconLink, IconMailForward, IconUnlink, IconUser } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { type ReactNode, useEffect, useState } from "react";
+import { AvatarUpload } from "../../components/AvatarUpload";
 import { confirmPost } from "../../components/elo";
 import { PlayerAvatar } from "../../components/PlayerAvatar";
 import { PageHeader, Section } from "../../components/ui";
@@ -21,6 +22,7 @@ interface EloProfile {
 }
 interface Props {
   player: { id: number; name: string; active: boolean; avatar: string; detailUrl: string };
+  canPicture: boolean;
   season: string;
   teams: { id: number; name: string; checked: boolean; editable: boolean }[];
   elo: { profile: EloProfile | null; defaults: { startElo: number; entryDate: string } } | null;
@@ -37,7 +39,7 @@ interface Props {
 }
 
 /** One member: basics, teams of the season, Elo ranking, login. */
-export default function MemberEdit({ player, season, teams, elo, account, url, backUrl, errors }: Props) {
+export default function MemberEdit({ player, canPicture, season, teams, elo, account, url, backUrl, errors }: Props) {
   const t = useT();
   const f = useFormat();
   const [busy, setBusy] = useState<string | null>(null);
@@ -117,6 +119,8 @@ export default function MemberEdit({ player, season, teams, elo, account, url, b
         )}
 
         {elo && <EloCard elo={elo} name={player.name} url={url} errors={err("elo")} busy={busy === "elo"} post={(d) => post("elo", d)} />}
+
+        {canPicture && <AvatarUpload playerId={player.id} name={player.name} avatar={player.avatar} />}
 
         {account && <AccountCard account={account} name={player.name} url={url} errors={err("account")} busy={busy === "account"} post={(d) => post("account", d)} f={f} />}
       </SimpleGrid>

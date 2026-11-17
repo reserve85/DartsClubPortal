@@ -573,6 +573,7 @@ class MemberEditView(LoginRequiredMixin, View):
                 "avatar": avatars_for([player.pk]).get(player.pk, ""),
                 "detailUrl": reverse("players:player_detail", args=[player.pk]),
             },
+            "canPicture": user_is_admin(user),
             "season": season.name if season else "",
             "teams": team_rows,
             "elo": elo,

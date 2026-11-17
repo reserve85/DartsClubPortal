@@ -3672,3 +3672,27 @@ msgstr ""
 
 msgid "Subline"
 msgstr ""
+
+msgid "Change section"
+msgstr ""
+
+msgid "Choose a picture, then move and zoom it inside the circle."
+msgstr ""
+
+msgid "Choose the picture section"
+msgstr ""
+
+msgid "Drag to move, pinch or use the slider to zoom."
+msgstr ""
+
+msgid "New picture"
+msgstr ""
+
+msgid "The browser cannot show this picture. Please choose a JPG or PNG."
+msgstr ""
+
+msgid "Use picture"
+msgstr ""
+
+msgid "Zoom"
+msgstr ""
