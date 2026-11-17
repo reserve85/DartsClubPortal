@@ -17,7 +17,8 @@ from app.core.permissions import user_admin_scopes
 MODULE_NAMESPACES = {
     "dashboard": PENALTY,
     "teams": PENALTY,
-    "players": PENALTY,
+    # "players" (members) belongs to both modules; the penalty profile page
+    # checks the module itself (PlayerDetailView).
     "matchdays": PENALTY,
     "penalties": PENALTY,
     "elo": ELO,

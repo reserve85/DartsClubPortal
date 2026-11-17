@@ -3,6 +3,7 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -35,6 +36,24 @@ class PlayerDetailView(LoginRequiredMixin, DetailView):
 
     model = Player
     context_object_name = "player"
+
+    def get(self, request, *args, **kwargs):
+        # Balances and penalties only for accounts with the penalty module
+        # (installed and allowed); otherwise the player's page is the Elo profile.
+        from app.core.access import has_module
+        from app.core.modules import ELO, PENALTY
+
+        if not has_module(request.user, PENALTY):
+            from app.elo.models import EloProfile
+
+            pk = kwargs["pk"]
+            if has_module(request.user, ELO) and EloProfile.objects.filter(player_id=pk).exists():
+                return redirect("elo:player_detail", pk=pk)
+            player = get_object_or_404(Player, pk=pk)
+            if user_can_edit_player(request.user, player):
+                return redirect("players:player_update", pk=pk)  # the member page
+            raise Http404
+        return super().get(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
         player = super().get_object(queryset)

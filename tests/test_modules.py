@@ -127,6 +127,40 @@ class TestPenaltyModuleOff:
         assert resp.headers["Location"] == "/"
 
 
+class TestMembersWithoutPenalty:
+    """Members belong to both modules: an Elo-only install keeps every member page."""
+
+    def test_admin_member_pages(self, admin_client, player, modules):
+        modules(["elo"])
+        for url in ("/players/", "/players/create/", f"/players/{player.pk}/edit/"):
+            assert admin_client.get(url).status_code == 200, url
+        assert admin_client.get(reverse("accounts:user_list")).status_code == 200
+
+    def test_profile_without_elo_leads_to_the_member_page(self, admin_client, player, modules):
+        modules(["elo"])
+        resp = admin_client.get(f"/players/{player.pk}/")
+        assert resp.headers["Location"] == f"/players/{player.pk}/edit/"
+
+    def test_profile_with_elo_leads_to_the_elo_page(self, admin_client, player, modules):
+        from datetime import date
+
+        from app.elo.models import EloProfile
+
+        modules(["elo"])
+        EloProfile.objects.create(
+            player=player, start_elo=1500, current_elo=1500, entry_date=date(2026, 1, 1)
+        )
+        resp = admin_client.get(f"/players/{player.pk}/")
+        assert resp.headers["Location"] == f"/elo/players/{player.pk}/"
+
+    def test_captain_is_a_normal_account_without_penalty(self, captain_client, player, modules):
+        modules(["elo"])
+        assert captain_client.get("/players/create/").status_code == 403
+        resp = captain_client.get(f"/players/{player.pk}/")
+        assert resp.status_code in (302, 404)
+        assert "/teams/" not in resp.headers.get("Location", "")
+
+
 class TestEloModuleOff:
     def test_penalty_only_install(self, admin_client, modules):
         modules(["penalty"])

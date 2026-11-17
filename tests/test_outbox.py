@@ -666,3 +666,16 @@ def test_prune_outbox_drops_only_old_delivered_rows(
     }
     assert old_sent.pk not in NotificationOutbox.objects.values_list("pk", flat=True)
     assert prune_outbox() == 0  # idempotent
+
+
+def test_queued_penalty_mails_stay_unsent_when_the_module_is_switched_off(
+    matchday_with_players, catalog_normal, admin_user, settings
+):
+    md, players = matchday_with_players(1)
+    _link(players[0], mode="daily")
+    _assign(md, players[0], catalog_normal, admin_user)
+    settings.MODULES = ["elo"]
+    assert flush_outbox(now=timezone.now() + timedelta(days=1)) == 0
+    assert len(mail.outbox) == 0
+    row = NotificationOutbox.objects.get()
+    assert row.last_error == "the penalty module is not enabled"

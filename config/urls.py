@@ -49,7 +49,6 @@ urlpatterns = [
 PENALTY_URLS = [
     path("", include("app.dashboard.urls")),
     path("teams/", include("app.teams.urls")),
-    path("players/", include("app.players.urls")),
     path("matchdays/", include("app.matchdays.urls")),
     path("", include("app.penalties.urls")),
     path("seasons/", core_views.SeasonListView.as_view(), name="season_list"),
@@ -92,9 +91,11 @@ urlpatterns += i18n_patterns(
     path("", core_views.HomeView.as_view(), name="home"),
     path("overview/", core_views.OverviewView.as_view(), name="overview"),
     *(PENALTY_URLS if PENALTY in _MODULES else []),
+    # Members (players with or without a login) belong to both modules.
+    path("players/", include("app.players.urls")),
     *([path("elo/", include("app.elo.urls"))] if ELO in _MODULES else []),
     path("audit/", core_views.AuditLogListView.as_view(), name="audit_list"),
-    # Import & Export: database / full backup / CSV exports, import of the old systems.
+    # Import & Export: full backup, restore, database download, CSV exports.
     path("data/", DataTransferView.as_view(), name="data_transfer"),
     path("data/database.sqlite3", DatabaseExportView.as_view(), name="data_export_db"),
     path("data/backup.zip", BackupExportView.as_view(), name="data_export_zip"),

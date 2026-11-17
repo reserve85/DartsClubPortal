@@ -58,6 +58,18 @@ def can_manage_teams(user) -> bool:
     return PENALTY in enabled_modules() and (user_is_penalty_admin(user) or user_is_captain(user))
 
 
+def is_team_captain(user) -> bool:
+    """Captains are a penalty concept: they count only with that module."""
+    return PENALTY in enabled_modules() and user_is_captain(user)
+
+
+def back_url(user) -> str:
+    """Where member pages lead back to: the list (admins) or the team page."""
+    if user_is_admin(user):
+        return reverse("players:player_list")
+    return reverse("teams:team_list") if PENALTY in enabled_modules() else "/"
+
+
 def can_manage_elo(user) -> bool:
     return ELO in enabled_modules() and user_is_elo_admin(user)
 
@@ -73,7 +85,7 @@ def editable_teams(user, season) -> list:
     teams = list(teams_for_season(season).order_by("name"))
     if user_is_penalty_admin(user):
         return teams
-    if user_is_captain(user) and user.team_id:
+    if is_team_captain(user) and user.team_id:
         return [t for t in teams if t.pk == user.team_id]
     return []
 
@@ -360,7 +372,7 @@ class MemberCreateView(LoginRequiredMixin, View):
     """New member in one go: name, team of the season, Elo start, invitation."""
 
     def _allowed(self, user):
-        if not (user_is_admin(user) or user_is_captain(user)):
+        if not (user_is_admin(user) or is_team_captain(user)):
             raise PermissionDenied
 
     def _captain_team(self, user, season):
@@ -389,11 +401,7 @@ class MemberCreateView(LoginRequiredMixin, View):
                 "language": settings.LANGUAGE_CODE[:2],
             },
             "today": timezone.localdate().isoformat(),
-            "backUrl": (
-                reverse("players:player_list")
-                if user_is_admin(user)
-                else reverse("teams:team_list")
-            ),
+            "backUrl": back_url(user),
             "errors": form_errors(form) if form is not None else {},
         }
 
@@ -460,7 +468,7 @@ class MemberCreateView(LoginRequiredMixin, View):
             _send(invitation, request)
         if user_is_admin(user):
             return redirect("players:player_update", pk=player.pk)
-        return redirect("teams:team_list")
+        return redirect(back_url(user))
 
 
 # ---------------------------------------------------------------- one member
@@ -579,11 +587,7 @@ class MemberEditView(LoginRequiredMixin, View):
             "elo": elo,
             "account": account,
             "url": reverse("players:player_update", args=[player.pk]),
-            "backUrl": (
-                reverse("players:player_list")
-                if user_is_admin(user)
-                else reverse("teams:team_list")
-            ),
+            "backUrl": back_url(user),
             "errors": errors or {},
         }
 

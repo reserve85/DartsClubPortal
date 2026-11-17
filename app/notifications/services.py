@@ -384,6 +384,11 @@ def _send_outbox_group(
         NotificationOutbox.objects.filter(pk__in=row_ids).update(last_error=reason)
         return "skipped"
 
+    from app.core.modules import PENALTY, enabled_modules
+
+    if PENALTY not in enabled_modules():
+        # Rows queued before the module was switched off stay unsent.
+        return skip("the penalty module is not enabled")
     address = getattr(user, "email", "") or ""
     if not getattr(user, "is_active", False) or "@" not in address:
         return skip(
