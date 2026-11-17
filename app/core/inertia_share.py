@@ -33,8 +33,10 @@ def _build_info() -> dict:
         "version": info["version"],
         "commit": info["git_commit"],
         "date": info["build_date"],
+        "day": info["build_day"],
         "github": info["github_url"],
         "release": info["release_url"],
+        "commitUrl": info["commit_url"],
     }
 
 

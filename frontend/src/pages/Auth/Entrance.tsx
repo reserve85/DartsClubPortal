@@ -5,7 +5,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { CookieNotice } from "../../components/CookieNotice";
 import { FormFields, initialData, type FieldDef } from "../../components/FormFields";
 import AppLayout, { useFlashToasts } from "../../layout/AppLayout";
-import { useT } from "../../i18n";
+import { useFormat, useT } from "../../i18n";
 import type { SharedProps } from "../../types";
 
 type Kind =
@@ -92,6 +92,7 @@ export function EntranceShell({ children, wide = false }: { children: ReactNode;
   useFlashToasts();
   const t = useT();
   const { urls, site } = usePage<SharedProps>().props;
+  const fmt = useFormat();
   const b = site.build;
   return (
     <Box mih="100dvh" py={{ base: "md", sm: 40 }} px="md" style={{ background: "radial-gradient(1200px 500px at 50% -10%, var(--mantine-color-brand-light), transparent)" }}>
@@ -109,7 +110,10 @@ export function EntranceShell({ children, wide = false }: { children: ReactNode;
         </Group>
         {b && (
           <Text ta="center" size="xs" c="dimmed" mt={4}>
-            <Anchor href={b.release} target="_blank" rel="noopener" size="xs" c="dimmed">v{b.version}</Anchor> ({b.commit}) · {b.date}
+            <Anchor href={b.release} target="_blank" rel="noopener" size="xs" c="dimmed">v{b.version}</Anchor>
+            {b.day && <> · {fmt.date(b.day)}</>}
+            {" · "}
+            {b.commitUrl ? <Anchor href={b.commitUrl} target="_blank" rel="noopener" size="xs" c="dimmed">{b.commit}</Anchor> : b.commit}
           </Text>
         )}
       </Box>

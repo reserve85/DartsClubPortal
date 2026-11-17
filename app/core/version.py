@@ -28,10 +28,12 @@ def get_version_info(timezone: str = "UTC") -> dict:
     if candidate[:1].isdigit():
         version = candidate
 
-    git_commit = os.getenv("GIT_COMMIT", "dev")[:7]
+    full_commit = os.getenv("GIT_COMMIT", "dev")
+    git_commit = full_commit[:7]
 
     raw_build_date = os.getenv("BUILD_DATE", "development")
     build_date = _format_build_date(raw_build_date, timezone)
+    build_day = _build_day(raw_build_date, timezone)
 
     # Link to the exact release tag for version builds; non-version builds
     # (e.g. "main"/"dev" images) fall back to the releases overview so the
@@ -46,9 +48,26 @@ def get_version_info(timezone: str = "UTC") -> dict:
         "version": version,
         "git_commit": git_commit,
         "build_date": build_date,
+        "build_day": build_day,
         "github_url": GITHUB_REPO_URL,
         "release_url": release_url,
+        # Link of the build commit; only for a real commit hash.
+        "commit_url": (
+            f"{GITHUB_REPO_URL}/commit/{full_commit}"
+            if len(full_commit) >= 7 and all(c in "0123456789abcdef" for c in full_commit)
+            else ""
+        ),
     }
+
+
+def _build_day(raw: str, timezone: str) -> str:
+    """Local build date as ISO "YYYY-MM-DD" ("" for development builds)."""
+    try:
+        from zoneinfo import ZoneInfo
+
+        return datetime.fromisoformat(raw).astimezone(ZoneInfo(timezone)).date().isoformat()
+    except (ValueError, KeyError, OSError):
+        return ""
 
 
 def _format_build_date(raw: str, timezone: str) -> str:

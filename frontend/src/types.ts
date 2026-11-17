@@ -30,7 +30,7 @@ export interface SharedProps {
     name: string;
     language: string;
     logo: { light: string; dark: string };
-    build?: { version: string; commit: string; date: string; github: string; release: string };
+    build?: { version: string; commit: string; date: string; day: string; github: string; release: string; commitUrl: string };
   };
   auth: { user: AuthUser | null };
   nav: NavGroup[];

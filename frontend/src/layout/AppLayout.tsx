@@ -1,6 +1,7 @@
 import { Link, router, usePage } from "@inertiajs/react";
 import {
   ActionIcon,
+  Anchor,
   AppShell,
   Badge,
   Box,
@@ -35,7 +36,7 @@ import { useEffect, type ReactNode } from "react";
 import { CookieNotice } from "../components/CookieNotice";
 import { NavIcon } from "../components/icons";
 import { PlayerAvatar } from "../components/PlayerAvatar";
-import { useT } from "../i18n";
+import { useFormat, useT } from "../i18n";
 import type { SharedProps } from "../types";
 
 function getCookie(name: string): string {
@@ -72,6 +73,26 @@ function ClubLogo() {
     >
       🎯
     </Box>
+  );
+}
+
+/** Version, build date, commit and the GitHub link - one line under imprint / privacy. */
+function BuildLine() {
+  const { site } = usePage<SharedProps>().props;
+  const t = useT();
+  const fmt = useFormat();
+  const b = site.build;
+  if (!b) return null;
+  const link = { size: "xs", c: "dimmed", target: "_blank", rel: "noopener" } as const;
+  return (
+    <Text size="xs" c="dimmed" px="xs" mt={6} title={`${t("Build")} ${b.commit} · ${b.date}`}>
+      <Anchor href={b.release} {...link}>v{b.version}</Anchor>
+      {b.day && <> · {fmt.date(b.day)}</>}
+      {" · "}
+      {b.commitUrl ? <Anchor href={b.commitUrl} {...link}>{b.commit}</Anchor> : b.commit}
+      {" · "}
+      <Anchor href={b.github} {...link}>GitHub</Anchor>
+    </Text>
   );
 }
 
@@ -228,6 +249,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               <Text size="xs" c="dimmed" component={Link} href={urls.imprint ?? "#"}>{t("Imprint")}</Text>
               <Text size="xs" c="dimmed" component={Link} href={urls.privacy ?? "#"}>{t("Privacy Policy")}</Text>
             </Group>
+            <BuildLine />
           </AppShell.Section>
         </AppShell.Navbar>
       )}

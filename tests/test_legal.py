@@ -104,3 +104,19 @@ def test_version_info_strips_tag_and_truncates_commit(monkeypatch):
 def test_version_info_falls_back_on_invalid_build_date(monkeypatch):
     monkeypatch.setenv("BUILD_DATE", "not-a-date")
     assert get_version_info()["build_date"] == "not-a-date"
+
+
+def test_version_info_build_day_and_commit_link(monkeypatch):
+    monkeypatch.setenv("GIT_COMMIT", "a718e32c9d1f4b2e8a11")
+    # 23:30 UTC is already the next day in Berlin.
+    monkeypatch.setenv("BUILD_DATE", "2026-11-17T23:30:00+00:00")
+    info = get_version_info("Europe/Berlin")
+    assert info["build_day"] == "2026-11-18"
+    assert info["commit_url"] == f"{GITHUB_REPO_URL}/commit/a718e32c9d1f4b2e8a11"
+
+
+def test_version_info_development_build(monkeypatch):
+    monkeypatch.delenv("GIT_COMMIT", raising=False)
+    monkeypatch.delenv("BUILD_DATE", raising=False)
+    info = get_version_info()
+    assert info["build_day"] == "" and info["commit_url"] == ""

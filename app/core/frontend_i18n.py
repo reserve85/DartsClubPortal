@@ -88,6 +88,7 @@ MSGIDS: list[str] = [
     "Best of %(n)s",
     "Best rank",
     "Best rank reached",
+    "Build",
     "CSRF and language cookies:",
     "CSV exports and backups are under Import & Export.",
     "Cancel",
