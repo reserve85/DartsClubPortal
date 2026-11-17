@@ -3,7 +3,7 @@
 # ---------------------------------------------------------------------------
 # Stage 1: the React/Mantine frontend (Vite) -> app/static/dist
 # ---------------------------------------------------------------------------
-FROM node:24-alpine AS frontend
+FROM node:26-alpine AS frontend
 WORKDIR /build/frontend
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci --no-audit --no-fund
