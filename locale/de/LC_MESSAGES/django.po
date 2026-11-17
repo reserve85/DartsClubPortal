@@ -1008,7 +1008,7 @@ msgstr "Offene Freigaben"
 
 #: .\app\templates\accounts\pending_list.html:7
 msgid "Back to users"
-msgstr "Zurück zu den Benutzern"
+msgstr "Zurück zu Konten & Rechte"
 
 #: .\app\templates\accounts\pending_list.html:9
 msgid "Newly registered accounts must be released before the users can log in."
@@ -1064,7 +1064,7 @@ msgstr "Speichern"
 
 #: .\app\templates\accounts\user_list.html:3 .\app\templates\accounts\user_list.html:6 .\app\templates\base.html:74
 msgid "Users"
-msgstr "Benutzer"
+msgstr "Konten & Rechte"
 
 #: .\app\templates\accounts\user_list.html:23 .\app\templates\penalties\catalog_list.html:16 .\app\templates\players\player_list.html:18
 msgid "Active"
@@ -2155,7 +2155,7 @@ msgid "Completed at"
 msgstr "Abgeschlossen am"
 
 msgid "Open user list"
-msgstr "Benutzerliste öffnen"
+msgstr "Konten & Rechte öffnen"
 
 msgid "Invitation completed"
 msgstr "Einladung abgeschlossen"
