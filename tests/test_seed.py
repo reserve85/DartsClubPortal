@@ -26,8 +26,8 @@ def test_with_demo_creates_dataset(db):
 
 def test_with_demo_group_penalty_balances(db):
     call_command("bootstrap", "--with-demo")
-    team1 = Team.objects.get(name="Wildboars 1")
-    team2 = Team.objects.get(name="Wildboars 2")
+    team1 = Team.objects.get(name="Bullseye 1")
+    team2 = Team.objects.get(name="Bullseye 2")
     balances = {p.name: player_balance(p) for p in Player.objects.filter(teams=team1)}
 
     # Multi-team showcase: Anna plays for BOTH teams (one player record).

@@ -494,7 +494,7 @@ def test_penalty_email_carries_team_and_season(
 
     assert len(mail.outbox) == 1
     body = mail.outbox[0].body
-    assert md.team.name in body  # "Wildboars 1"
+    assert md.team.name in body  # "Bullseye 1"
     assert season.name in body  # "2025/2026"
 
 

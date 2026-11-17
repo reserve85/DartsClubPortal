@@ -108,7 +108,7 @@ class Command(BaseCommand):
             for g in (GROUP_ADMIN, GROUP_CAPTAIN, GROUP_PLAYER)
         }
 
-        teams = [Team.objects.create(name=f"Wildboars {i}") for i in range(1, 5)]
+        teams = [Team.objects.create(name=f"Bullseye {i}") for i in range(1, 5)]
         seasons = []
         for y in range(years, -1, -1):
             yr = today.year - y

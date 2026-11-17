@@ -7,7 +7,7 @@ from django.db import migrations, models
 
 def mark_club_accounts(apps, schema_editor):
     """Imported Elo logins without a player and without admin rights are the
-    shared club logins (e.g. "Wildboars") - the ones the old QR codes use."""
+    shared club logins (e.g. the tablet at the board) - the ones the old QR codes use."""
     User = apps.get_model("accounts", "User")
     User.objects.filter(
         legacy_username__isnull=False, player_link__isnull=True, is_superuser=False

@@ -119,7 +119,7 @@ def test_assign_page_renders_the_third_teams_fee_in_the_dropdown(
     from app.matchdays.models import Matchday
     from app.teams.models import Team
 
-    third = Team.objects.create(name="Wildboars 3")
+    third = Team.objects.create(name="Bullseye 3")
     TeamCatalogAmount.objects.create(team=team, catalog_item=catalog_normal, amount_eur=5)
     TeamCatalogAmount.objects.create(team=other_team, catalog_item=catalog_normal, amount_eur=3)
     TeamCatalogAmount.objects.create(team=third, catalog_item=catalog_normal, amount_eur=1)

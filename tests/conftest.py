@@ -87,12 +87,12 @@ def admin_user(db, role_groups):
 
 @pytest.fixture
 def team(db):
-    return Team.objects.create(name="Wildboars 1")
+    return Team.objects.create(name="Bullseye 1")
 
 
 @pytest.fixture
 def other_team(db):
-    return Team.objects.create(name="Wildboars 2")
+    return Team.objects.create(name="Bullseye 2")
 
 
 @pytest.fixture

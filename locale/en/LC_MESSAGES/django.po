@@ -504,7 +504,7 @@ msgstr ""
 msgid "Player '%(name)s' deactivated."
 msgstr ""
 
-msgid "e.g. Wildboars 1"
+msgid "e.g. Bullseye 1"
 msgstr ""
 
 msgid "Team created."

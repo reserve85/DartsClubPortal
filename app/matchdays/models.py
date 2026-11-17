@@ -115,8 +115,8 @@ class Matchday(models.Model):
     def display_label(self) -> str:
         """Explicit ``d.m.Y`` date, home/away ordering (M6).
 
-        home -> ``24.09.2026 - Wildboars 1 - SV Eichenberg``
-        away -> ``29.09.2026 - SV Burghausen - Wildboars 1``
+        home -> ``24.09.2026 - Bullseye 1 - SV Eichenberg``
+        away -> ``29.09.2026 - SV Burghausen - Bullseye 1``
         """
         date = self.date.strftime("%d.%m.%Y")
         if self.venue == VenueChoice.HOME:

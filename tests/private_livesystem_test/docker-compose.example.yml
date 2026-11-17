@@ -49,7 +49,7 @@ services:
       - SQLITE_PATH=data/db.sqlite3
       # Host-Besitzer von ./data (linuxserver-Konvention — der Entrypoint
       # chowned die Daten und droppt auf diese Rechte). Synology-Beispiel:
-      #   PUID=1026 (id des Users "reserve")  PGID=100 (Gruppe "users")
+      #   PUID=1026 (id des NAS-Users)  PGID=100 (Gruppe "users")
       - PUID=1000                                  # uid des data/-Besitzers | Default: 1000
       - PGID=1000                                  # gid des data/-Besitzers | Default: 1000
 

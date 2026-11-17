@@ -52,7 +52,7 @@ class TeamForm(forms.ModelForm):
         model = Team
         fields: ClassVar[list] = ["name"]
         widgets: ClassVar[dict] = {
-            "name": forms.TextInput(attrs={"placeholder": _("e.g. Wildboars 1")}),
+            "name": forms.TextInput(attrs={"placeholder": _("e.g. Bullseye 1")}),
         }
 
     def __init__(self, *args, include_season: bool = False, **kwargs):

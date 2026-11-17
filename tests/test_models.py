@@ -107,7 +107,7 @@ def test_matchday_display_label_home(team):
     md = Matchday.objects.create(
         team=team, opponent="SV Eichenberg", venue=VenueChoice.HOME, date=date(2026, 9, 24)
     )
-    assert md.display_label == "24.09.2026 - Wildboars 1 - SV Eichenberg"
+    assert md.display_label == "24.09.2026 - Bullseye 1 - SV Eichenberg"
     assert str(md) == md.display_label
 
 
@@ -115,7 +115,7 @@ def test_matchday_display_label_away(team):
     md = Matchday.objects.create(
         team=team, opponent="SV Burghausen", venue=VenueChoice.AWAY, date=date(2026, 9, 29)
     )
-    assert md.display_label == "29.09.2026 - SV Burghausen - Wildboars 1"
+    assert md.display_label == "29.09.2026 - SV Burghausen - Bullseye 1"
 
 
 def test_matchday_player_unique_constraint(matchday, player):

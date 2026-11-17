@@ -805,8 +805,8 @@ msgid "Player '%(name)s' deactivated."
 msgstr "Spieler '%(name)s' deaktiviert."
 
 #: .\app\teams\forms.py:12
-msgid "e.g. Wildboars 1"
-msgstr "z. B. Wildboars 1"
+msgid "e.g. Bullseye 1"
+msgstr "z. B. Bullseye 1"
 
 #: .\app\teams\views.py:107
 msgid "Team created."

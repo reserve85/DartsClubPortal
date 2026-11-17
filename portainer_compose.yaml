@@ -75,7 +75,7 @@ services:
       # - BACKUP_DIR=/app/data/backups              # Safety copies taken before a backup is restored (last 5) | Default: data/backups
       # Owner of the data dir on the HOST (linuxserver convention — the
       # entrypoint chowns data/ and drops privileges to it). Get the ids with:
-      #   stat -c '%u %g' <data-dir>     (Synology "reserve" user e.g. 1026 100)
+      #   stat -c '%u %g' <data-dir>     (e.g. 1026 100 on a Synology)
       - PUID=1000                                     # data/ owner uid | Default: 1000
       - PGID=1000                                     # data/ owner gid | Default: 1000
 

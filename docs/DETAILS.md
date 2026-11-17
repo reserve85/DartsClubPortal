@@ -27,10 +27,10 @@ mobile-first responsive design and one-club/multi-team support.
 ## Features
 
 - **Players** and **teams**: one club, multiple teams — a player can play in
-  **several teams at once** (e.g. Wildboars 1 + Wildboars 2); admins manage
+  **several teams at once** (e.g. Bullseye 1 + Bullseye 2); admins manage
   the membership, captains only see/toggle their own team's roster.
 - **Matchdays** belong to one team + free-text opponent + home/away label
-  (`24.09.2026 - Wildboars 1 - SV Eichenberg`); the participants are assigned
+  (`24.09.2026 - Bullseye 1 - SV Eichenberg`); the participants are assigned
   **only** on the matchday page via *Add players* (green row = selected).
 - **Penalties**
   - catalog-driven *normal* penalties — the amount ALWAYS comes from the

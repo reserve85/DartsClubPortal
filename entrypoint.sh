@@ -5,7 +5,7 @@ set -e
 # ---------------------------------------------------------------------------
 # PUID/PGID (linuxserver-style convention): run everything as the HOST user
 # that owns the bind-mounted data dir, e.g. on a Synology:
-#   PUID=1026  PGID=100     -> the "reserve" user who owns volume2/.../data
+#   PUID=1026  PGID=100     -> the NAS user who owns the data folder
 # The image itself would run as uid 1000 ('appuser'); when started as root we
 # chown the data dir to the requested ids and re-execute this script
 # unprivileged, so SQLite writes (login/session) never hit a foreign owner.

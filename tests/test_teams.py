@@ -12,10 +12,10 @@ pytestmark = pytest.mark.django_db
 
 
 def test_admin_creates_team(admin_client):
-    response = admin_client.post(reverse("teams:team_create"), {"name": "Wildboars 3"})
+    response = admin_client.post(reverse("teams:team_create"), {"name": "Bullseye 3"})
     assert response.status_code == 302
-    team = Team.objects.get(name="Wildboars 3")
-    assert team.name == "Wildboars 3"
+    team = Team.objects.get(name="Bullseye 3")
+    assert team.name == "Bullseye 3"
     assert AuditLog.objects.filter(action=AuditAction.TEAM_CREATED, target_id=team.pk).count() == 1
 
 

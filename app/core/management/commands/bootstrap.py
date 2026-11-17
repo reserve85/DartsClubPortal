@@ -125,8 +125,8 @@ class Command(BaseCommand):
             self.stdout.write("Demo data skipped (teams already exist).")
             return
 
-        team1 = Team.objects.create(name="Wildboars 1")
-        team2 = Team.objects.create(name="Wildboars 2")
+        team1 = Team.objects.create(name="Bullseye 1")
+        team2 = Team.objects.create(name="Bullseye 2")
         season = Season.objects.order_by("-name").first()
         players1 = [
             Player.objects.create(name=name)
@@ -141,7 +141,7 @@ class Command(BaseCommand):
             player.teams.add(team1, through_defaults={"season": season})
         for player in players2:
             player.teams.add(team2, through_defaults={"season": season})
-        # Showcase multi-team players: Anna also plays for Wildboars 2.
+        # Showcase multi-team players: Anna also plays for Bullseye 2.
         players1[0].teams.add(team2, through_defaults={"season": season})
 
         matchday1 = Matchday.objects.create(
