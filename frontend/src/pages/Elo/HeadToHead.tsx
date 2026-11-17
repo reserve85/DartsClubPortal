@@ -1,5 +1,6 @@
 import { Head, Link, router } from "@inertiajs/react";
 import { AreaChart } from "@mantine/charts";
+import { useMediaQuery } from "@mantine/hooks";
 import { Badge, Box, Button, Grid, Group, Paper, Progress, Table, Text, UnstyledButton } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import { type PickPlayer, PlayerSelect } from "../../components/elo";
@@ -43,15 +44,16 @@ interface Props {
 
 export default function HeadToHead({ players, aId, bId, opponents, h2h }: Props) {
   const t = useT();
+  const wide = useMediaQuery("(min-width: 36em)") ?? false;
   const tn = useTn();
   const f = useFormat();
   const oppPlayers = opponents.map((o) => ({ ...players.find((p) => p.id === o.id)!, name: `${o.name} (${o.matches})` })).filter((p) => p.id);
   const go = (a: number | null, b: number | null) => router.get("/elo/head-to-head/", { ...(a ? { a } : {}), ...(b ? { b } : {}) }, { preserveScroll: true });
   const side = (s: Sum, color: string) => (
     <Box component={Link} href={`/elo/players/${s.player_id}/`} style={{ textDecoration: "none", color: "inherit", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-      <PlayerAvatar name={s.name} src={s.avatar} size={72} color={color} />
-      <Text fw={800} ta="center" lineClamp={2}>{s.name}</Text>
-      <Text size="xs" c="dimmed">Elo {f.elo(s.current_elo)}{s.current_rank ? ` · #${s.current_rank}` : ""}</Text>
+      <PlayerAvatar name={s.name} src={s.avatar} size={wide ? 72 : 52} color={color} />
+      <Text fw={800} ta="center" lineClamp={2} fz={{ base: "sm", sm: "md" }} lh={1.2} style={{ overflowWrap: "anywhere" }}>{s.name}</Text>
+      <Text size="xs" c="dimmed" ta="center">Elo {f.elo(s.current_elo)}{s.current_rank ? ` · #${s.current_rank}` : ""}</Text>
     </Box>
   );
   const row = (label: string, va: React.ReactNode, vb: React.ReactNode) => (
@@ -77,16 +79,17 @@ export default function HeadToHead({ players, aId, bId, opponents, h2h }: Props)
       ) : (
         <>
           <Paper withBorder p="lg" className="hero">
-            <Grid align="center" gap="xs">
-              <Grid.Col span={4.5}>{side(h2h.a, "brand")}</Grid.Col>
-              <Grid.Col span={3}>
-                <Text ta="center" fw={900} fz={44} lh={1} className="num">
+            {/* Players top-aligned (names may wrap); the score sits at avatar height. */}
+            <Grid align="flex-start" gap="xs">
+              <Grid.Col span={4}>{side(h2h.a, "brand")}</Grid.Col>
+              <Grid.Col span={4} pt={wide ? 26 : 18}>
+                <Text ta="center" fw={900} fz={{ base: 30, xs: 36, sm: 44 }} lh={1} className="num" style={{ whiteSpace: "nowrap" }}>
                   <Text span inherit c={h2h.a.wins > h2h.b.wins ? "teal" : undefined}>{h2h.a.wins}</Text>
                   <Text span inherit c="dimmed">:</Text>
                   <Text span inherit c={h2h.b.wins > h2h.a.wins ? "teal" : undefined}>{h2h.b.wins}</Text>
                 </Text>
               </Grid.Col>
-              <Grid.Col span={4.5}>{side(h2h.b, "dart")}</Grid.Col>
+              <Grid.Col span={4}>{side(h2h.b, "dart")}</Grid.Col>
             </Grid>
             <Text ta="center" size="xs" c="dimmed" mt="xs">
               {tn("%(n)s match", "%(n)s matches", h2h.total_matches)}{h2h.first_meeting ? ` · ${f.date(h2h.first_meeting)} – ${f.date(h2h.last_meeting)}` : ""}

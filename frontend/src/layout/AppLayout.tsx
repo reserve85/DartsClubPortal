@@ -1,9 +1,7 @@
 import { Link, router, usePage } from "@inertiajs/react";
 import {
   ActionIcon,
-  Affix,
   AppShell,
-  Button,
   Badge,
   Box,
   Burger,
@@ -30,7 +28,6 @@ import {
   IconLayoutDashboard,
   IconLogout,
   IconMoon,
-  IconPlus,
   IconSettings,
   IconSun,
 } from "@tabler/icons-react";
@@ -119,17 +116,6 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   const allHrefs = nav.flatMap((g) => g.items.map((i) => i.href)).concat(urls.overview ? [urls.overview] : []);
   const active = allHrefs.filter((h) => path === h || (h !== "/" && path.startsWith(h))).sort((a, b) => b.length - a.length)[0];
   const showOverview = Boolean(user?.modules.elo && user?.modules.penalty && urls.overview);
-  // Quick "Match" button: only on the Elo pages and the overview - never in
-  // administration (Elo manage included), the penalty pages or the entry form.
-  const matchUrl = nav.find((g) => g.key === "elo")?.items.find((i) => i.icon === "plus")?.href;
-  const eloManage = nav.flatMap((g) => g.items).find((i) => i.icon === "adjustments")?.href;
-  const eloPrefix = matchUrl ? `/${matchUrl.split("/")[1]}/` : null;
-  const showMatchButton = Boolean(
-    matchUrl &&
-      eloPrefix &&
-      ((path.startsWith(eloPrefix) && !(eloManage && path.startsWith(eloManage)) && path !== matchUrl && !path.endsWith("/edit/")) ||
-        (urls.overview && path === urls.overview)),
-  );
 
   return (
     <AppShell
@@ -249,13 +235,6 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       <AppShell.Main>
         <Box maw={1100} mx="auto" pb={96}>{children}</Box>
         <CookieNotice />
-        {showMatchButton && (
-          <Affix position={{ bottom: 20, right: 20 }} hiddenFrom="sm" zIndex={250} withinPortal={false}>
-            <Button component={Link} href={matchUrl!} size="lg" radius="xl" leftSection={<IconPlus size={20} />} style={{ boxShadow: "0 10px 30px rgba(0,0,0,.35)" }}>
-              {t("Match")}
-            </Button>
-          </Affix>
-        )}
       </AppShell.Main>
     </AppShell>
   );
