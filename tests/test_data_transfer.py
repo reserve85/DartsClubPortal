@@ -87,3 +87,107 @@ def test_menu_has_import_and_export(admin_client, role_groups):
     assert PAGE in admin_menu(admin_client)
     assert PAGE in admin_menu(_admin("elo3@example.com", admin_elo=True))
     assert PAGE not in admin_menu(_admin("pen3@example.com", admin_penalty=True))
+
+
+# ---------------------------------------------------------------- restore
+RESTORE = reverse("data_restore")
+
+
+def _upload(name, data):
+    from django.core.files.uploadedfile import SimpleUploadedFile
+
+    return SimpleUploadedFile(name, data, content_type="application/octet-stream")
+
+
+@pytest.fixture
+def _dirs(settings, tmp_path):
+    settings.MEDIA_ROOT = tmp_path / "media"
+    settings.BACKUP_DIR = tmp_path / "backups"
+    (tmp_path / "media" / "avatars").mkdir(parents=True)
+    return tmp_path
+
+
+@pytest.mark.django_db(transaction=True)
+def test_backup_round_trip(admin_client, _dirs):
+    from app.players.models import Player
+
+    Player.objects.create(name="Before Backup")
+    (_dirs / "media" / "avatars" / "old.jpg").write_bytes(b"old")
+    backup = admin_client.get(ZIP).content
+    # changes after the backup ...
+    Player.objects.filter(name="Before Backup").delete()
+    Player.objects.create(name="After Backup")
+    (_dirs / "media" / "avatars" / "old.jpg").unlink()
+    (_dirs / "media" / "avatars" / "new.jpg").write_bytes(b"new")
+    response = admin_client.post(
+        RESTORE, {"backup": _upload("backup.zip", backup), "password": "pw", "confirm": "1"}
+    )
+    assert response.status_code == 302 and response["Location"] == PAGE
+    # ... are gone, the backup is back
+    assert Player.objects.filter(name="Before Backup").exists()
+    assert not Player.objects.filter(name="After Backup").exists()
+    assert sorted(p.name for p in (_dirs / "media" / "avatars").iterdir()) == ["old.jpg"]
+    # a safety copy of the replaced state exists, the admin is still signed in
+    assert [p.name.startswith("before-restore-") for p in (_dirs / "backups").iterdir()] == [True]
+    assert admin_client.get(PAGE).status_code == 200
+    assert AuditLog.objects.filter(
+        action=AuditAction.DATA_IMPORTED, metadata__kind="restore"
+    ).exists()
+
+
+@pytest.mark.django_db(transaction=True)
+def test_database_only_restore_keeps_the_pictures(admin_client, _dirs):
+    from app.players.models import Player
+
+    Player.objects.create(name="In Database")
+    database = admin_client.get(DB).content
+    Player.objects.create(name="Later")
+    (_dirs / "media" / "avatars" / "keep.jpg").write_bytes(b"keep")
+    admin_client.post(
+        RESTORE, {"backup": _upload("db.sqlite3", database), "password": "pw", "confirm": "1"}
+    )
+    assert not Player.objects.filter(name="Later").exists()
+    assert (_dirs / "media" / "avatars" / "keep.jpg").exists()
+
+
+@pytest.mark.django_db(transaction=True)
+def test_nothing_happens_without_password_or_confirmation(admin_client, _dirs):
+    from app.players.models import Player
+
+    backup = admin_client.get(ZIP).content
+    Player.objects.create(name="Still Here")
+    for data in (
+        {"backup": _upload("b.zip", backup), "password": "wrong", "confirm": "1"},
+        {"backup": _upload("b.zip", backup), "password": "pw"},
+    ):
+        admin_client.post(RESTORE, data)
+    assert Player.objects.filter(name="Still Here").exists()
+    assert not (_dirs / "backups").exists()
+
+
+@pytest.mark.django_db(transaction=True)
+def test_bad_files_are_refused(admin_client, _dirs):
+    from app.players.models import Player
+
+    Player.objects.create(name="Untouched")
+    database = admin_client.get(DB).content
+    evil = io.BytesIO()
+    with zipfile.ZipFile(evil, "w") as zf:
+        zf.writestr("db.sqlite3", database)
+        zf.writestr("media/avatars/../../evil.txt", b"x")
+    for upload in (
+        _upload("broken.zip", b"not a zip"),
+        _upload("evil.zip", evil.getvalue()),
+        _upload("db.sqlite3", b"SQLite format 3\x00garbage"),
+        _upload("notes.txt", b"hello"),
+    ):
+        admin_client.post(RESTORE, {"backup": upload, "password": "pw", "confirm": "1"})
+    assert Player.objects.filter(name="Untouched").exists()
+    assert not (_dirs.parent / "evil.txt").exists()
+    assert not (_dirs / "backups").exists()
+
+
+def test_only_portal_admins_restore(role_groups, captain_client):
+    elo = _admin("elo4@example.com", admin_elo=True)
+    for client in (elo, captain_client):
+        assert client.post(RESTORE, {"password": "pw", "confirm": "1"}).status_code == 403

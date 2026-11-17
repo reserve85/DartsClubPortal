@@ -380,6 +380,8 @@ STATICFILES_DIRS = [BASE_DIR / "app" / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 # Uploaded pictures (player avatars) live on the data volume next to the DB.
 MEDIA_ROOT = Path(env("MEDIA_ROOT", "") or (SQLITE_PATH.parent / "media"))
+# Safety copies taken automatically before a backup is restored (last 5 kept).
+BACKUP_DIR = Path(env("BACKUP_DIR", "") or (SQLITE_PATH.parent / "backups"))
 
 STORAGES = {
     "default": {

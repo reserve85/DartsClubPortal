@@ -25,7 +25,12 @@ from app.accounts.qr import LegacyAutoLoginView, QrLoginView
 from app.core import views as core_views
 from app.core.branding import LogoAdminView, LogoFileView
 from app.core.modules import ELO, PENALTY, enabled_modules
-from app.importer.export import BackupExportView, DatabaseExportView, DataTransferView
+from app.importer.export import (
+    BackupExportView,
+    DatabaseExportView,
+    DataTransferView,
+    RestoreView,
+)
 from app.notifications.views import NotificationListView
 from app.players.avatars import AvatarFileView, AvatarUploadView
 
@@ -94,6 +99,7 @@ urlpatterns += i18n_patterns(
     path("data/", DataTransferView.as_view(), name="data_transfer"),
     path("data/database.sqlite3", DatabaseExportView.as_view(), name="data_export_db"),
     path("data/backup.zip", BackupExportView.as_view(), name="data_export_zip"),
+    path("data/restore/", RestoreView.as_view(), name="data_restore"),
     path("club-logo/", LogoAdminView.as_view(), name="club_logo_admin"),
     path("avatars/upload/", AvatarUploadView.as_view(), name="avatar_upload"),
     path("avatars/<str:name>", AvatarFileView.as_view(), name="player_avatar"),

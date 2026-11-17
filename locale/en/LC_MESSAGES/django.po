@@ -3744,3 +3744,60 @@ msgstr ""
 
 msgid "Take over the data of the old Elo and penalty systems, with a preview first."
 msgstr ""
+
+msgid "Unexpected file in the backup: %(name)s"
+msgstr ""
+
+msgid "Backup restored. The previous state was saved as %(name)s."
+msgstr ""
+
+msgid "This is not a backup of this portal."
+msgstr ""
+
+msgid "The backup has no active admin - nobody could log in afterwards."
+msgstr ""
+
+msgid "The file is not a readable database."
+msgstr ""
+
+msgid "The database in the backup is damaged."
+msgstr ""
+
+msgid "The ZIP file is damaged."
+msgstr ""
+
+msgid "The ZIP file contains no db.sqlite3."
+msgstr ""
+
+msgid "Please confirm that all current data is replaced."
+msgstr ""
+
+msgid "Choose a backup (.zip) or a database (.sqlite3)."
+msgstr ""
+
+msgid "All current data is replaced by the backup. A safety copy of the current state is saved first."
+msgstr ""
+
+msgid "Backup file"
+msgstr ""
+
+msgid "Choose .zip or .sqlite3"
+msgstr ""
+
+msgid "I understand that all current data is replaced."
+msgstr ""
+
+msgid "Penalties, matches and accounts entered after the backup are lost. A safety copy of the current state is saved automatically before."
+msgstr ""
+
+msgid "Put a full backup (.zip) or a database (.sqlite3) back. Every current entry is replaced."
+msgstr ""
+
+msgid "Restore backup"
+msgstr ""
+
+msgid "Restore the backup now?"
+msgstr ""
+
+msgid "Your password"
+msgstr ""

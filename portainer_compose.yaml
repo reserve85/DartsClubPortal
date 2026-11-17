@@ -73,6 +73,7 @@ services:
       - DJANGO_TIME_ZONE=Europe/Berlin                # IANA timezone | Default: Europe/Berlin
       - SQLITE_PATH=data/db.sqlite3                   # SQLite path inside the container | Default: data/db.sqlite3
       # - MEDIA_ROOT=/app/data/media                  # Club logo + player pictures | Default: next to the database (data/media)
+      # - BACKUP_DIR=/app/data/backups              # Safety copies taken before a backup is restored (last 5) | Default: data/backups
       # Owner of the data dir on the HOST (linuxserver convention — the
       # entrypoint chowns data/ and drops privileges to it). Get the ids with:
       #   stat -c '%u %g' <data-dir>     (Synology "reserve" user e.g. 1026 100)

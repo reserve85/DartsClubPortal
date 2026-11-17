@@ -4723,6 +4723,63 @@ msgstr "Logo entfernen?"
 msgid "Take over the data of the old Elo and penalty systems, with a preview first."
 msgstr "Daten der alten Elo- und Penalty-Systeme übernehmen, vorher mit Vorschau."
 
+msgid "Unexpected file in the backup: %(name)s"
+msgstr "Unerwartete Datei im Backup: %(name)s"
+
+msgid "Backup restored. The previous state was saved as %(name)s."
+msgstr "Backup eingespielt. Der vorherige Stand wurde als %(name)s gesichert."
+
+msgid "This is not a backup of this portal."
+msgstr "Das ist kein Backup dieses Portals."
+
+msgid "The backup has no active admin - nobody could log in afterwards."
+msgstr "Das Backup enthält keinen aktiven Admin – danach könnte sich niemand anmelden."
+
+msgid "The file is not a readable database."
+msgstr "Die Datei ist keine lesbare Datenbank."
+
+msgid "The database in the backup is damaged."
+msgstr "Die Datenbank im Backup ist beschädigt."
+
+msgid "The ZIP file is damaged."
+msgstr "Die ZIP-Datei ist beschädigt."
+
+msgid "The ZIP file contains no db.sqlite3."
+msgstr "Die ZIP-Datei enthält keine db.sqlite3."
+
+msgid "Please confirm that all current data is replaced."
+msgstr "Bitte bestätigen, dass alle aktuellen Daten ersetzt werden."
+
+msgid "Choose a backup (.zip) or a database (.sqlite3)."
+msgstr "Bitte ein Backup (.zip) oder eine Datenbank (.sqlite3) wählen."
+
+msgid "All current data is replaced by the backup. A safety copy of the current state is saved first."
+msgstr "Alle aktuellen Daten werden durch das Backup ersetzt. Vorher wird eine Sicherheitskopie des aktuellen Stands gespeichert."
+
+msgid "Backup file"
+msgstr "Backup-Datei"
+
+msgid "Choose .zip or .sqlite3"
+msgstr ".zip oder .sqlite3 wählen"
+
+msgid "I understand that all current data is replaced."
+msgstr "Mir ist klar, dass alle aktuellen Daten ersetzt werden."
+
+msgid "Penalties, matches and accounts entered after the backup are lost. A safety copy of the current state is saved automatically before."
+msgstr "Strafen, Matches und Konten, die nach dem Backup eingetragen wurden, gehen verloren. Vorher wird automatisch eine Sicherheitskopie des aktuellen Stands gespeichert."
+
+msgid "Put a full backup (.zip) or a database (.sqlite3) back. Every current entry is replaced."
+msgstr "Ein Komplett-Backup (.zip) oder eine Datenbank (.sqlite3) zurückspielen. Alle aktuellen Einträge werden ersetzt."
+
+msgid "Restore backup"
+msgstr "Backup einspielen"
+
+msgid "Restore the backup now?"
+msgstr "Backup jetzt einspielen?"
+
+msgid "Your password"
+msgstr "Dein Passwort"
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 
