@@ -14,7 +14,7 @@ RUN npm run build
 # ---------------------------------------------------------------------------
 # Stage 2: the Django app
 # ---------------------------------------------------------------------------
-FROM python:3.11-slim
+FROM python:3.15-slim
 
 # Build metadata — injected by CI / docker compose build args (see version.py)
 ARG GIT_COMMIT=unknown
