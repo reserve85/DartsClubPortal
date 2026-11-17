@@ -1,4 +1,4 @@
-Django>=5.2,<5.3          # 5.2 LTS
+Django>=6.1.3,<6.2          # 5.2 LTS
 django-allauth>=65.22.1,<66  # signup/login/logout/password reset & change, email verification
 gunicorn>=21.2,<24        # prod server; EXACTLY ONE worker (SQLite concurrency)
 whitenoise>=6.12.0        # static files serving; wired via MIDDLEWARE + STORAGES
