@@ -1,5 +1,5 @@
 Django>=5.2,<5.3          # 5.2 LTS
-django-allauth>=65.19,<66 # signup/login/logout/password reset & change, email verification
+django-allauth>=65.22.1,<66 # signup/login/logout/password reset & change, email verification
 gunicorn>=21.2,<24        # prod server; EXACTLY ONE worker (SQLite concurrency)
 whitenoise>=6.6           # static files serving; wired via MIDDLEWARE + STORAGES
 argon2-cffi>=23.1         # Elo import: keeps the argon2 password hashes of Elo accounts
