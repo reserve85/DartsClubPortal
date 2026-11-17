@@ -36,6 +36,7 @@ import { useEffect, type ReactNode } from "react";
 import { CookieNotice } from "../components/CookieNotice";
 import { NavIcon } from "../components/icons";
 import { PlayerAvatar } from "../components/PlayerAvatar";
+import { useRoleLabel } from "../components/roles";
 import { useFormat, useT } from "../i18n";
 import type { SharedProps } from "../types";
 
@@ -128,6 +129,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   const { auth, nav, site, urls, counts } = page.props;
   const user = auth.user;
   const t = useT();
+  const roleLabel = useRoleLabel();
   const [opened, { toggle, close }] = useDisclosure(false);
   useFlashToasts();
   useEffect(() => router.on("navigate", () => close()), [close]);
@@ -181,7 +183,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                     <Text size="sm" fw={700} c="var(--mantine-color-text)" truncate>{user.name}</Text>
                     <Text size="xs" c="dimmed" truncate>{user.email}</Text>
                     <Group gap={4} mt={6}>
-                      <Badge size="xs" color={user.isAdmin ? "dart" : "gray"}>{user.role === "system" ? "System" : user.isAdmin ? t("Admin") : t("User")}</Badge>
+                      <Badge size="xs" color={user.isAdmin ? "dart" : "gray"}>{user.role === "system" ? "System" : user.isAdmin ? roleLabel("admin", user.adminScopes) : t("User")}</Badge>
                       {user.captainOf && <Badge size="xs" color="brand">{t("Captain")} · {user.captainOf.name}</Badge>}
                     </Group>
                   </Menu.Label>

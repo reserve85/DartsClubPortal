@@ -1,4 +1,5 @@
 import { Head, Link, router } from "@inertiajs/react";
+import { useRoleLabel } from "../../components/roles";
 import { Badge, Box, Button, Group, Pagination, Paper, Stack, Text, TextInput } from "@mantine/core";
 import { IconEdit, IconMailForward, IconQrcode, IconSearch, IconUserCheck, IconUserPlus, IconUsers } from "@tabler/icons-react";
 import { useState } from "react";
@@ -37,7 +38,7 @@ export default function Users({ users, pendingCount, inviteCount, page, pages }:
   const t = useT();
   const f = useFormat();
   const [q, setQ] = useState("");
-  const roleLabel = { system: t("System"), admin: t("Admin"), user: t("User"), club: t("Club account"), "": t("no role") };
+  const roleLabel = useRoleLabel();
   const needle = q.trim().toLowerCase();
   const shown = users.filter((u) => !needle || `${u.name} ${u.email} ${u.player} ${u.team}`.toLowerCase().includes(needle));
   return (
@@ -79,10 +80,7 @@ export default function Users({ users, pendingCount, inviteCount, page, pages }:
                   )}
                   {u.name && <Text size="xs" c="dimmed" truncate>{u.email}</Text>}
                   <Group gap={6} mt={6}>
-                    <Badge color={ROLE_COLOR[u.role]} variant={u.role ? "filled" : "outline"}>{roleLabel[u.role]}</Badge>
-                    {u.role === "admin" && u.adminScopes.length < 3 && u.adminScopes.map((s) => (
-                      <Badge key={s} color="brand" variant="light">{{ elo: "Elo", penalty: "Penalty", portal: "Portal" }[s]}</Badge>
-                    ))}
+                    <Badge color={ROLE_COLOR[u.role]} variant={u.role ? "filled" : "outline"}>{roleLabel(u.role, u.adminScopes)}</Badge>
                     {u.team && <Badge color="yellow" variant="light">{t("Captain")}: {u.team}</Badge>}
                     {!u.playerUrl && u.status === "approved" && u.role !== "club" && <Badge color="gray" variant="outline">{t("no player")}</Badge>}
                     {u.status === "pending" && <Badge color="orange">{t("waiting for approval")}</Badge>}

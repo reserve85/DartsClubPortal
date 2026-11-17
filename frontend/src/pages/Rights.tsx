@@ -1,4 +1,5 @@
 import { Head } from "@inertiajs/react";
+import { useRoleLabel } from "../components/roles";
 import { Badge, Box, Group, List, Paper, ScrollArea, SimpleGrid, Table, Text, ThemeIcon, Tooltip } from "@mantine/core";
 import { IconCash, IconCheck, IconCrown, IconEye, IconMinus, IconShieldCheck, IconUser, IconUsers } from "@tabler/icons-react";
 import { Fragment, type ReactNode } from "react";
@@ -88,7 +89,7 @@ export default function Rights({ me }: Props) {
       </ThemeIcon>
     </Tooltip>
   );
-  const roleLabel = { system: t("System"), admin: t("Admin"), user: t("User"), "": t("no role") }[me.role];
+  const roleLabel = useRoleLabel()(me.role, scopes);
 
   return (
     <>
@@ -103,9 +104,6 @@ export default function Rights({ me }: Props) {
         <Paper withBorder p="md" radius="md">
           <Group gap={8} mb="sm">
             <Badge size="lg" color={me.isAdmin ? "brand" : "gray"} variant="filled">{roleLabel}</Badge>
-            {me.role === "admin" && scopes.length < 3 && scopes.map((s) => (
-              <Badge key={s} size="lg" color="brand" variant="light">{{ elo: t("Elo admin"), penalty: t("Penalty admin"), portal: t("Portal admin") }[s]}</Badge>
-            ))}
             {me.captainOf && <Badge size="lg" color="yellow" variant="light" leftSection={<IconCrown size={14} />}>{t("Captain")}: {me.captainOf}</Badge>}
             {me.cashierOf.map((team) => (
               <Badge key={team} size="lg" color="teal" variant="light" leftSection={<IconCash size={14} />}>{t("Cashier")}: {team}</Badge>
