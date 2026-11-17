@@ -64,23 +64,24 @@ def test_admin_creates_player_without_any_team(admin_client, team):
     assert list(player.teams.all()) == []
 
 
-def test_create_form_has_no_team_assignment(admin_client):
-    """The team assignment is not offered on the create page at all."""
-    response = admin_client.get(reverse("players:player_create"))
-    assert response.status_code == 200
-    assert "teams" not in response.context["form"].fields
-    assert "participant-chips" not in response.content.decode()
+def test_create_page_offers_team_elo_and_invitation(admin_client, team):
+    """New member: one form for the team of the season, Elo and the login."""
+    props = inertia_props(admin_client.get(reverse("players:player_create")))
+    assert [t["label"] for t in props["teams"]] == [team.name]
+    assert props["captainTeam"] is None
+    assert props["canElo"] is True and props["canInvite"] is True
 
 
-def test_captain_creates_player_without_assignment(captain_client, team, other_team):
-    """Captains create the player too — they tick their own column in the matrix."""
+def test_captain_creates_player_in_own_team(captain_client, team, other_team):
+    """Captains create players of their OWN team - a forged other team is ignored."""
     response = captain_client.post(
         reverse("players:player_create"),
-        {"name": "Own", "teams": [other_team.pk], "active": "on"},
+        {"name": "Own", "team": other_team.pk, "elo": "on", "invite": "on"},
     )
     assert response.status_code == 302
     player = Player.objects.get(name="Own")
-    assert list(player.teams.all()) == []
+    assert list(player.teams.all()) == [team]
+    assert not hasattr(player, "elo") or player.elo is None  # Elo is the Elo admins' job
 
 
 def test_captain_list_shows_all_players_with_own_column_only(captain_client, team, other_team):
@@ -127,7 +128,7 @@ def test_captain_edit_preserves_other_team_memberships(captain_client, team, oth
 
     response = captain_client.post(
         reverse("players:player_update", args=[both.pk]),
-        {"name": "Shared renamed", "active": "on"},  # teams disabled for captains
+        {"section": "basics", "name": "Shared renamed", "active": "on"},
     )
     assert response.status_code == 302
     both.refresh_from_db()
@@ -183,7 +184,7 @@ def test_admin_updates_player(admin_client, team):
     player = Player.objects.create(name="Old", team=team)
     response = admin_client.post(
         reverse("players:player_update", args=[player.pk]),
-        {"name": "New", "teams": [team.pk], "active": "on"},
+        {"section": "basics", "name": "New", "active": "on"},
     )
     assert response.status_code == 302
     player.refresh_from_db()

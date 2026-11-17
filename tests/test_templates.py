@@ -93,11 +93,9 @@ def test_old_team_detail_redirects_to_financial_overview(admin_client, team):
     assert response.url == f"{reverse('dashboard:financial_overview')}?team={team.pk}"
 
 
-def test_old_player_list_redirects_to_combined_page(admin_client, captain_client):
-    for client in (admin_client, captain_client):
-        response = client.get(reverse("players:player_list"))
-        assert response.status_code == 302
-        assert response.url == reverse("teams:team_list")
+def test_members_list_is_for_admins(admin_client, captain_client):
+    assert admin_client.get(reverse("players:player_list")).status_code == 200
+    assert captain_client.get(reverse("players:player_list")).status_code == 403
 
 
 def test_captain_detail_pages_200(captain_client, matchday):
@@ -145,9 +143,9 @@ def test_delete_lives_on_the_edit_page_deactivation_is_the_checkbox(admin_client
 
     response = admin_client.get(reverse("players:player_update", args=[player.pk]))
     assert reverse("players:player_deactivate", args=[player.pk]) not in response.content.decode()
-    assert "active" in response.context["form"].fields  # …the checkbox does the job
-    # …and the assignment is NOT edited here anymore (the matrix owns it).
-    assert "teams" not in response.context["form"].fields
+    from tests.conftest import inertia_props
+
+    assert "active" in inertia_props(response)["player"]  # …the switch does the job
 
 
 def test_delete_lives_on_the_edit_page_app_wide(

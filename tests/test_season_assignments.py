@@ -14,6 +14,7 @@ from app.matchdays.models import Matchday, Season
 from app.penalties.services import team_balances
 from app.players.models import Player, PlayerTeam
 from app.players.services import assign_teams, teams_for
+from tests.conftest import inertia_props
 
 pytestmark = pytest.mark.django_db
 
@@ -109,24 +110,26 @@ def test_matrix_saves_only_the_active_season(admin_client, team, other_team, sea
     assert teams_for(player, season) == [team]  # old season keeps its team
 
 
-def test_player_edit_form_has_no_team_assignment(admin_client, team, other_team, season):
-    """Teams are gone from the player edit page — the matrix owns assignments."""
+def test_member_page_edits_only_the_active_season(admin_client, team, other_team, season):
+    """The member page shows and changes the teams of the ACTIVE season only."""
     newer = Season.objects.create(name="2026/2027")  # active by default (newest)
     player = Player.objects.create(name="P", team=team, season=season)
     assign_teams(player, [other_team], season=newer)
 
-    response = admin_client.get(reverse("players:player_update", args=[player.pk]))
-    assert response.status_code == 200
-    assert "teams" not in response.context["form"].fields
+    props = inertia_props(admin_client.get(reverse("players:player_update", args=[player.pk])))
+    assert props["season"] == newer.name
+    assert {t["name"]: t["checked"] for t in props["teams"]} == {
+        team.name: False,
+        other_team.name: True,
+    }
 
-    # …and a forged POST cannot change the assignment either.
     response = admin_client.post(
         reverse("players:player_update", args=[player.pk]),
-        {"name": "P", "teams": [team.pk], "active": "on"},
+        {"section": "teams", "teams": [team.pk]},
     )
     assert response.status_code == 302
-    assert teams_for(player, newer) == [other_team]  # untouched
-    assert teams_for(player, season) == [team]
+    assert teams_for(player, newer) == [team]
+    assert teams_for(player, season) == [team]  # the old season stays as it was
 
 
 def test_player_matrix_shows_active_season_teams(admin_client, team, season):

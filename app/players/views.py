@@ -1,22 +1,16 @@
 """Player views — admin manages all teams, captains only their own team."""
 
-from typing import ClassVar
-
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views import View
-from django.views.generic import CreateView, DetailView, RedirectView, UpdateView
+from django.views.generic import DetailView
 
-from app.core.inertia_utils import InertiaFormMixin
 from app.core.models import AuditAction
 from app.core.permissions import (
-    GROUP_ADMIN,
-    GROUP_CAPTAIN,
-    GroupRequiredMixin,
     assert_admin_or_captain,
     user_can_edit_player,
     user_can_view_player,
@@ -32,7 +26,6 @@ from app.penalties.services import (
     player_total,
     player_total_paid,
 )
-from app.players.forms import PlayerForm
 from app.players.models import Player
 from app.players.services import teams_for
 
@@ -122,99 +115,6 @@ class PlayerDetailView(LoginRequiredMixin, DetailView):
         return inertia_render(
             self.request, "Penalty/PlayerDetail", props=props, template_data=context
         )
-
-
-class PlayerListRedirectView(GroupRequiredMixin, LoginRequiredMixin, RedirectView):
-    """The standalone players list was merged into the Teams & Players page."""
-
-    groups: ClassVar[list] = [GROUP_ADMIN, GROUP_CAPTAIN]
-    admin_scope: ClassVar[str] = "penalty"
-    permanent = False
-    url = reverse_lazy("teams:team_list")
-
-
-class PlayerCreateView(LoginRequiredMixin, InertiaFormMixin, CreateView):
-    model = Player
-    form_class = PlayerForm
-    success_url = reverse_lazy("teams:team_list")
-
-    def dispatch(self, request, *args, **kwargs):
-        assert_admin_or_captain(request.user)
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["season"] = season_for_request(self.request)
-        return kwargs
-
-    def form_page_props(self, form):
-        return {
-            "title": str(_("New player")),
-            "subtitle": str(_("Assign the teams afterwards in the team assignment.")),
-            "submitLabel": str(_("Create player")),
-            "cancelUrl": reverse("teams:team_list"),
-        }
-
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        log_action(
-            AuditAction.PLAYER_CREATED,
-            user=self.request.user,
-            target=self.object,
-            metadata={"season_id": form.season.pk if getattr(form, "season", None) else None},
-        )
-        messages.success(self.request, _("Player created."))
-        return response
-
-
-class PlayerUpdateView(LoginRequiredMixin, InertiaFormMixin, UpdateView):
-    model = Player
-    form_class = PlayerForm
-    success_url = reverse_lazy("teams:team_list")
-
-    def dispatch(self, request, *args, **kwargs):
-        assert_admin_or_captain(request.user)
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["season"] = season_for_request(self.request)
-        return kwargs
-
-    def get_object(self, queryset=None):
-        player = super().get_object(queryset)
-        # WRITE gate: admin or captain of one of the player's teams (READ of
-        # the detail page is open to every signed-in account).
-        if not user_can_edit_player(self.request.user, player):
-            raise PermissionDenied
-        return player
-
-    def form_page_props(self, form):
-        return {
-            "title": str(_("Edit player")),
-            "subtitle": self.object.name,
-            "badge": self.object.name,
-            "badgePerson": True,
-            "submitLabel": str(_("Save changes")),
-            "cancelUrl": reverse("players:player_detail", args=[self.object.pk]),
-            "notice": str(
-                _(
-                    'Players are never deleted: switch off "active" instead. '
-                    "Their penalties and payments stay in the history."
-                )
-            ),
-        }
-
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        log_action(
-            AuditAction.PLAYER_UPDATED,
-            user=self.request.user,
-            target=self.object,
-            metadata={"season_id": form.season.pk if getattr(form, "season", None) else None},
-        )
-        messages.success(self.request, _("Player updated."))
-        return response
 
 
 class PlayerDeactivateView(LoginRequiredMixin, View):

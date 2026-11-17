@@ -18,6 +18,7 @@ import {
   IconUpload,
   IconUserCog,
   IconUsers,
+  IconUsersGroup,
   IconWallet,
   IconPhoto,
   type Icon,
@@ -44,6 +45,7 @@ export const ICONS: Record<string, Icon> = {
   upload: IconUpload,
   "user-cog": IconUserCog,
   users: IconUsers,
+  "users-group": IconUsersGroup,
   wallet: IconWallet,
   photo: IconPhoto,
 };

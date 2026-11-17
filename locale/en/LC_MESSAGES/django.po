@@ -3414,3 +3414,222 @@ msgstr ""
 
 msgid "no player"
 msgstr ""
+
+msgid "Members"
+msgstr ""
+
+msgid "Enter a whole number."
+msgstr ""
+
+msgid "Between 100 and 4000."
+msgstr ""
+
+msgid "Choose a valid team."
+msgstr ""
+
+msgid "Please enter an e-mail address."
+msgstr ""
+
+msgid "The account is no longer linked."
+msgstr ""
+
+msgid "%(name)s was added."
+msgstr ""
+
+msgid "Saved."
+msgstr ""
+
+msgid "%(email)s is now linked to %(name)s."
+msgstr ""
+
+msgid "The entry date cannot be in the future."
+msgstr ""
+
+msgid "Choose an account."
+msgstr ""
+
+msgid "A member with this name already exists."
+msgstr ""
+
+msgid "Invitation sent to %(email)s."
+msgstr ""
+
+msgid "Teams saved."
+msgstr ""
+
+msgid "Enter a valid date."
+msgstr ""
+
+msgid "%(email)s keeps the login but no longer belongs to %(name)s."
+msgstr ""
+
+msgid "%(n)s active"
+msgstr ""
+
+msgid "%(n)s with account"
+msgstr ""
+
+msgid "Add member"
+msgstr ""
+
+msgid "Add to the Elo ranking"
+msgstr ""
+
+msgid "Basics"
+msgstr ""
+
+msgid "Choose an account"
+msgstr ""
+
+msgid "Current Elo"
+msgstr ""
+
+msgid "Disable %(name)s?"
+msgstr ""
+
+msgid "Enable again"
+msgstr ""
+
+msgid "Inactive members stay in the history but are hidden in new matchdays and lists."
+msgstr ""
+
+msgid "Invite to the portal"
+msgstr ""
+
+msgid "Invited: %(email)s"
+msgstr ""
+
+msgid "Link"
+msgstr ""
+
+msgid "Link an existing account"
+msgstr ""
+
+msgid "Manage invitations"
+msgstr ""
+
+msgid "Member"
+msgstr ""
+
+msgid "Never logged in"
+msgstr ""
+
+msgid "New member"
+msgstr ""
+
+msgid "No account yet. Invite the member or link an existing account."
+msgstr ""
+
+msgid "No members yet."
+msgstr ""
+
+msgid "Not in the Elo ranking yet."
+msgstr ""
+
+msgid "One form for the person, team, Elo ranking and login."
+msgstr ""
+
+msgid "Optional. More teams can be added on the member page."
+msgstr ""
+
+msgid "Plays in the Elo ranking"
+msgstr ""
+
+msgid "Profile"
+msgstr ""
+
+msgid "Rights & account"
+msgstr ""
+
+msgid "Save teams"
+msgstr ""
+
+msgid "Sends an invitation e-mail; the account is linked to this member automatically."
+msgstr ""
+
+msgid "Show inactive"
+msgstr ""
+
+msgid "Stays in the ranking, cannot play new matches."
+msgstr ""
+
+msgid "Unlink"
+msgstr ""
+
+msgid "Unlink the account?"
+msgstr ""
+
+msgid "Valid until %(date)s"
+msgstr ""
+
+msgid "With account"
+msgstr ""
+
+msgid "Without account"
+msgstr ""
+
+msgid "no Elo"
+msgstr ""
+
+msgid "no account"
+msgstr ""
+
+msgid "— no team —"
+msgstr ""
+
+msgid "Added: %(names)s"
+msgstr ""
+
+msgid "Already there, skipped: %(names)s"
+msgstr ""
+
+msgid "%(n)s account(s) without a player (e.g. club account):"
+msgstr ""
+
+msgid "%(n)s registration(s) waiting for approval"
+msgstr ""
+
+msgid "Add"
+msgstr ""
+
+msgid "Add members quickly"
+msgstr ""
+
+msgid "Changes are saved right away."
+msgstr ""
+
+msgid "Inactive"
+msgstr ""
+
+msgid "Invite"
+msgstr ""
+
+msgid "Invite %(name)s"
+msgstr ""
+
+msgid "More options"
+msgstr ""
+
+msgid "Name + Enter. Several at once: one name per line (Shift+Enter)."
+msgstr ""
+
+msgid "Optional: with an e-mail address the member gets an invitation; the account is linked automatically."
+msgstr ""
+
+msgid "Review now"
+msgstr ""
+
+msgid "Save name"
+msgstr ""
+
+msgid "The account is linked to this member when the invitation is accepted."
+msgstr ""
+
+msgid "Without Elo"
+msgstr ""
+
+msgid "optional"
+msgstr ""
+
+msgid "Accounts & rights"
+msgstr ""

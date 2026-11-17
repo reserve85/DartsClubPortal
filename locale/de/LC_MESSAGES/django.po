@@ -4393,6 +4393,225 @@ msgstr "Änderung zurückziehen"
 msgid "no player"
 msgstr "kein Spieler"
 
+msgid "Members"
+msgstr "Mitglieder"
+
+msgid "Enter a whole number."
+msgstr "Bitte eine ganze Zahl eingeben."
+
+msgid "Between 100 and 4000."
+msgstr "Zwischen 100 und 4000."
+
+msgid "Choose a valid team."
+msgstr "Bitte ein gültiges Team wählen."
+
+msgid "Please enter an e-mail address."
+msgstr "Bitte eine E-Mail-Adresse eingeben."
+
+msgid "The account is no longer linked."
+msgstr "Das Konto ist nicht mehr verknüpft."
+
+msgid "%(name)s was added."
+msgstr "%(name)s wurde angelegt."
+
+msgid "Saved."
+msgstr "Gespeichert."
+
+msgid "%(email)s is now linked to %(name)s."
+msgstr "%(email)s ist jetzt mit %(name)s verknüpft."
+
+msgid "The entry date cannot be in the future."
+msgstr "Das Eintrittsdatum darf nicht in der Zukunft liegen."
+
+msgid "Choose an account."
+msgstr "Bitte ein Konto wählen."
+
+msgid "A member with this name already exists."
+msgstr "Ein Mitglied mit diesem Namen gibt es schon."
+
+msgid "Invitation sent to %(email)s."
+msgstr "Einladung an %(email)s gesendet."
+
+msgid "Teams saved."
+msgstr "Teams gespeichert."
+
+msgid "Enter a valid date."
+msgstr "Bitte ein gültiges Datum eingeben."
+
+msgid "%(email)s keeps the login but no longer belongs to %(name)s."
+msgstr "%(email)s behält den Zugang, gehört aber nicht mehr zu %(name)s."
+
+msgid "%(n)s active"
+msgstr "%(n)s aktiv"
+
+msgid "%(n)s with account"
+msgstr "%(n)s mit Konto"
+
+msgid "Add member"
+msgstr "Mitglied anlegen"
+
+msgid "Add to the Elo ranking"
+msgstr "In die Elo-Rangliste aufnehmen"
+
+msgid "Basics"
+msgstr "Stammdaten"
+
+msgid "Choose an account"
+msgstr "Konto wählen"
+
+msgid "Current Elo"
+msgstr "Aktuelle Elo"
+
+msgid "Disable %(name)s?"
+msgstr "%(name)s sperren?"
+
+msgid "Enable again"
+msgstr "Wieder freigeben"
+
+msgid "Inactive members stay in the history but are hidden in new matchdays and lists."
+msgstr "Inaktive Mitglieder bleiben in der Historie, erscheinen aber nicht mehr bei neuen Spieltagen und in Listen."
+
+msgid "Invite to the portal"
+msgstr "Ins Portal einladen"
+
+msgid "Invited: %(email)s"
+msgstr "Eingeladen: %(email)s"
+
+msgid "Link"
+msgstr "Verknüpfen"
+
+msgid "Link an existing account"
+msgstr "Vorhandenes Konto verknüpfen"
+
+msgid "Manage invitations"
+msgstr "Einladungen verwalten"
+
+msgid "Member"
+msgstr "Mitglied"
+
+msgid "Never logged in"
+msgstr "Noch nie angemeldet"
+
+msgid "New member"
+msgstr "Neues Mitglied"
+
+msgid "No account yet. Invite the member or link an existing account."
+msgstr "Noch kein Konto. Lade das Mitglied ein oder verknüpfe ein vorhandenes Konto."
+
+msgid "No members yet."
+msgstr "Noch keine Mitglieder."
+
+msgid "Not in the Elo ranking yet."
+msgstr "Noch nicht in der Elo-Rangliste."
+
+msgid "One form for the person, team, Elo ranking and login."
+msgstr "Ein Formular für Person, Team, Elo-Rangliste und Zugang."
+
+msgid "Optional. More teams can be added on the member page."
+msgstr "Optional. Weitere Teams auf der Mitgliedsseite."
+
+msgid "Plays in the Elo ranking"
+msgstr "Spielt in der Elo-Rangliste"
+
+msgid "Profile"
+msgstr "Profil"
+
+msgid "Rights & account"
+msgstr "Rechte & Konto"
+
+msgid "Save teams"
+msgstr "Teams speichern"
+
+msgid "Sends an invitation e-mail; the account is linked to this member automatically."
+msgstr "Schickt eine Einladung per E-Mail; das Konto wird automatisch mit diesem Mitglied verknüpft."
+
+msgid "Show inactive"
+msgstr "Inaktive zeigen"
+
+msgid "Stays in the ranking, cannot play new matches."
+msgstr "Bleibt in der Rangliste, kann keine neuen Matches spielen."
+
+msgid "Unlink"
+msgstr "Verknüpfung lösen"
+
+msgid "Unlink the account?"
+msgstr "Konto-Verknüpfung lösen?"
+
+msgid "Valid until %(date)s"
+msgstr "Gültig bis %(date)s"
+
+msgid "With account"
+msgstr "Mit Konto"
+
+msgid "Without account"
+msgstr "Ohne Konto"
+
+msgid "no Elo"
+msgstr "kein Elo"
+
+msgid "no account"
+msgstr "kein Konto"
+
+msgid "— no team —"
+msgstr "— kein Team —"
+
+msgid "Added: %(names)s"
+msgstr "Angelegt: %(names)s"
+
+msgid "Already there, skipped: %(names)s"
+msgstr "Schon vorhanden, übersprungen: %(names)s"
+
+msgid "%(n)s account(s) without a player (e.g. club account):"
+msgstr "%(n)s Konto/Konten ohne Spieler (z. B. Vereinskonto):"
+
+msgid "%(n)s registration(s) waiting for approval"
+msgstr "%(n)s Registrierung(en) warten auf Freigabe"
+
+msgid "Add"
+msgstr "Hinzufügen"
+
+msgid "Add members quickly"
+msgstr "Mitglieder schnell anlegen"
+
+msgid "Changes are saved right away."
+msgstr "Änderungen werden sofort gespeichert."
+
+msgid "Inactive"
+msgstr "Inaktiv"
+
+msgid "Invite"
+msgstr "Einladen"
+
+msgid "Invite %(name)s"
+msgstr "%(name)s einladen"
+
+msgid "More options"
+msgstr "Mehr Optionen"
+
+msgid "Name + Enter. Several at once: one name per line (Shift+Enter)."
+msgstr "Name + Enter. Mehrere auf einmal: ein Name pro Zeile (Umschalt+Enter)."
+
+msgid "Optional: with an e-mail address the member gets an invitation; the account is linked automatically."
+msgstr "Optional: Mit E-Mail-Adresse bekommt das Mitglied eine Einladung; das Konto wird automatisch verknüpft."
+
+msgid "Review now"
+msgstr "Jetzt prüfen"
+
+msgid "Save name"
+msgstr "Name speichern"
+
+msgid "The account is linked to this member when the invitation is accepted."
+msgstr "Das Konto wird mit diesem Mitglied verknüpft, sobald die Einladung angenommen ist."
+
+msgid "Without Elo"
+msgstr "Ohne Elo"
+
+msgid "optional"
+msgstr "optional"
+
+msgid "Accounts & rights"
+msgstr "Konten & Rechte"
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 

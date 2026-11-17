@@ -92,6 +92,8 @@ def navigation(user) -> list[dict]:
     if scopes:
         portal = "portal" in scopes
         items = [
+            # Every person (teams, Elo, account) - for every admin area.
+            _item(_("Members"), "players:player_list", "users-group"),
             _item(_("Users"), "accounts:user_list", "user-cog") if portal else None,
             _item(_("Elo administration"), "elo:manage", "adjustments")
             if "elo" in scopes and has_module(user, ELO)
