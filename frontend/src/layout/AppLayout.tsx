@@ -250,7 +250,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         <Box maw={1100} mx="auto" pb={96}>{children}</Box>
         <CookieNotice />
         {showMatchButton && (
-          <Affix position={{ bottom: 20, right: 20 }} hiddenFrom="sm" zIndex={250}>
+          <Affix position={{ bottom: 20, right: 20 }} hiddenFrom="sm" zIndex={250} withinPortal={false}>
             <Button component={Link} href={matchUrl!} size="lg" radius="xl" leftSection={<IconPlus size={20} />} style={{ boxShadow: "0 10px 30px rgba(0,0,0,.35)" }}>
               {t("Match")}
             </Button>
