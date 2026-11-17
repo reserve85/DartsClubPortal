@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { Accordion, Alert, Button, Grid, Group, Paper, Select, Stack, Text } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
@@ -5,7 +6,7 @@ import { IconAlertTriangle, IconDeviceFloppy, IconPlayerTrackNext } from "@table
 import dayjs from "dayjs";
 import { type PickPlayer, PlayerSelect, ScoreChips } from "../../components/elo";
 import { PlayerAvatar } from "../../components/PlayerAvatar";
-import { type Limits, StatsFields, type StatValues } from "../../components/StatsFields";
+import { type Limits, StatsFields, statsProblems, type StatValues } from "../../components/StatsFields";
 import { PageHeader } from "../../components/ui";
 import { useT } from "../../i18n";
 import { joinLists } from "../../components/StatsFields";
@@ -44,11 +45,17 @@ export default function MatchCreate({ players, defaults, bestOfChoices, defaultB
     again: false,
   });
   const d = form.data;
+  const [statsOpen, setStatsOpen] = useState<string | null>(null);
   const pa = players.find((p) => p.id === d.player_a);
   const pb = players.find((p) => p.id === d.player_b);
   // A match can't be older than the later entry date of both players.
   const minDate = [pa?.entryDate, pb?.entryDate].filter(Boolean).sort().pop();
-  const ready = d.player_a && d.player_b && d.score_a !== null && d.score_b !== null && d.match_date;
+  const statsCtx = { names: [pa?.name ?? t("Player A"), pb?.name ?? t("Player B")] as [string, string], bestOf: d.best_of_legs, scoreA: d.score_a, scoreB: d.score_b };
+  const statsBad = Object.keys(statsProblems(t, d as unknown as StatValues, statsCtx)).length > 0;
+  const ready = d.player_a && d.player_b && d.score_a !== null && d.score_b !== null && d.match_date && !statsBad;
+  useEffect(() => {
+    if (statsBad) setStatsOpen("stats");
+  }, [statsBad]);
   const submit = (again: boolean, force = false) => {
     form.transform((data) => ({ ...data, again, force, ...joinLists(data) }));
     form.post("/elo/matches/new/", { preserveScroll: "errors" });
@@ -127,16 +134,14 @@ export default function MatchCreate({ players, defaults, bestOfChoices, defaultB
         </Grid>
       </Paper>
 
-      <Accordion variant="separated" radius="lg" mt="md">
+      <Accordion variant="separated" radius="lg" mt="md" value={statsOpen} onChange={setStatsOpen}>
         <Accordion.Item value="stats">
           <Accordion.Control>{t("Statistics (optional)")}</Accordion.Control>
           <Accordion.Panel>
             <StatsFields
               values={d as unknown as StatValues}
               set={(k, v) => form.setData(k, v as never)}
-              names={[pa?.name ?? t("Player A"), pb?.name ?? t("Player B")]}
-              legsA={d.score_a ?? 0}
-              legsB={d.score_b ?? 0}
+              ctx={statsCtx}
               limits={limits}
               errors={errors}
             />
@@ -152,7 +157,11 @@ export default function MatchCreate({ players, defaults, bestOfChoices, defaultB
           {t("Save + next")}
         </Button>
         <Button color="gray" component={Link} href="/elo/">{t("Cancel")}</Button>
-        {!ready && <Text size="xs" c="dimmed" ta="center">{t("Choose both players and the result.")}</Text>}
+        {statsBad ? (
+          <Text size="xs" c="red" ta="center">{t("The statistics do not fit the result - please correct them.")}</Text>
+        ) : (
+          !ready && <Text size="xs" c="dimmed" ta="center">{t("Choose both players and the result.")}</Text>
+        )}
       </Stack>
     </>
   );

@@ -1,4 +1,6 @@
-import { Grid, NumberInput, TagsInput, Text } from "@mantine/core";
+import { Alert, Grid, NumberInput, TagsInput, Text } from "@mantine/core";
+import { IconInfoCircle } from "@tabler/icons-react";
+import { useState } from "react";
 import { useT } from "../i18n";
 
 const IMPOSSIBLE = new Set([169, 168, 166, 165, 163, 162, 159]);
@@ -20,66 +22,124 @@ export interface StatValues {
   b_average: number | string;
 }
 
+/** What the result allows. Without a result yet the widest Best-of limits apply. */
+export interface StatsContext {
+  names: [string, string];
+  bestOf: number;
+  scoreA: number | null;
+  scoreB: number | null;
+}
+
+type T = ReturnType<typeof useT>;
+
+function bounds(ctx: StatsContext) {
+  const decided = ctx.scoreA !== null && ctx.scoreB !== null;
+  const need = Math.ceil(ctx.bestOf / 2);
+  return {
+    decided,
+    legs: decided ? (ctx.scoreA ?? 0) + (ctx.scoreB ?? 0) : ctx.bestOf,
+    won: { a: decided ? (ctx.scoreA ?? 0) : need, b: decided ? (ctx.scoreB ?? 0) : need },
+  };
+}
+
+/** Statistics that do not fit the result (or Best of): field -> message. Empty = fine. */
+export function statsProblems(t: T, values: StatValues, ctx: StatsContext): Record<string, string> {
+  const { decided, legs, won } = bounds(ctx);
+  const out: Record<string, string> = {};
+  (["a", "b"] as const).forEach((side, i) => {
+    const name = ctx.names[i];
+    const n180 = Number(values[`${side}_180s`] || 0);
+    if (n180 > legs * 3) out[`${side}_180s`] = t("At most %(n)s 180s in %(legs)s legs.", { n: legs * 3, legs });
+    const avg = values[`${side}_average`];
+    if (avg !== "" && avg !== null && (Number(avg) < 0 || Number(avg) > 180)) out[`${side}_average`] = t("An average is between 0 and 180.");
+    const lists = [
+      ["high_finishes", t("high finishes")],
+      ["low_darts", t("low darts entries")],
+    ] as const;
+    for (const [key, what] of lists) {
+      const count = values[`${side}_${key}`].length;
+      if (count > won[side]) {
+        out[`${side}_${key}`] = !decided
+          ? t("Best of %(n)s: at most %(won)s %(what)s per player.", { n: ctx.bestOf, won: won[side], what })
+          : won[side] === 0
+            ? t("%(name)s won no leg: remove the %(what)s.", { name, what })
+            : t("Legs won by %(name)s: %(won)s - at most %(won)s %(what)s.", { name, won: won[side], what });
+      }
+    }
+  });
+  return out;
+}
+
 /**
- * Optional dart statistics side by side. Inputs only accept plausible values:
- * 180s <= 3 per leg, high finishes 100-170 (no bogey numbers) and at most one
- * per won leg, low darts 9-21 per won leg, average 0-180.
+ * Optional dart statistics side by side. They can be filled in before the
+ * result: until then the limits of the chosen Best of apply, afterwards those
+ * of the result. Values that do not fit are explained, never dropped silently.
  */
 export function StatsFields({
   values,
   set,
-  names,
-  legsA,
-  legsB,
+  ctx,
   limits,
   errors,
 }: {
   values: StatValues;
   set: (key: keyof StatValues, value: unknown) => void;
-  names: [string, string];
-  legsA: number;
-  legsB: number;
+  ctx: StatsContext;
   limits: Limits;
   errors: Record<string, string | undefined>;
 }) {
   const t = useT();
-  const legs = legsA + legsB;
+  const { decided, legs, won } = bounds(ctx);
+  const problems = statsProblems(t, values, ctx);
+  // Typed values that are no possible finish / low darts: say why they vanished.
+  const [rejected, setRejected] = useState<Record<string, string>>({});
   const hfOk = (v: string) => { const n = Number(v); return Number.isInteger(n) && n >= limits.hfMin && n <= limits.hfMax && !IMPOSSIBLE.has(n); };
   const ldOk = (v: string) => { const n = Number(v); return Number.isInteger(n) && n >= limits.ldMin && n <= limits.ldMax; };
-  const col = (side: "a" | "b", won: number) => (
+  const tags = (key: keyof StatValues, ok: (v: string) => boolean, why: (v: string) => string) => (list: string[]) => {
+    const bad = list.filter((v) => !ok(v));
+    setRejected((r) => ({ ...r, [key]: bad.length ? why(bad[bad.length - 1]) : "" }));
+    set(key, list.filter(ok));
+  };
+  const message = (key: string) => errors[key] || problems[key] || rejected[key] || undefined;
+
+  const col = (side: "a" | "b") => (
     <Grid.Col span={6}>
-      <Text fw={800} size="sm" truncate mb={6}>{names[side === "a" ? 0 : 1]}</Text>
+      <Text fw={800} size="sm" truncate mb={6}>{ctx.names[side === "a" ? 0 : 1]}</Text>
       <NumberInput
         label="180er"
         min={0}
-        max={Math.max(0, legs * 3)}
-        clampBehavior="strict"
+        max={legs * 3}
+        clampBehavior="none"
         allowDecimal={false}
+        allowNegative={false}
         value={values[`${side}_180s`]}
         onChange={(v) => set(`${side}_180s`, v)}
-        error={errors[`${side}_180s`]}
+        error={message(`${side}_180s`)}
         mb="xs"
       />
       <TagsInput
         label={t("High finishes")}
-        placeholder={won ? `${limits.hfMin}–${limits.hfMax}` : "–"}
-        disabled={!won}
-        maxTags={won}
+        placeholder={`${limits.hfMin}–${limits.hfMax}`}
+        // Locked only when nothing is entered and the player won no leg.
+        disabled={decided && won[side] === 0 && values[`${side}_high_finishes`].length === 0}
         splitChars={[",", " ", ";"]}
         value={values[`${side}_high_finishes`]}
-        onChange={(v) => set(`${side}_high_finishes`, v.filter(hfOk))}
-        error={errors[`${side}_high_finishes`]}
+        onChange={tags(`${side}_high_finishes`, hfOk, (v) =>
+          t("%(v)s is no possible high finish (%(min)s–%(max)s, no bogey numbers).", { v, min: limits.hfMin, max: limits.hfMax }),
+        )}
+        error={message(`${side}_high_finishes`)}
         mb="xs"
       />
       <TagsInput
         label={t("Low darts")}
-        placeholder={won ? `${limits.ldMin}–${limits.ldMax}` : "–"}
-        disabled={!won}
-        maxTags={won}
+        placeholder={`${limits.ldMin}–${limits.ldMax}`}
+        disabled={decided && won[side] === 0 && values[`${side}_low_darts`].length === 0}
         splitChars={[",", " ", ";"]}
         value={values[`${side}_low_darts`]}
-        onChange={(v) => set(`${side}_low_darts`, v.filter(ldOk))}
-        error={errors[`${side}_low_darts`]}
+        onChange={tags(`${side}_low_darts`, ldOk, (v) =>
+          t("%(v)s is not possible: a leg takes %(min)s to %(max)s darts here.", { v, min: limits.ldMin, max: limits.ldMax }),
+        )}
+        error={message(`${side}_low_darts`)}
         mb="xs"
       />
       <NumberInput
@@ -87,18 +147,26 @@ export function StatsFields({
         min={0}
         max={180}
         decimalScale={2}
-        clampBehavior="strict"
+        clampBehavior="none"
+        allowNegative={false}
         value={values[`${side}_average`]}
         onChange={(v) => set(`${side}_average`, v)}
-        error={errors[`${side}_average`]}
+        error={message(`${side}_average`)}
       />
     </Grid.Col>
   );
   return (
-    <Grid gap="md">
-      {col("a", legsA)}
-      {col("b", legsB)}
-    </Grid>
+    <>
+      {!decided && (
+        <Alert color="blue" variant="light" icon={<IconInfoCircle size={18} />} mb="sm">
+          <Text size="sm">{t("No result yet: the limits of Best of %(n)s apply. The result checks the statistics again.", { n: ctx.bestOf })}</Text>
+        </Alert>
+      )}
+      <Grid gap="md">
+        {col("a")}
+        {col("b")}
+      </Grid>
+    </>
   );
 }
 

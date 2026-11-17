@@ -4,7 +4,7 @@ import { DatePickerInput } from "@mantine/dates";
 import { IconAlertTriangle } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { ScoreChips } from "../../components/elo";
-import { type Limits, StatsFields, type StatValues } from "../../components/StatsFields";
+import { type Limits, StatsFields, statsProblems, type StatValues } from "../../components/StatsFields";
 import { PageHeader } from "../../components/ui";
 import { useT } from "../../i18n";
 import { joinLists } from "../../components/StatsFields";
@@ -50,6 +50,8 @@ export default function MatchEdit({ match, bestOfChoices, today, minDate, duplic
     force: false,
   });
   const d = form.data;
+  const statsCtx = { names: [match.a, match.b] as [string, string], bestOf: d.best_of_legs, scoreA: d.score_a, scoreB: d.score_b };
+  const statsBad = Object.keys(statsProblems(t, d as unknown as StatValues, statsCtx)).length > 0;
   const save = (force = false) => {
     form.transform((data) => ({ ...data, force, ...joinLists(data) }));
     form.post(`/elo/matches/${match.id}/edit/`, { preserveScroll: "errors" });
@@ -86,16 +88,15 @@ export default function MatchEdit({ match, bestOfChoices, today, minDate, duplic
         <StatsFields
           values={d as unknown as StatValues}
           set={(k, v) => form.setData(k, v as never)}
-          names={[match.a, match.b]}
-          legsA={d.score_a ?? 0}
-          legsB={d.score_b ?? 0}
+          ctx={statsCtx}
           limits={limits}
           errors={errors}
         />
       </Paper>
+      {statsBad && <Text size="xs" c="red" mt="sm">{t("The statistics do not fit the result - please correct them.")}</Text>}
       <Text size="xs" c="dimmed" mt="sm">{t("Saving recalculates the Elo of every later match of both players.")}</Text>
       <Group mt="md">
-        <Button onClick={() => save()} loading={form.processing} disabled={d.score_a === null}>{t("Save changes")}</Button>
+        <Button onClick={() => save()} loading={form.processing} disabled={d.score_a === null || statsBad}>{t("Save changes")}</Button>
         <Button color="gray" component={Link} href={`/elo/matches/${match.id}/`}>{t("Cancel")}</Button>
       </Group>
     </>

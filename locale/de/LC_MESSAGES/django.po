@@ -4871,3 +4871,43 @@ msgstr "Das ist das Vereinskonto: Passwort und E-Mail-Adresse verwaltet ein Port
 
 msgid "Set a password for another account"
 msgstr "Passwort für ein anderes Konto setzen"
+
+#, python-format
+msgid "At most %(n)s 180s in %(legs)s legs."
+msgstr "Höchstens %(n)s 180er in %(legs)s Legs."
+
+msgid "An average is between 0 and 180."
+msgstr "Ein Average liegt zwischen 0 und 180."
+
+msgid "high finishes"
+msgstr "High Finishes"
+
+msgid "low darts entries"
+msgstr "Low-Darts-Einträge"
+
+#, python-format
+msgid "%(name)s won no leg: remove the %(what)s."
+msgstr "%(name)s hat kein Leg gewonnen: bitte die %(what)s entfernen."
+
+#, python-format
+msgid "Legs won by %(name)s: %(won)s - at most %(won)s %(what)s."
+msgstr "Gewonnene Legs von %(name)s: %(won)s – höchstens %(won)s %(what)s."
+
+#, python-format
+msgid "Best of %(n)s: at most %(won)s %(what)s per player."
+msgstr "Best of %(n)s: höchstens %(won)s %(what)s pro Spieler."
+
+#, python-format
+msgid "%(v)s is no possible high finish (%(min)s–%(max)s, no bogey numbers)."
+msgstr "%(v)s ist kein mögliches High Finish (%(min)s–%(max)s, keine Bogey-Zahlen)."
+
+#, python-format
+msgid "%(v)s is not possible: a leg takes %(min)s to %(max)s darts here."
+msgstr "%(v)s ist nicht möglich: Ein Leg dauert hier %(min)s bis %(max)s Darts."
+
+#, python-format
+msgid "No result yet: the limits of Best of %(n)s apply. The result checks the statistics again."
+msgstr "Noch kein Ergebnis: Es gelten die Grenzen von Best of %(n)s. Mit dem Ergebnis wird die Statistik noch einmal geprüft."
+
+msgid "The statistics do not fit the result - please correct them."
+msgstr "Die Statistik passt nicht zum Ergebnis – bitte korrigieren."
