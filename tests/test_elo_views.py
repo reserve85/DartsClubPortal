@@ -348,6 +348,37 @@ class TestUnsubscribe:
 # --------------------------------------------------------------- QR login
 @pytest.mark.django_db
 class TestQrLogin:
+    @pytest.fixture(autouse=True)
+    def _club_account(self, player_user):
+        """QR codes belong to shared club accounts: the test account is one."""
+        player_user.is_club_account = True
+        player_user.save(update_fields=["is_club_account"])
+
+    def test_personal_accounts_get_no_code(self, admin_client, captain_user):
+        from app.accounts.qr import make_token as qr_token
+        from app.accounts.qr import qr_allowed
+
+        assert not qr_allowed(captain_user)
+        props = inertia_props(admin_client.get(reverse("accounts:user_qr", args=[captain_user.pk])))
+        assert props["allowed"] is False and props["png"] == ""
+        resp = Client().post(reverse("accounts:qr_login"), {"token": qr_token(captain_user)})
+        assert "_auth_user_id" not in resp.wsgi_request.session
+
+    def test_user_list_offers_qr_only_for_club_accounts(
+        self, admin_client, player_user, captain_user
+    ):
+        rows = {
+            r["id"]: r
+            for r in inertia_props(admin_client.get(reverse("accounts:user_list")))["users"]
+        }
+        assert rows[player_user.pk]["qrUrl"] and rows[player_user.pk]["role"] == "club"
+        assert rows[captain_user.pk]["qrUrl"] is None
+
+    def test_poster_has_the_portal_address(self, admin_client, player_user, settings):
+        settings.PUBLIC_SITE_URL = "https://darts.example.com"
+        props = inertia_props(admin_client.get(reverse("accounts:user_qr", args=[player_user.pk])))
+        assert props["allowed"] is True and props["siteUrl"] == "darts.example.com"
+
     def test_admin_prints_code_and_member_logs_in(self, admin_client, player_user):
         from app.accounts.qr import make_token as qr_token
 

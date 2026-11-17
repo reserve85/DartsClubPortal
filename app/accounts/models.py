@@ -170,6 +170,15 @@ class User(AbstractUser):
         _("Elo login name"), max_length=100, unique=True, null=True, blank=True
     )
     legacy_elo_id = models.PositiveIntegerField(null=True, blank=True, unique=True, editable=False)
+    # Shared login of the club (e.g. the tablet at the board): the only kind
+    # of account a printed QR code may log in. Never an admin, never a person.
+    is_club_account = models.BooleanField(
+        _("club account"),
+        default=False,
+        help_text=_(
+            "Shared login (e.g. the tablet at the board). Only club accounts get a QR code."
+        ),
+    )
     club_news_optin = models.BooleanField(
         _("club news"),
         default=True,
@@ -189,6 +198,8 @@ class User(AbstractUser):
             return "system"
         if self.is_admin:
             return "admin"
+        if self.is_club_account:
+            return "club"
         if self.is_player or self.is_captain:
             return "user"
         return None

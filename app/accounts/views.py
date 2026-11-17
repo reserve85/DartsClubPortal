@@ -123,7 +123,7 @@ class UserListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
                 ),
                 "qrUrl": (
                     reverse("accounts:user_qr", args=[user.pk])
-                    if not user.is_admin and user.is_active and not requested
+                    if user.is_club_account and user.is_active and not requested
                     else None
                 ),
             }

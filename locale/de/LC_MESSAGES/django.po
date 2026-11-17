@@ -4612,6 +4612,45 @@ msgstr "optional"
 msgid "Accounts & rights"
 msgstr "Konten & Rechte"
 
+msgid "A club account is not a person: remove the linked player."
+msgstr "Ein Vereinskonto ist keine Person: bitte den verknüpften Spieler entfernen."
+
+msgid "A club account cannot be a team captain."
+msgstr "Ein Vereinskonto kann kein Kapitän sein."
+
+msgid "A club account cannot be an admin."
+msgstr "Ein Vereinskonto kann kein Admin sein."
+
+msgid "club account"
+msgstr "Vereinskonto"
+
+msgid "Shared login (e.g. the tablet at the board). Only club accounts get a QR code."
+msgstr "Gemeinsamer Zugang (z. B. das Tablet am Board). Nur Vereinskonten bekommen einen QR-Code."
+
+msgid "Club account"
+msgstr "Vereinskonto"
+
+msgid "Enter Elo matches"
+msgstr "Elo-Matches eintragen"
+
+msgid "Headline"
+msgstr "Überschrift"
+
+msgid "Or open in the browser:"
+msgstr "Oder im Browser öffnen:"
+
+msgid "Print poster"
+msgstr "Aushang drucken"
+
+msgid "QR codes are only for club accounts (a shared login such as the tablet at the board). Tick “Club account” when editing the account."
+msgstr "QR-Codes gibt es nur für Vereinskonten (gemeinsamer Zugang, z. B. das Tablet am Board). Beim Bearbeiten des Kontos „Vereinskonto“ anhaken."
+
+msgid "Scan the code with your phone camera."
+msgstr "Code mit der Handykamera scannen."
+
+msgid "Subline"
+msgstr "Unterzeile"
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 

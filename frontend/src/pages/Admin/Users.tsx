@@ -13,7 +13,7 @@ interface UserRow {
   avatar: string;
   player: string;
   playerUrl: string | null;
-  role: "system" | "admin" | "user" | "";
+  role: "system" | "admin" | "user" | "club" | "";
   adminScopes: ("elo" | "penalty" | "portal")[];
   team: string;
   status: "approved" | "pending" | "rejected" | "requested";
@@ -31,13 +31,13 @@ interface Props {
   pages: number;
 }
 
-const ROLE_COLOR = { system: "dark", admin: "brand", user: "gray", "": "gray" } as const;
+const ROLE_COLOR = { system: "dark", admin: "brand", user: "gray", club: "grape", "": "gray" } as const;
 
 export default function Users({ users, pendingCount, inviteCount, page, pages }: Props) {
   const t = useT();
   const f = useFormat();
   const [q, setQ] = useState("");
-  const roleLabel = { system: t("System"), admin: t("Admin"), user: t("User"), "": t("no role") };
+  const roleLabel = { system: t("System"), admin: t("Admin"), user: t("User"), club: t("Club account"), "": t("no role") };
   const needle = q.trim().toLowerCase();
   const shown = users.filter((u) => !needle || `${u.name} ${u.email} ${u.player} ${u.team}`.toLowerCase().includes(needle));
   return (
@@ -84,7 +84,7 @@ export default function Users({ users, pendingCount, inviteCount, page, pages }:
                       <Badge key={s} color="brand" variant="light">{{ elo: "Elo", penalty: "Penalty", portal: "Portal" }[s]}</Badge>
                     ))}
                     {u.team && <Badge color="yellow" variant="light">{t("Captain")}: {u.team}</Badge>}
-                    {!u.playerUrl && u.status === "approved" && <Badge color="gray" variant="outline">{t("no player")}</Badge>}
+                    {!u.playerUrl && u.status === "approved" && u.role !== "club" && <Badge color="gray" variant="outline">{t("no player")}</Badge>}
                     {u.status === "pending" && <Badge color="orange">{t("waiting for approval")}</Badge>}
                     {u.status === "rejected" && <Badge color="red" variant="light">{t("rejected")}</Badge>}
                     {u.status === "requested" && <Badge color="cyan" variant="light">{t("invited")}</Badge>}

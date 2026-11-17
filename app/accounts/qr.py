@@ -55,6 +55,7 @@ def qr_allowed(user) -> bool:
         user is not None
         and user.is_active
         and getattr(user, "is_approved", True)
+        and getattr(user, "is_club_account", False)
         and not user_is_admin(user)
         and user.has_usable_password()
     )
@@ -197,10 +198,19 @@ class UserQrCodeView(LoginRequiredMixin, View):
             ctx["url"] = url
         from inertia import render as inertia_render
 
+        site_url = (
+            getattr(settings, "PUBLIC_SITE_URL", "") or request.build_absolute_uri("/")
+        ).rstrip("/")
         props = {
-            "target": {"email": target.email, "name": target.full_name},
+            "target": {
+                "email": target.email,
+                "name": target.full_name,
+                "isClub": bool(getattr(target, "is_club_account", False)),
+            },
             "allowed": ctx["allowed"],
             "png": ctx.get("png", ""),
+            # Printed in plain text on the poster: the address to type in.
+            "siteUrl": site_url.split("://", 1)[-1],
             "backUrl": reverse("accounts:user_list"),
         }
         return inertia_render(request, "Admin/UserQr", props=props, template_data=ctx)

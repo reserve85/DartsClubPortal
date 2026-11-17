@@ -508,6 +508,8 @@ def _import_users(src_users, report: ImportReport, email_domain: str, account_ma
                 email = f"{_slug(username)}-{n}@{email_domain}"
                 n += 1
             user = User(email=email, full_name=username, approval_status="approved")
+            # An Elo login nobody claimed is the shared club login (QR codes).
+            user.is_club_account = role != "ADMIN"
             report.created.append(("account", f"{username} -> {email}"))
             report.add(_("accounts created"))
             pw = row.get("password_hash") or ""

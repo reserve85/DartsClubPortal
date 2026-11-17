@@ -3633,3 +3633,42 @@ msgstr ""
 
 msgid "Accounts & rights"
 msgstr ""
+
+msgid "A club account is not a person: remove the linked player."
+msgstr ""
+
+msgid "A club account cannot be a team captain."
+msgstr ""
+
+msgid "A club account cannot be an admin."
+msgstr ""
+
+msgid "club account"
+msgstr ""
+
+msgid "Shared login (e.g. the tablet at the board). Only club accounts get a QR code."
+msgstr ""
+
+msgid "Club account"
+msgstr ""
+
+msgid "Enter Elo matches"
+msgstr ""
+
+msgid "Headline"
+msgstr ""
+
+msgid "Or open in the browser:"
+msgstr ""
+
+msgid "Print poster"
+msgstr ""
+
+msgid "QR codes are only for club accounts (a shared login such as the tablet at the board). Tick “Club account” when editing the account."
+msgstr ""
+
+msgid "Scan the code with your phone camera."
+msgstr ""
+
+msgid "Subline"
+msgstr ""

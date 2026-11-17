@@ -161,6 +161,21 @@ def clean_admin_areas(cleaned: dict) -> dict:
     return cleaned
 
 
+def clean_club_account(form, cleaned: dict) -> dict:
+    """A club account is a shared login: no admin, no person, no captaincy."""
+    if not cleaned.get("is_club_account"):
+        return cleaned
+    if cleaned.get("role") == GROUP_ADMIN or getattr(form.instance, "is_superuser", False):
+        form.add_error("is_club_account", _("A club account cannot be an admin."))
+    if cleaned.get("player_link"):
+        form.add_error(
+            "is_club_account", _("A club account is not a person: remove the linked player.")
+        )
+    if cleaned.get("team"):
+        form.add_error("is_club_account", _("A club account cannot be a team captain."))
+    return cleaned
+
+
 class UserCreateForm(forms.ModelForm):
     role = forms.ChoiceField(choices=ROLE_CHOICES, label=_("Role"), initial=RoleChoice.PLAYER.value)
     password1 = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
@@ -172,6 +187,7 @@ class UserCreateForm(forms.ModelForm):
             "email",
             "full_name",
             "role",
+            "is_club_account",
             "admin_elo",
             "admin_penalty",
             "admin_portal",
@@ -206,7 +222,7 @@ class UserCreateForm(forms.ModelForm):
         cleaned = super().clean()
         # The team field is a captaincy assignment, NOT a role requirement:
         # optional for Captain, allowed for Admin, never valid for Player.
-        return clean_admin_areas(cleaned)
+        return clean_club_account(self, clean_admin_areas(cleaned))
 
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
@@ -388,6 +404,7 @@ class UserUpdateForm(forms.ModelForm):
             "email",
             "full_name",
             "role",
+            "is_club_account",
             "admin_elo",
             "admin_penalty",
             "admin_portal",
@@ -452,7 +469,7 @@ class UserUpdateForm(forms.ModelForm):
         # Captain/Admin accounts and invalid for the Player role.
         if self.instance.is_superuser:
             return cleaned  # the system account keeps everything (fields are locked)
-        return clean_admin_areas(cleaned)
+        return clean_club_account(self, clean_admin_areas(cleaned))
 
     def save(self, commit=True):
         user = super().save(commit=False)
