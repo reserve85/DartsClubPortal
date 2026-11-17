@@ -144,3 +144,15 @@ class TestClubAccountSelfService:
         assert props["managed"] is False
         assert props["passwordUrl"] and props["emailUrl"]
         assert _client(player_user).get(reverse("account_change_password")).status_code == 200
+
+
+def test_own_password_change_leads_back_to_settings(player_user):
+    client = _client(player_user)
+    resp = client.post(
+        reverse("account_change_password"),
+        {"oldpassword": "pw", "password1": NEW, "password2": NEW},
+    )
+    assert resp.status_code == 302
+    assert resp.headers["Location"] == reverse("accounts:settings")
+    player_user.refresh_from_db()
+    assert player_user.check_password(NEW)

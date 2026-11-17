@@ -24,6 +24,13 @@ logger = logging.getLogger("app.accounts")
 class AccountAdapter(DefaultAccountAdapter):
     """Default allauth behaviour + fault-tolerant e-mail delivery + audit."""
 
+    def get_password_change_redirect_url(self, request) -> str:
+        """After changing (or setting) the password, back to Settings - not
+        to the same form again, which looked as if nothing had happened."""
+        from django.urls import reverse
+
+        return reverse("accounts:settings")
+
     def is_ajax(self, request) -> bool:
         # Inertia visits carry X-Requested-With but want the normal
         # redirects/pages, not allauth's JSON answers.
