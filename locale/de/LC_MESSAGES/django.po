@@ -4821,3 +4821,53 @@ msgstr "Daten sichern und wiederherstellen, Listen exportieren."
 
 #~ msgid "Manual penalty — flexible amount with a required comment."
 #~ msgstr "Manuelle Strafe — flexibler Betrag mit Pflichtkommentar."
+
+msgid "Change your own password under Settings."
+msgstr "Dein eigenes Passwort änderst du unter Einstellungen."
+
+msgid "Only the system account may change its own password."
+msgstr "Nur das Systemkonto darf sein eigenes Passwort ändern."
+
+msgid "The new password is set."
+msgstr "Das neue Passwort ist gesetzt."
+
+msgid "A portal admin manages the password of the club account."
+msgstr "Das Passwort des Vereinskontos verwaltet ein Portal-Admin."
+
+msgid "A portal admin manages the e-mail of the club account."
+msgstr "Die E-Mail-Adresse des Vereinskontos verwaltet ein Portal-Admin."
+
+msgid "Set password"
+msgstr "Passwort setzen"
+
+msgid "The club account has no e-mail for a reset: only portal admins set its password here."
+msgstr "Das Vereinskonto hat keine E-Mail zum Zurücksetzen: Nur Portal-Admins setzen hier sein Passwort."
+
+msgid "For a member who cannot reset the password by e-mail."
+msgstr "Für Mitglieder, die ihr Passwort nicht per E-Mail zurücksetzen können."
+
+#, python-format
+msgid "Set password for %(name)s"
+msgstr "Passwort für %(name)s setzen"
+
+msgid "New password"
+msgstr "Neues Passwort"
+
+msgid "Repeat new password"
+msgstr "Neues Passwort wiederholen"
+
+msgid "Continue"
+msgstr "Weiter"
+
+msgid "Really set a new password for the club account? The tablet is signed out and every printed QR code stops working: print the poster again afterwards."
+msgstr "Wirklich ein neues Passwort für das Vereinskonto setzen? Das Tablet wird abgemeldet und alle gedruckten QR-Codes funktionieren nicht mehr: Druck danach das Plakat neu."
+
+#, python-format
+msgid "Really set a new password for %(name)s? The old password stops working and every device of this account is signed out. Tell the person the new password yourself."
+msgstr "Wirklich ein neues Passwort für %(name)s setzen? Das alte Passwort gilt nicht mehr und alle Geräte dieses Kontos werden abgemeldet. Teile der Person das neue Passwort selbst mit."
+
+msgid "This is the club account: a portal admin manages its password and e-mail address."
+msgstr "Das ist das Vereinskonto: Passwort und E-Mail-Adresse verwaltet ein Portal-Admin."
+
+msgid "Set a password for another account"
+msgstr "Passwort für ein anderes Konto setzen"

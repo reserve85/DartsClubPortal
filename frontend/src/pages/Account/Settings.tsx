@@ -19,6 +19,8 @@ interface Props {
   email: string;
   pendingEmail: string;
   emailUrl: string;
+  /** Club account: password and e-mail are managed by a portal admin. */
+  managed?: boolean;
   rightsUrl: string;
   errors: Record<string, string>;
   emailErrors: Record<string, string>;
@@ -26,7 +28,7 @@ interface Props {
 
 const on = (v: unknown) => v === true || v === "True" || v === "true";
 
-export default function Settings({ values, fields, choices, player, passwordUrl, email, pendingEmail, emailUrl, rightsUrl, errors, emailErrors }: Props) {
+export default function Settings({ values, fields, choices, player, passwordUrl, email, pendingEmail, emailUrl, managed = false, rightsUrl, errors, emailErrors }: Props) {
   const t = useT();
   const { auth } = usePage<SharedProps>().props;
   const { setColorScheme } = useMantineColorScheme();
@@ -152,7 +154,7 @@ export default function Settings({ values, fields, choices, player, passwordUrl,
           </Grid.Col>
           <Grid.Col span={{ base: 12, md: 5 }}>
             <Stack gap="md">
-              <AccountCard email={email} pendingEmail={pendingEmail} emailUrl={emailUrl} passwordUrl={passwordUrl} rightsUrl={rightsUrl} player={player?.name ?? ""} errors={emailErrors} />
+              <AccountCard email={email} pendingEmail={pendingEmail} emailUrl={emailUrl} passwordUrl={passwordUrl} managed={managed} rightsUrl={rightsUrl} player={player?.name ?? ""} errors={emailErrors} />
               {player && <AvatarUpload playerId={player.id} name={player.name} avatar={player.avatar} />}
             </Stack>
           </Grid.Col>
@@ -163,7 +165,7 @@ export default function Settings({ values, fields, choices, player, passwordUrl,
 }
 
 /** Login address (change with confirmation link), password, linked player, rights. */
-function AccountCard({ email, pendingEmail, emailUrl, passwordUrl, rightsUrl, player, errors }: { email: string; pendingEmail: string; emailUrl: string; passwordUrl: string; rightsUrl: string; player: string; errors: Record<string, string> }) {
+function AccountCard({ email, pendingEmail, emailUrl, passwordUrl, managed, rightsUrl, player, errors }: { email: string; pendingEmail: string; emailUrl: string; passwordUrl: string; managed: boolean; rightsUrl: string; player: string; errors: Record<string, string> }) {
   const t = useT();
   const [editing, setEditing] = useState(false);
   const form = useForm({ email: "", password: "" });
@@ -205,7 +207,11 @@ function AccountCard({ email, pendingEmail, emailUrl, passwordUrl, rightsUrl, pl
             </Alert>
           )}
         </div>
-        {editing ? (
+        {managed ? (
+          <Alert color="blue" variant="light" icon={<IconInfoCircle size={18} />}>
+            <Text size="sm">{t("This is the club account: a portal admin manages its password and e-mail address.")}</Text>
+          </Alert>
+        ) : editing ? (
           <Stack gap="xs">
             <TextInput type="email" label={t("New e-mail address")} value={form.data.email} onChange={(e) => form.setData("email", e.currentTarget.value)} onKeyDown={enter} error={errors.email} autoComplete="email" data-autofocus />
             <PasswordInput label={t("Current password")} value={form.data.password} onChange={(e) => form.setData("password", e.currentTarget.value)} onKeyDown={enter} error={errors.password} autoComplete="current-password" />

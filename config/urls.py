@@ -22,6 +22,7 @@ from django.urls import include, path
 from django.views.generic import RedirectView
 
 from app.accounts.qr import LegacyAutoLoginView, QrLoginView
+from app.accounts.views import LockedPasswordChangeView, LockedPasswordSetView
 from app.backup.views import (
     BackupExportView,
     DatabaseExportView,
@@ -72,6 +73,9 @@ urlpatterns += i18n_patterns(
         RedirectView.as_view(pattern_name="accounts:settings"),
         name="account_email",
     ),
+    # The shared club account cannot change its own password (portal admins do).
+    path("accounts/password/change/", LockedPasswordChangeView.as_view()),
+    path("accounts/password/set/", LockedPasswordSetView.as_view()),
     path("accounts/", include("allauth.urls")),
     path("accounts/", include("app.accounts.urls")),
     # django-notifications-hq: list/unread/mark-as-read of in-app notifications

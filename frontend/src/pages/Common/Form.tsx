@@ -4,6 +4,7 @@ import { IconAlertTriangle, IconInfoCircle } from "@tabler/icons-react";
 import { confirmPost } from "../../components/elo";
 import { Field, FormFields, initialData, type FieldDef } from "../../components/FormFields";
 import { PlayerAvatar } from "../../components/PlayerAvatar";
+import { PasswordSetCard, type PasswordSet } from "../../components/PasswordSetCard";
 import { PageHeader } from "../../components/ui";
 import { useT } from "../../i18n";
 import { colorFor } from "../../theme";
@@ -25,6 +26,8 @@ interface Props {
   notice?: string;
   rows?: string[][];
   table?: FieldTable;
+  /** Edit account: portal admins set a new password (with confirmation). */
+  passwordSet?: PasswordSet | null;
 }
 
 /** Extra fields shown as a table (one row per object, e.g. per-team fees). */
@@ -196,6 +199,11 @@ export default function FormPage(p: Props) {
           </Stack>
         </form>
       </Paper>
+      {p.passwordSet && (
+        <Box maw={760} mt="md">
+          <PasswordSetCard data={p.passwordSet} />
+        </Box>
+      )}
     </>
   );
 }

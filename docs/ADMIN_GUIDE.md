@@ -45,12 +45,22 @@ a login, and is the quickest way to manage them:
 Members can also register themselves; they then wait for approval under
 *Konten & Rechte → Approvals*.
 
+**Forgotten password:** members reset it themselves with *Forgot password*
+on the login page (needs SMTP). When that is not possible, a portal admin
+sets a new one under *Konten & Rechte → Edit → Set password* - the page asks
+before it changes anything, and the account is signed out everywhere.
+
 ## Club account and QR poster
 
 1. *Konten & Rechte → Edit*: tick **Club account** for the shared login.
 2. Use **QR** in the account list: the page is an A4 poster with logo,
    headline, a large QR code and the portal address - print it for the board.
-3. Changing the club account's password makes every printed code invalid.
+3. Only portal admins set the club account's password: *Konten & Rechte →
+   Edit → Set password*. The club account cannot change its own password or
+   e-mail, and "forgot password" skips it - nobody at the tablet can lock
+   the club out.
+4. A new password makes every printed code invalid and signs the tablet
+   out: print the poster again.
 
 ## Everyday tasks
 

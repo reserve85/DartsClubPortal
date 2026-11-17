@@ -7,6 +7,7 @@ notifications go through ``app.notifications.services.notification_service``.
 
 from typing import ClassVar
 
+from allauth.account import views as allauth_views
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -335,12 +336,25 @@ class UserUpdateView(GroupRequiredMixin, LoginRequiredMixin, InertiaFormMixin, U
             "badgePerson": True,
             "submitLabel": str(_("Save changes")),
             "cancelUrl": reverse("accounts:user_list"),
+            "passwordSet": self._password_set(user),
             "notice": str(
                 _(
                     "Accounts are never deleted: switch off active to lock the login. "
                     "Captain and cashier are assignments any role can hold."
                 )
             ),
+        }
+
+    def _password_set(self, user):
+        """The "set password" card: not for the own account, and the system
+        account only when it is signed in itself (then it is the own account)."""
+        if user == self.request.user or (user.is_superuser and not self.request.user.is_superuser):
+            return None
+        name = user.player_link.name if user.player_link else (user.full_name or user.email)
+        return {
+            "url": reverse("accounts:user_set_password", args=[user.pk]),
+            "name": name,
+            "club": bool(user.is_club_account),
         }
 
     def _other_admins_exist(self) -> bool:
@@ -381,6 +395,72 @@ class UserUpdateView(GroupRequiredMixin, LoginRequiredMixin, InertiaFormMixin, U
         log_action(AuditAction.USER_UPDATED, user=self.request.user, target=self.object)
         messages.success(self.request, _("User updated."))
         return response
+
+
+class UserSetPasswordView(GroupRequiredMixin, LoginRequiredMixin, View):
+    """A portal admin gives an account a new password (no e-mail needed).
+
+    The page asks before posting. Every session of the account ends with the
+    new password (Django checks the password hash per session), and for the
+    club account every printed QR code becomes invalid.
+    """
+
+    groups: ClassVar[list] = [GROUP_ADMIN]  # admin_scope "portal" (mixin default)
+
+    def post(self, request, pk):
+        from django.contrib.auth.password_validation import validate_password
+
+        blocked = _invite_guard(request, pk)
+        if blocked is not None:
+            return blocked
+        target = get_object_or_404(User, pk=pk)
+        back = redirect("accounts:user_update", pk=pk)
+        if target == request.user:
+            messages.error(request, _("Change your own password under Settings."))
+            return back
+        if target.is_superuser and not request.user.is_superuser:
+            messages.error(request, _("Only the system account may change its own password."))
+            return back
+        data = request_data(request)
+        password1 = str(data.get("password1") or "")
+        password2 = str(data.get("password2") or "")
+        if not password1 or password1 != password2:
+            messages.error(request, _("The two password fields didn't match."))
+            return back
+        try:
+            validate_password(password1, user=target)
+        except ValidationError as error:
+            messages.error(request, " ".join(str(m) for m in error.messages))
+            return back
+        target.set_password(password1)
+        target.save(update_fields=["password"])
+        log_action(
+            AuditAction.USER_UPDATED,
+            user=request.user,
+            target=target,
+            metadata={"password": "set by an admin"},
+        )
+        messages.success(request, _("The new password is set."))
+        return back
+
+
+class ClubAccountLockMixin:
+    """The shared club account must not change its own password: anybody at
+    the club tablet could lock the club out. A portal admin manages it."""
+
+    def dispatch(self, request, *args, **kwargs):
+        if getattr(request.user, "is_club_account", False):
+            messages.error(request, _("A portal admin manages the password of the club account."))
+            return redirect("accounts:settings")
+        return super().dispatch(request, *args, **kwargs)
+
+
+class LockedPasswordChangeView(ClubAccountLockMixin, allauth_views.PasswordChangeView):
+    pass
+
+
+class LockedPasswordSetView(ClubAccountLockMixin, allauth_views.PasswordSetView):
+    pass
 
 
 class UserDeactivateView(GroupRequiredMixin, LoginRequiredMixin, View):
@@ -672,10 +752,12 @@ class SettingsView(LoginRequiredMixin, View):
                 if player
                 else None
             ),
-            "passwordUrl": reverse("account_change_password"),
+            # The club account is managed by a portal admin (no self-service).
+            "managed": bool(user.is_club_account),
+            "passwordUrl": "" if user.is_club_account else reverse("account_change_password"),
             "email": user.email,
             "pendingEmail": pending_email(user),
-            "emailUrl": reverse("accounts:settings_email"),
+            "emailUrl": "" if user.is_club_account else reverse("accounts:settings_email"),
             "rightsUrl": reverse("rights"),
             "errors": form_errors(form) if form.is_bound else {},
             "emailErrors": {},
@@ -736,6 +818,9 @@ class EmailChangeView(LoginRequiredMixin, View):
         from allauth.account.models import EmailAddress
 
         user = request.user
+        if user.is_club_account:
+            messages.error(request, _("A portal admin manages the e-mail of the club account."))
+            return redirect("accounts:settings")
         data = request_data(request)
         if data.get("action") == "cancel":
             EmailAddress.objects.filter(user=user, verified=False).exclude(

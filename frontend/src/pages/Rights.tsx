@@ -60,6 +60,7 @@ export default function Rights({ me }: Props) {
       title: t("Administration"),
       rows: [
         [t("Users, invitations, approvals, admin areas"), "n", "n", "y", "n", "n", "n"],
+        [t("Set a password for another account"), "n", "n", "y", "n", "n", "n"],
         [t("Audit log, import, club logo, QR codes"), "n", "n", "y", "n", "n", "n"],
       ],
     },

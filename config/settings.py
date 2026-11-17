@@ -417,6 +417,8 @@ ACCOUNT_FORMS = {
     # Self-registration collects "Vorname + Name" for the player assignment
     # at approval time (see app.accounts.forms.SignupForm).
     "signup": "app.accounts.forms.SignupForm",
+    # "Forgot password" skips the shared club account (portal admins set it).
+    "reset_password": "app.accounts.forms.ClubAwareResetPasswordForm",
 }
 # Custom adapter: missing/broken SMTP must not break auth flows (logged instead).
 ACCOUNT_ADAPTER = "app.accounts.adapters.AccountAdapter"

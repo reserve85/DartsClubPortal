@@ -11,6 +11,7 @@ Also home of the allauth login gate (``ACCOUNT_FORMS = {"login": …}``):
 
 from typing import ClassVar
 
+from allauth.account import forms as allauth_forms
 from allauth.account.forms import LoginForm as AllauthLoginForm
 from allauth.account.forms import SignupForm as AllauthSignupForm
 from django import forms
@@ -660,3 +661,13 @@ def drop_disabled_module_fields(form) -> None:
     ):
         if name in form.fields:
             form.fields[name].help_text = help_text
+
+
+class ClubAwareResetPasswordForm(allauth_forms.ResetPasswordForm):
+    """ "Forgot password" never resets the shared club account: a portal admin
+    sets its password. The page answers exactly as for an unknown address."""
+
+    def clean_email(self):
+        email = super().clean_email()
+        self.users = [u for u in self.users if not getattr(u, "is_club_account", False)]
+        return email
