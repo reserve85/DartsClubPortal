@@ -4258,6 +4258,141 @@ msgstr "Saisons und Mannschaften"
 msgid "Users, invitations, approvals, admin areas"
 msgstr "Benutzer, Einladungen, Freigaben, Admin-Bereiche"
 
+msgid "%(players)s players, %(matches)s matches in the portal"
+msgstr "%(players)s Spieler, %(matches)s Matches im Portal"
+
+msgid "Account '%(user)s': password could not be taken over."
+msgstr "Konto „%(user)s“: Das Passwort konnte nicht übernommen werden."
+
+msgid "Counts"
+msgstr "Anzahl"
+
+msgid "The portal player chosen for '%(name)s' does not exist or already has Elo data."
+msgstr "Der für „%(name)s“ gewählte Portal-Spieler existiert nicht oder hat bereits Elo-Daten."
+
+msgid "Elo history recalculated"
+msgstr "Elo-Verlauf neu berechnet"
+
+msgid "Account mapping for '%(user)s': '%(target)s' not found."
+msgstr "Kontozuordnung für „%(user)s“: „%(target)s“ nicht gefunden."
+
+msgid "The ZIP file contains no database.db."
+msgstr "Die ZIP-Datei enthält keine database.db."
+
+msgid "matches imported"
+msgstr "Matches importiert"
+
+msgid "players matched"
+msgstr "Spieler zugeordnet"
+
+msgid "Existing Elo data was deleted before the import (replace)."
+msgstr "Vorhandene Elo-Daten wurden vor dem Import gelöscht (Ersetzen)."
+
+msgid "accounts created"
+msgstr "Konten angelegt"
+
+msgid "%(matches)s matches, %(differ)s differ from the old system (largest difference %(worst).4f)"
+msgstr "%(matches)s Matches, %(differ)s weichen vom alten System ab (größte Abweichung %(worst).4f)"
+
+msgid "accounts matched"
+msgstr "Konten zugeordnet"
+
+msgid "Not a readable SQLite database: %(error)s"
+msgstr "Keine lesbare SQLite-Datenbank: %(error)s"
+
+msgid "Current Elo of every player"
+msgstr "Aktuelle Elo jedes Spielers"
+
+msgid "accounts skipped (system account)"
+msgstr "Konten übersprungen (Systemkonto)"
+
+msgid "This is not an Elo database (tables 'players'/'matches' missing)."
+msgstr "Das ist keine Elo-Datenbank (Tabellen „players“/„matches“ fehlen)."
+
+msgid "The portal already contains Elo data. Use 'replace' to delete it first."
+msgstr "Das Portal enthält bereits Elo-Daten. Mit „Ersetzen“ werden sie vorher gelöscht."
+
+msgid "Entry date of '%(name)s' moved to the first match (%(date)s)."
+msgstr "Eintrittsdatum von „%(name)s“ auf das erste Match verschoben (%(date)s)."
+
+msgid "players created"
+msgstr "Spieler angelegt"
+
+msgid "largest difference %(worst).4f"
+msgstr "größte Abweichung %(worst).4f"
+
+msgid "Match %(id)s skipped: unknown player."
+msgstr "Match %(id)s übersprungen: unbekannter Spieler."
+
+msgid "Duplicate player name in the Elo database, renamed to '%(name)s'."
+msgstr "Doppelter Spielername in der Elo-Datenbank, umbenannt in „%(name)s“."
+
+msgid "%(what)s imported"
+msgstr "%(what)s importiert"
+
+msgid "This is not a penalty database (penalty tables missing)."
+msgstr "Das ist keine Penalty-Datenbank (Penalty-Tabellen fehlen)."
+
+msgid "%(what)s #%(id)s skipped: empty %(fields)s."
+msgstr "%(what)s #%(id)s übersprungen: %(fields)s leer."
+
+msgid "%(done)s of %(total)s copied"
+msgstr "%(done)s von %(total)s übernommen"
+
+msgid "%(what)s matched"
+msgstr "%(what)s zugeordnet"
+
+msgid "legacy team amounts healed"
+msgstr "alte Mannschaftsbeträge korrigiert"
+
+msgid "Only shown for accounts without a linked player (e.g. a club account)."
+msgstr "Wird nur bei Konten ohne verknüpften Spieler angezeigt (z. B. Vereinskonto)."
+
+msgid "New e-mail address"
+msgstr "Neue E-Mail-Adresse"
+
+msgid "This is already your e-mail address."
+msgstr "Das ist bereits deine E-Mail-Adresse."
+
+msgid "Current password"
+msgstr "Aktuelles Passwort"
+
+msgid "The password is not correct."
+msgstr "Das Passwort ist nicht korrekt."
+
+msgid "The e-mail change was withdrawn."
+msgstr "Die E-Mail-Änderung wurde zurückgezogen."
+
+msgid "We sent a confirmation link to %(email)s. Until you confirm it, your current address stays in use."
+msgstr "Wir haben einen Bestätigungslink an %(email)s geschickt. Bis zur Bestätigung gilt deine bisherige Adresse."
+
+msgid "Your e-mail address was changed."
+msgstr "Deine E-Mail-Adresse wurde geändert."
+
+msgid "Change e-mail"
+msgstr "E-Mail ändern"
+
+msgid "E-mail address"
+msgstr "E-Mail-Adresse"
+
+msgid "No player linked."
+msgstr "Kein Spieler verknüpft."
+
+msgid "The admins link players and change their names."
+msgstr "Spieler verknüpfen und umbenennen können die Admins."
+
+msgid "The new address gets a confirmation link. Until you confirm it, your current address stays in use."
+msgstr "An die neue Adresse geht ein Bestätigungslink. Bis zur Bestätigung gilt deine bisherige Adresse."
+
+msgid "Waiting for confirmation: %(email)s"
+msgstr "Wartet auf Bestätigung: %(email)s"
+
+msgid "Withdraw change"
+msgstr "Änderung zurückziehen"
+
+msgid "no player"
+msgstr "kein Spieler"
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 

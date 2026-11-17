@@ -194,6 +194,7 @@ class PlayerUpdateView(LoginRequiredMixin, InertiaFormMixin, UpdateView):
             "title": str(_("Edit player")),
             "subtitle": self.object.name,
             "badge": self.object.name,
+            "badgePerson": True,
             "submitLabel": str(_("Save changes")),
             "cancelUrl": reverse("players:player_detail", args=[self.object.pk]),
             "notice": str(

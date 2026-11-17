@@ -23,6 +23,7 @@ export default function PenaltyEdit({ penalty: p, deleteUrl, groupCount, groupPl
   const group = groupCount > 1;
   const del = (scope: "single" | "group") =>
     modals.openConfirmModal({
+      modalId: "confirm", // one at a time: a double tap must not stack a second dialog
       title: t("Delete penalty"),
       children: scope === "group" && group ? t("Delete this penalty for all players of the group?") : t("Delete this penalty?"),
       labels: { confirm: t("Delete"), cancel: t("Cancel") },

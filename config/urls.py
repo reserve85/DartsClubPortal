@@ -12,12 +12,14 @@ Class-based views
     2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
 Including another URLconf
     1. Import the include() function: from django.urls import include, path
+from django.views.generic import RedirectView
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
 from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
 from django.urls import include, path
+from django.views.generic import RedirectView
 
 from app.accounts.qr import LegacyAutoLoginView, QrLoginView
 from app.core import views as core_views
@@ -59,6 +61,12 @@ PENALTY_URLS = [
 urlpatterns += i18n_patterns(
     # django-allauth first: login/logout/signup/password/e-mail verification.
     # Path overlaps with app.accounts are avoided by design (settings/, users/).
+    # The e-mail address is changed under Settings (allauth's own page is unstyled).
+    path(
+        "accounts/email/",
+        RedirectView.as_view(pattern_name="accounts:settings"),
+        name="account_email",
+    ),
     path("accounts/", include("allauth.urls")),
     path("accounts/", include("app.accounts.urls")),
     # django-notifications-hq: list/unread/mark-as-read of in-app notifications

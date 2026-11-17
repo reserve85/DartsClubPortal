@@ -8,6 +8,7 @@ import pytest
 from argon2 import PasswordHasher
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django.utils import translation
 
 from app.elo.models import EloProfile, Match
 from app.elo.services.elo import calculate_match_elo
@@ -96,9 +97,19 @@ class TestEloImport:
         assert not User.objects.filter(legacy_username="system").exists()
 
     def test_dry_run_saves_nothing(self, tmp_path, db):
-        report = import_elo(make_elo_db(tmp_path / "elo.db"), dry_run=True)
+        with translation.override("en"):
+            report = import_elo(make_elo_db(tmp_path / "elo.db"), dry_run=True)
         assert report.ok and report.counts["matches imported"] == 4
         assert not Match.objects.exists() and not EloProfile.objects.exists()
+
+    def test_report_speaks_the_admins_language(self, tmp_path, db):
+        with translation.override("de"):
+            report = import_elo(make_elo_db(tmp_path / "elo.db"), dry_run=True)
+        assert report.counts["Matches importiert"] == 4
+        assert report.counts["Spieler angelegt"] == 3
+        labels = [label for label, _ok, _detail in report.checks]
+        assert labels == ["Elo-Verlauf neu berechnet", "Aktuelle Elo jedes Spielers", "Anzahl"]
+        assert "weichen vom alten System ab" in report.checks[0][2]
 
     def test_second_import_needs_replace(self, tmp_path, db):
         path = make_elo_db(tmp_path / "elo.db")

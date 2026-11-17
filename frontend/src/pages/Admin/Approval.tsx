@@ -23,6 +23,7 @@ export default function Approval({ pendingUser: u, fields, errors, action, backU
   const all = { ...errors, ...(form.errors as Record<string, string>) };
   const reject = () =>
     modals.openConfirmModal({
+      modalId: "confirm", // one at a time: a double tap must not stack a second dialog
       title: t("Reject account"),
       children: <Text size="sm">{t("Reject %(name)s? The person is informed by e-mail and cannot log in.", { name: u.name || u.email })}</Text>,
       labels: { confirm: t("Reject"), cancel: t("Cancel") },

@@ -98,6 +98,7 @@ export default function Import({ stage, report, pending, portalUsers, portalPlay
   const [busy, setBusy] = useState(false);
   const run = () =>
     modals.openConfirmModal({
+      modalId: "confirm", // one at a time: a double tap must not stack a second dialog
       title: t("Import now"),
       children: <Text size="sm">{t("Import the data now?")}</Text>,
       labels: { confirm: t("Import now"), cancel: t("Cancel") },

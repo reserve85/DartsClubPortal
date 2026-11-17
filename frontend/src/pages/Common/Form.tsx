@@ -3,6 +3,7 @@ import { Alert, Avatar, Box, Button, Group, Paper, Stack, Table, Text } from "@m
 import { IconAlertTriangle, IconInfoCircle } from "@tabler/icons-react";
 import { confirmPost } from "../../components/elo";
 import { Field, FormFields, initialData, type FieldDef } from "../../components/FormFields";
+import { PlayerAvatar } from "../../components/PlayerAvatar";
 import { PageHeader } from "../../components/ui";
 import { useT } from "../../i18n";
 import { colorFor } from "../../theme";
@@ -12,6 +13,7 @@ interface Props {
   title: string;
   subtitle?: string;
   badge?: string;
+  badgePerson?: boolean;
   fields: FieldDef[];
   errors: Record<string, string>;
   action: string;
@@ -124,9 +126,14 @@ export default function FormPage(p: Props) {
         subtitle={p.subtitle}
         left={
           p.badge ? (
-            <Avatar color={colorFor(p.badge)} variant="filled" radius="xl" size={48}>
-              {p.badge.slice(0, 2).toUpperCase()}
-            </Avatar>
+            p.badgePerson ? (
+              // A person: same initials as everywhere else (first + last name).
+              <PlayerAvatar name={p.badge} size={48} />
+            ) : (
+              <Avatar color={colorFor(p.badge)} variant="filled" radius="xl" size={48}>
+                {p.badge.slice(0, 2).toUpperCase()}
+              </Avatar>
+            )
           ) : undefined
         }
       />

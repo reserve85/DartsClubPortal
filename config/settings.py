@@ -402,6 +402,9 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
 ACCOUNT_UNIQUE_EMAIL = True
+# Settings -> "Change e-mail": the new address replaces the old one once confirmed.
+ACCOUNT_CHANGE_EMAIL = True
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = "/accounts/settings/"
 ACCOUNT_EMAIL_VERIFICATION = env("ACCOUNT_EMAIL_VERIFICATION", "mandatory")
 ACCOUNT_PASSWORD_INPUT_RENDER_VALUE = False
 # POST-only logout (the navbar already submits a form).

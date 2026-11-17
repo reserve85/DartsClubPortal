@@ -1,7 +1,8 @@
-import { Head, useForm, usePage } from "@inertiajs/react";
-import { Alert, Button, Grid, type MantineColorScheme, Paper, SegmentedControl, Select, Stack, Switch, Text, useMantineColorScheme } from "@mantine/core";
+import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
+import { Alert, Anchor, Button, Grid, Group, type MantineColorScheme, Paper, PasswordInput, SegmentedControl, Select, Stack, Switch, Text, TextInput, useMantineColorScheme } from "@mantine/core";
 import { TimeInput } from "@mantine/dates";
-import { IconAlertTriangle, IconKey } from "@tabler/icons-react";
+import { IconAlertTriangle, IconInfoCircle, IconKey, IconMail, IconMailForward } from "@tabler/icons-react";
+import { type KeyboardEvent, useEffect, useState } from "react";
 import { AvatarUpload } from "../../components/AvatarUpload";
 import { PlayerAvatar } from "../../components/PlayerAvatar";
 import { PageHeader } from "../../components/ui";
@@ -15,17 +16,23 @@ interface Props {
   choices: Record<string, Choice[]>;
   player: { id: number; name: string; avatar: string } | null;
   passwordUrl: string;
+  email: string;
+  pendingEmail: string;
+  emailUrl: string;
+  rightsUrl: string;
   errors: Record<string, string>;
+  emailErrors: Record<string, string>;
 }
 
 const on = (v: unknown) => v === true || v === "True" || v === "true";
 
-export default function Settings({ values, fields, choices, player, passwordUrl, errors }: Props) {
+export default function Settings({ values, fields, choices, player, passwordUrl, email, pendingEmail, emailUrl, rightsUrl, errors, emailErrors }: Props) {
   const t = useT();
   const { auth } = usePage<SharedProps>().props;
   const { setColorScheme } = useMantineColorScheme();
   const has = (f: string) => fields.includes(f);
   const form = useForm({
+    full_name: String(values.full_name ?? ""),
     preferred_language: String(values.preferred_language ?? "de"),
     preferred_theme: String(values.preferred_theme ?? "auto"),
     start_page: String(values.start_page ?? "auto"),
@@ -87,6 +94,17 @@ export default function Settings({ values, fields, choices, player, passwordUrl,
               <Paper withBorder p="md">
                 <Text size="xs" fw={800} tt="uppercase" c="dimmed" mb="sm">{t("Display")}</Text>
                 <Stack>
+                  {has("full_name") && (
+                    <TextInput
+                      label={t("Name")}
+                      description={t("Only shown for accounts without a linked player (e.g. a club account).")}
+                      value={d.full_name}
+                      onChange={(e) => form.setData("full_name", e.currentTarget.value)}
+                      error={errors.full_name}
+                      maxLength={150}
+                      autoComplete="name"
+                    />
+                  )}
                   <Select label={t("Language")} data={choices.preferred_language} value={d.preferred_language} onChange={(v) => form.setData("preferred_language", v ?? "de")} />
                   <div>
                     <Text size="sm" fw={500} mb={4}>{t("Colour scheme")}</Text>
@@ -133,15 +151,85 @@ export default function Settings({ values, fields, choices, player, passwordUrl,
             </Stack>
           </Grid.Col>
           <Grid.Col span={{ base: 12, md: 5 }}>
-            {player && <AvatarUpload playerId={player.id} name={player.name} avatar={player.avatar} />}
-            <Paper withBorder p="md" mt="md">
-              <Text size="xs" fw={800} tt="uppercase" c="dimmed" mb="xs">{t("Change password")}</Text>
-              <Text size="sm" c="dimmed" mb="sm">{t("Set a new password for your account.")}</Text>
-              <Button component="a" href={passwordUrl} leftSection={<IconKey size={16} />}>{t("Change password")}</Button>
-            </Paper>
+            <Stack gap="md">
+              <AccountCard email={email} pendingEmail={pendingEmail} emailUrl={emailUrl} passwordUrl={passwordUrl} rightsUrl={rightsUrl} player={player?.name ?? ""} errors={emailErrors} />
+              {player && <AvatarUpload playerId={player.id} name={player.name} avatar={player.avatar} />}
+            </Stack>
           </Grid.Col>
         </Grid>
       </form>
     </>
+  );
+}
+
+/** Login address (change with confirmation link), password, linked player, rights. */
+function AccountCard({ email, pendingEmail, emailUrl, passwordUrl, rightsUrl, player, errors }: { email: string; pendingEmail: string; emailUrl: string; passwordUrl: string; rightsUrl: string; player: string; errors: Record<string, string> }) {
+  const t = useT();
+  const [editing, setEditing] = useState(false);
+  const form = useForm({ email: "", password: "" });
+  useEffect(() => {
+    if (errors.email || errors.password) setEditing(true);
+  }, [errors]);
+  const submit = () =>
+    form.post(emailUrl, {
+      preserveScroll: true,
+      preserveState: true,
+      onSuccess: (page) => {
+        const failed = (page.props as { emailErrors?: Record<string, string> }).emailErrors ?? {};
+        if (!Object.keys(failed).length) {
+          form.reset();
+          setEditing(false);
+        } else form.setData("password", "");
+      },
+    });
+  // The card sits inside the settings <form>: Enter must not submit that one.
+  const enter = (e: KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      submit();
+    }
+  };
+  return (
+    <Paper withBorder p="md">
+      <Text size="xs" fw={800} tt="uppercase" c="dimmed" mb="sm">{t("Account")}</Text>
+      <Stack gap="md">
+        <div>
+          <Text size="sm" fw={600}>{t("E-mail address")}</Text>
+          <Text size="sm" c="dimmed" style={{ wordBreak: "break-all" }}>{email}</Text>
+          {pendingEmail && (
+            <Alert mt="xs" color="yellow" variant="light" icon={<IconMailForward size={18} />}>
+              <Text size="sm">{t("Waiting for confirmation: %(email)s", { email: pendingEmail })}</Text>
+              <Button mt={6} size="compact-sm" color="gray" onClick={() => router.post(emailUrl, { action: "cancel" }, { preserveScroll: true })}>
+                {t("Withdraw change")}
+              </Button>
+            </Alert>
+          )}
+        </div>
+        {editing ? (
+          <Stack gap="xs">
+            <TextInput type="email" label={t("New e-mail address")} value={form.data.email} onChange={(e) => form.setData("email", e.currentTarget.value)} onKeyDown={enter} error={errors.email} autoComplete="email" data-autofocus />
+            <PasswordInput label={t("Current password")} value={form.data.password} onChange={(e) => form.setData("password", e.currentTarget.value)} onKeyDown={enter} error={errors.password} autoComplete="current-password" />
+            <Text size="xs" c="dimmed">{t("The new address gets a confirmation link. Until you confirm it, your current address stays in use.")}</Text>
+            <Group gap="xs">
+              <Button onClick={submit} loading={form.processing}>{t("Change e-mail")}</Button>
+              <Button color="gray" onClick={() => { form.reset(); setEditing(false); }}>{t("Cancel")}</Button>
+            </Group>
+          </Stack>
+        ) : (
+          <Group gap="xs">
+            <Button leftSection={<IconMail size={16} />} onClick={() => setEditing(true)}>{t("Change e-mail")}</Button>
+            <Button component="a" href={passwordUrl} leftSection={<IconKey size={16} />}>{t("Change password")}</Button>
+          </Group>
+        )}
+        <div>
+          <Text size="sm" fw={600}>{t("Linked player")}</Text>
+          <Text size="sm" c="dimmed">{player || t("No player linked.")}</Text>
+          <Text size="xs" c="dimmed">{t("The admins link players and change their names.")}</Text>
+        </div>
+        <Anchor component={Link} href={rightsUrl} size="sm">
+          <Group gap={6} wrap="nowrap"><IconInfoCircle size={16} />{t("Who may do what?")}</Group>
+        </Anchor>
+      </Stack>
+    </Paper>
   );
 }

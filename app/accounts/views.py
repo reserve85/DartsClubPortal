@@ -23,6 +23,7 @@ from django.views.generic import CreateView, FormView, ListView, UpdateView
 from inertia import render as inertia_render
 
 from app.accounts.forms import (
+    EmailChangeForm,
     InvitationAcceptForm,
     InviteCreateForm,
     SettingsForm,
@@ -102,7 +103,9 @@ class UserListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
             return {
                 "id": user.pk,
                 "email": user.email,
-                "name": user.full_name,
+                # The linked player IS the person; the registration name only
+                # stands in for accounts without a player (club account, pending).
+                "name": player.name if player else (user.full_name or invited_player),
                 "avatar": avatar_url(player) if player else "",
                 "player": player.name if player else invited_player,
                 "playerUrl": reverse("players:player_detail", args=[player.pk]) if player else None,
@@ -322,10 +325,14 @@ class UserUpdateView(GroupRequiredMixin, LoginRequiredMixin, InertiaFormMixin, U
         return _invite_guard(request, kwargs.get("pk")) or super().post(request, *args, **kwargs)
 
     def form_page_props(self, form):
+        user = self.object
+        # Same rule as the user list: the linked player, else the registration name.
+        name = user.player_link.name if user.player_link else user.full_name
         return {
             "title": str(_("Edit user")),
-            "subtitle": self.object.email,
-            "badge": self.object.full_name or self.object.email,
+            "subtitle": f"{name} · {user.email}" if name else user.email,
+            "badge": name or user.email,
+            "badgePerson": True,
             "submitLabel": str(_("Save changes")),
             "cancelUrl": reverse("accounts:user_list"),
             "notice": str(
@@ -666,7 +673,12 @@ class SettingsView(LoginRequiredMixin, View):
                 else None
             ),
             "passwordUrl": reverse("account_change_password"),
+            "email": user.email,
+            "pendingEmail": pending_email(user),
+            "emailUrl": reverse("accounts:settings_email"),
+            "rightsUrl": reverse("rights"),
             "errors": form_errors(form) if form.is_bound else {},
+            "emailErrors": {},
         }
 
     def get(self, request):
@@ -694,6 +706,84 @@ class SettingsView(LoginRequiredMixin, View):
             translation.activate(form.cleaned_data["preferred_language"])
             return response
         return inertia_render(request, "Account/Settings", props=self._props(request, form))
+
+
+def pending_email(user) -> str:
+    """The address the user is changing to and has not confirmed yet ("" if none)."""
+    from allauth.account.models import EmailAddress
+
+    pending = (
+        EmailAddress.objects.filter(user=user, verified=False)
+        .exclude(email__iexact=user.email)
+        .order_by("pk")
+        .last()
+    )
+    return pending.email if pending else ""
+
+
+class EmailChangeView(LoginRequiredMixin, View):
+    """Change the own login address from the settings page.
+
+    With e-mail verification on, the new address gets a confirmation link and
+    replaces the old one only once it is confirmed (``ACCOUNT_CHANGE_EMAIL``);
+    until then every mail and the login keep using the old address.
+    """
+
+    def post(self, request):
+        from allauth.account.internal.flows.email_verification import (
+            send_verification_email_to_address,
+        )
+        from allauth.account.models import EmailAddress
+
+        user = request.user
+        data = request_data(request)
+        if data.get("action") == "cancel":
+            EmailAddress.objects.filter(user=user, verified=False).exclude(
+                email__iexact=user.email
+            ).delete()
+            messages.info(request, _("The e-mail change was withdrawn."))
+            return redirect("accounts:settings")
+
+        form = EmailChangeForm(user, data)
+        if not form.is_valid():
+            props = SettingsView()._props(request, SettingsForm(instance=user))
+            props["emailErrors"] = form_errors(form)
+            return inertia_render(request, "Account/Settings", props=props)
+
+        new, old = form.cleaned_data["email"], user.email
+        with transaction.atomic():
+            # Only one change at a time: an older, unconfirmed request is dropped.
+            EmailAddress.objects.filter(user=user, verified=False).exclude(
+                email__iexact=old
+            ).delete()
+            if settings.ACCOUNT_EMAIL_VERIFICATION == "none":
+                EmailAddress.objects.filter(user=user).delete()
+                EmailAddress.objects.create(user=user, email=new, verified=True, primary=True)
+                user.email = new
+                user.save(update_fields=["email"])
+            else:
+                address = EmailAddress.objects.create(
+                    user=user, email=new, verified=False, primary=False
+                )
+        log_action(
+            AuditAction.USER_UPDATED,
+            user=user,
+            target=user,
+            metadata={"email_change": {"from": old, "to": new}},
+        )
+        if settings.ACCOUNT_EMAIL_VERIFICATION == "none":
+            messages.success(request, _("Your e-mail address was changed."))
+        else:
+            send_verification_email_to_address(request, address)
+            messages.info(
+                request,
+                _(
+                    "We sent a confirmation link to %(email)s. Until you confirm it, "
+                    "your current address stays in use."
+                )
+                % {"email": new},
+            )
+        return redirect("accounts:settings")
 
 
 class ThemeUpdateView(LoginRequiredMixin, View):

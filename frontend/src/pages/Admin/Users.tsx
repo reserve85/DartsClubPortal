@@ -71,7 +71,12 @@ export default function Users({ users, pendingCount, inviteCount, page, pages }:
               <Group wrap="nowrap" gap="sm" align="flex-start">
                 <PlayerAvatar name={u.name || u.email} src={u.avatar} size={40} muted={!u.active} />
                 <Box style={{ minWidth: 0, flex: 1 }}>
-                  <Text fw={800} truncate>{u.name || u.email}</Text>
+                  {/* The linked player's name (link to the profile), else the registration name, else the e-mail. */}
+                  {u.playerUrl ? (
+                    <Text component={Link} href={u.playerUrl} fw={800} truncate display="block" c="inherit" td="none">{u.name}</Text>
+                  ) : (
+                    <Text fw={800} truncate>{u.name || u.email}</Text>
+                  )}
                   {u.name && <Text size="xs" c="dimmed" truncate>{u.email}</Text>}
                   <Group gap={6} mt={6}>
                     <Badge color={ROLE_COLOR[u.role]} variant={u.role ? "filled" : "outline"}>{roleLabel[u.role]}</Badge>
@@ -79,13 +84,7 @@ export default function Users({ users, pendingCount, inviteCount, page, pages }:
                       <Badge key={s} color="brand" variant="light">{{ elo: "Elo", penalty: "Penalty", portal: "Portal" }[s]}</Badge>
                     ))}
                     {u.team && <Badge color="yellow" variant="light">{t("Captain")}: {u.team}</Badge>}
-                    {u.player && (
-                      u.playerUrl ? (
-                        <Badge component={Link} href={u.playerUrl} variant="light" color="teal" style={{ cursor: "pointer", textTransform: "none" }}>{u.player}</Badge>
-                      ) : (
-                        <Badge variant="light" color="teal" style={{ textTransform: "none" }}>{u.player}</Badge>
-                      )
-                    )}
+                    {!u.playerUrl && u.status === "approved" && <Badge color="gray" variant="outline">{t("no player")}</Badge>}
                     {u.status === "pending" && <Badge color="orange">{t("waiting for approval")}</Badge>}
                     {u.status === "rejected" && <Badge color="red" variant="light">{t("rejected")}</Badge>}
                     {u.status === "requested" && <Badge color="cyan" variant="light">{t("invited")}</Badge>}

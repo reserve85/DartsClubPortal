@@ -29,6 +29,7 @@ from django.contrib.auth.models import Group
 from django.db import transaction
 from django.db.models.functions import Lower
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from app.core.models import AuditAction
 from app.core.permissions import GROUP_ADMIN, GROUP_PLAYER
@@ -62,7 +63,7 @@ def unpack_backup(path: str) -> str:
         names = zf.namelist()
         db_name = next((n for n in names if n.rsplit("/", 1)[-1] == "database.db"), None)
         if db_name is None:
-            raise ImportAborted("The ZIP file contains no database.db.")
+            raise ImportAborted(_("The ZIP file contains no database.db."))
         target = os.path.join(tempfile.mkdtemp(prefix="elo-import-"), "database.db")
         with zf.open(db_name) as src, open(target, "wb") as dst:
             dst.write(src.read())
@@ -82,9 +83,11 @@ def _connect(path: str) -> sqlite3.Connection:
         con.row_factory = sqlite3.Row
         tables = {r[0] for r in con.execute("select name from sqlite_master where type='table'")}
     except sqlite3.DatabaseError as exc:
-        raise ImportAborted(f"Not a readable SQLite database: {exc}") from exc
+        raise ImportAborted(
+            _("Not a readable SQLite database: %(error)s") % {"error": exc}
+        ) from exc
     if not {"players", "matches"} <= tables:
-        raise ImportAborted("This is not an Elo database (tables 'players'/'matches' missing).")
+        raise ImportAborted(_("This is not an Elo database (tables 'players'/'matches' missing)."))
     return con
 
 
@@ -185,7 +188,7 @@ def _db_from_zip_for_preview(path: str) -> str:
     with zipfile.ZipFile(path) as zf:
         db_name = next((n for n in zf.namelist() if n.rsplit("/", 1)[-1] == "database.db"), None)
         if db_name is None:
-            raise ImportAborted("The ZIP file contains no database.db.")
+            raise ImportAborted(_("The ZIP file contains no database.db."))
         target = os.path.join(tempfile.mkdtemp(prefix="elo-preview-"), "database.db")
         with zf.open(db_name) as src, open(target, "wb") as dst:
             dst.write(src.read())
@@ -287,12 +290,12 @@ def _run(
     if EloProfile.objects.exists() or Match.objects.exists():
         if not replace:
             raise ImportAborted(
-                "The portal already contains Elo data. Use 'replace' to delete it first."
+                _("The portal already contains Elo data. Use 'replace' to delete it first.")
             )
         Match.objects.all().delete()
         EloDisablePeriod.objects.all().delete()
         EloProfile.objects.all().delete()
-        report.warnings.append("Existing Elo data was deleted before the import (replace).")
+        report.warnings.append(_("Existing Elo data was deleted before the import (replace)."))
 
     src_players = _rows(con, "players")
     src_matches = _rows(con, "matches")
@@ -320,7 +323,8 @@ def _run(
             name = f"{name} ({row['id']})"
             key = name.lower()
             report.warnings.append(
-                f"Duplicate player name in the Elo database, renamed to '{name}'."
+                _("Duplicate player name in the Elo database, renamed to '%(name)s'.")
+                % {"name": name}
             )
         seen_names.add(key)
         choice = player_choice.get(str(row["id"]))
@@ -330,24 +334,28 @@ def _run(
             person = Player.objects.filter(pk=int(choice), elo__isnull=True).first()
             if person is None:
                 raise ImportAborted(
-                    f"The portal player chosen for '{name}' does not exist or already has Elo data."
+                    _(
+                        "The portal player chosen for '%(name)s' does not exist or already has Elo data."
+                    )
+                    % {"name": name}
                 )
             by_name = {k: v for k, v in by_name.items() if v.pk != person.pk}
         else:
             person = by_name.pop(key, None)
         if person is not None:
-            report.matched.append(("player", row["name"], person.name))
-            report.add("players matched")
+            report.matched.append((_("Player"), row["name"], person.name))
+            report.add(_("players matched"))
         else:
             person = Player.objects.create(name=name)
             report.created.append(("player", name))
-            report.add("players created")
+            report.add(_("players created"))
         entry = (
             _date(row.get("entry_date")) or (_dt(row.get("created_at")) or timezone.now()).date()
         )
         if row["id"] in first_match and entry > first_match[row["id"]]:
             report.warnings.append(
-                f"Entry date of '{name}' moved to the first match ({first_match[row['id']]})."
+                _("Entry date of '%(name)s' moved to the first match (%(date)s).")
+                % {"name": name, "date": first_match[row["id"]]}
             )
             entry = first_match[row["id"]]
         profile = EloProfile.objects.create(
@@ -376,7 +384,7 @@ def _run(
     for m in src_matches:
         a, b = player_map.get(m["player_a_id"]), player_map.get(m["player_b_id"])
         if a is None or b is None:
-            report.warnings.append(f"Match {m['id']} skipped: unknown player.")
+            report.warnings.append(_("Match %(id)s skipped: unknown player.") % {"id": m["id"]})
             continue
         winner = a if m["winner_id"] == m["player_a_id"] else b
         created = _dt(m.get("created_at")) or timezone.make_aware(
@@ -408,7 +416,7 @@ def _run(
         new_matches.append((m["id"], obj))
         stored[m["id"]] = (float(m.get("elo_after_a") or 0), float(m.get("elo_after_b") or 0))
     Match.objects.bulk_create([o for _id, o in new_matches], batch_size=500)
-    report.add("matches imported", len(new_matches))
+    report.add(_("matches imported"), len(new_matches))
 
     # ---- recalculation + verification -----------------------------------
     recalculate_all(user=actor if getattr(actor, "is_authenticated", False) else None)
@@ -422,12 +430,13 @@ def _run(
             mismatches += 1
     report.checks.append(
         (
-            "Elo history recalculated",
+            _("Elo history recalculated"),
             mismatches == 0,
-            (
-                f"{len(new_matches)} matches, {mismatches} differ from the old system "
-                f"(largest difference {worst:.4f})"
-            ),
+            _(
+                "%(matches)s matches, %(differ)s differ from the old system "
+                "(largest difference %(worst).4f)"
+            )
+            % {"matches": len(new_matches), "differ": mismatches, "worst": worst},
         )
     )
     cur_diff = 0.0
@@ -438,17 +447,18 @@ def _run(
             cur_diff = max(cur_diff, abs(prof.current_elo - float(row["current_elo"])))
     report.checks.append(
         (
-            "Current Elo of every player",
+            _("Current Elo of every player"),
             cur_diff <= TOLERANCE,
-            f"largest difference {cur_diff:.4f}",
+            _("largest difference %(worst).4f") % {"worst": cur_diff},
         )
     )
     report.checks.append(
         (
-            "Counts",
+            _("Counts"),
             Match.objects.count() == len(new_matches)
             and EloProfile.objects.count() == len(src_players),
-            f"{EloProfile.objects.count()} players, {Match.objects.count()} matches in the portal",
+            _("%(players)s players, %(matches)s matches in the portal")
+            % {"players": EloProfile.objects.count(), "matches": Match.objects.count()},
         )
     )
     log_action(
@@ -469,7 +479,7 @@ def _import_users(src_users, report: ImportReport, email_domain: str, account_ma
         role = str(row.get("role") or "USER").upper()
         username = (row.get("username") or "").strip()
         if role == "SYSTEM":
-            report.add("accounts skipped (system account)")
+            report.add(_("accounts skipped (system account)"))
             continue
         user = None
         target = account_map.get(username)
@@ -480,14 +490,17 @@ def _import_users(src_users, report: ImportReport, email_domain: str, account_ma
                 else User.objects.filter(email__iexact=str(target)).first()
             )
             if user is None:
-                raise ImportAborted(f"Account mapping for '{username}': '{target}' not found.")
+                raise ImportAborted(
+                    _("Account mapping for '%(user)s': '%(target)s' not found.")
+                    % {"user": username, "target": target}
+                )
         if user is None and "@" in username:
             user = User.objects.filter(email__iexact=username).first()
         if user is None:
             user = User.objects.filter(legacy_username=username).first()
         if user is not None:
-            report.matched.append(("account", username, user.email))
-            report.add("accounts matched")
+            report.matched.append((_("Account"), username, user.email))
+            report.add(_("accounts matched"))
         else:
             email = username.lower() if "@" in username else f"{_slug(username)}@{email_domain}"
             n = 2
@@ -496,13 +509,15 @@ def _import_users(src_users, report: ImportReport, email_domain: str, account_ma
                 n += 1
             user = User(email=email, full_name=username, approval_status="approved")
             report.created.append(("account", f"{username} -> {email}"))
-            report.add("accounts created")
+            report.add(_("accounts created"))
             pw = row.get("password_hash") or ""
             if pw.startswith("$argon2"):
                 user.password = "argon2" + pw
             else:
                 user.set_unusable_password()
-                report.warnings.append(f"Account '{username}': password could not be taken over.")
+                report.warnings.append(
+                    _("Account '%(user)s': password could not be taken over.") % {"user": username}
+                )
             user.is_active = bool(row.get("active", True))
             # Penalty pages are read-only for users anyway (only admins and
             # captains enter penalties), so imported accounts may view them.

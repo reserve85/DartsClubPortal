@@ -30,6 +30,7 @@ export default function Notifications({ tab, rows, page, pages, unreadCount, url
   const opts = { preserveScroll: true };
   const confirm = (title: string, url: string) =>
     modals.openConfirmModal({
+      modalId: "confirm", // one at a time: a double tap must not stack a second dialog
       title,
       labels: { confirm: t("Delete"), cancel: t("Cancel") },
       confirmProps: { color: "red" },

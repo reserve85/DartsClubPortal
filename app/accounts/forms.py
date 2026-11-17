@@ -42,6 +42,16 @@ ROLE_CHOICES = [
 CAPTAINCY_ROLES = (GROUP_ADMIN, GROUP_CAPTAIN, GROUP_PLAYER)
 
 
+def name_field(form) -> None:
+    """The account's own name: optional, editable after registration too."""
+    field = form.fields.get("full_name")
+    if field is not None:
+        field.label = _("Name")
+        field.help_text = _(
+            "Only shown for accounts without a linked player (e.g. a club account)."
+        )
+
+
 class ApprovalLoginForm(AllauthLoginForm):
     """Login only for admin-approved accounts (django-allauth login form).
 
@@ -160,6 +170,7 @@ class UserCreateForm(forms.ModelForm):
         model = User
         fields: ClassVar[list] = [
             "email",
+            "full_name",
             "role",
             "admin_elo",
             "admin_penalty",
@@ -177,6 +188,7 @@ class UserCreateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        name_field(self)
         drop_disabled_module_fields(self)
         # Only NOT-yet-linked players may be picked for a NEW user.
         self.fields["player_link"].queryset = unlinked_players_queryset()
@@ -374,6 +386,7 @@ class UserUpdateForm(forms.ModelForm):
         model = User
         fields: ClassVar[list] = [
             "email",
+            "full_name",
             "role",
             "admin_elo",
             "admin_penalty",
@@ -388,6 +401,7 @@ class UserUpdateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        name_field(self)
         drop_disabled_module_fields(self)
         # Only NOT-yet-linked players — plus this user's own current link.
         self.fields["player_link"].queryset = unlinked_players_queryset(self.instance)
@@ -451,6 +465,37 @@ class UserUpdateForm(forms.ModelForm):
         return user
 
 
+class EmailChangeForm(forms.Form):
+    """A member changes their own login address (confirmed by the password)."""
+
+    email = forms.EmailField(label=_("New e-mail address"), max_length=254)
+    password = forms.CharField(label=_("Current password"), widget=forms.PasswordInput)
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
+    def clean_email(self):
+        from allauth.account.models import EmailAddress
+
+        email = self.cleaned_data["email"].strip().lower()
+        if email == (self.user.email or "").lower():
+            raise forms.ValidationError(_("This is already your e-mail address."))
+        taken = (
+            User.objects.filter(email__iexact=email).exclude(pk=self.user.pk).exists()
+            or EmailAddress.objects.filter(email__iexact=email).exclude(user=self.user).exists()
+        )
+        if taken:
+            raise forms.ValidationError(_("A user with this email address already exists."))
+        return email
+
+    def clean_password(self):
+        password = self.cleaned_data.get("password") or ""
+        if not self.user.check_password(password):
+            raise forms.ValidationError(_("The password is not correct."))
+        return password
+
+
 class SettingsForm(forms.ModelForm):
     """Language, theme AND the per-user notification preferences.
 
@@ -505,6 +550,7 @@ class SettingsForm(forms.ModelForm):
     class Meta:
         model = User
         fields: ClassVar[list] = [
+            "full_name",
             "preferred_language",
             "preferred_theme",
             "start_page",
@@ -529,6 +575,10 @@ class SettingsForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         """Only the mails and start pages of modules this account can use."""
         super().__init__(*args, **kwargs)
+        name_field(self)
+        if self.instance.player_link_id:
+            # The player is the name; the admins rename players.
+            self.fields.pop("full_name")
         from app.core.access import user_modules
 
         mods = user_modules(self.instance) if self.instance and self.instance.pk else {}
@@ -559,6 +609,12 @@ class SettingsForm(forms.ModelForm):
 
     def clean_start_page(self):
         return self.cleaned_data.get("start_page") or self.instance.start_page or "auto"
+
+    def clean_full_name(self):
+        # Not sent (older client) -> keep the stored name instead of blanking it.
+        if "full_name" not in self.data:
+            return self.instance.full_name
+        return (self.cleaned_data.get("full_name") or "").strip()
 
     def clean(self):
         """A digest without a time is a contradiction — say so, don't guess."""

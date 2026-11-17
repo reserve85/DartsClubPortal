@@ -16,6 +16,7 @@ urlpatterns = [
     path("qr/", qr.QrLoginView.as_view(), name="qr_login"),
     path("users/<int:pk>/qr/", qr.UserQrCodeView.as_view(), name="user_qr"),
     path("settings/theme/", views.ThemeUpdateView.as_view(), name="settings_theme"),
+    path("settings/email/", views.EmailChangeView.as_view(), name="settings_email"),
     path("users/", views.UserListView.as_view(), name="user_list"),
     path("users/create/", views.UserCreateView.as_view(), name="user_create"),
     path("users/invitations/", views.InviteListView.as_view(), name="invite_list"),

@@ -199,6 +199,7 @@ export default function Teams(p: Props) {
                 const go = () => router.get("/teams/", { page: n }, { preserveScroll: true });
                 if (!dirty) return go();
                 modals.openConfirmModal({
+                  modalId: "confirm", // one at a time: a double tap must not stack a second dialog
                   title: t("Unsaved changes"),
                   children: <Text size="sm">{t("Discard the unsaved assignment changes?")}</Text>,
                   labels: { confirm: t("Discard"), cancel: t("Cancel") },

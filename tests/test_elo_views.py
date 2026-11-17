@@ -502,3 +502,53 @@ def test_react_json_post_creates_match(player_client, elo_players):
         [15],
         55.5,
     )
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(("best_of", "score_a", "score_b"), [(9, 5, 4), (9, 2, 5), (21, 11, 0)])
+def test_long_formats_can_be_entered(player_client, elo_players, best_of, score_a, score_b):
+    """Best of 9 and longer: every valid result is accepted (one tap in the UI)."""
+    import json as _json
+
+    a, b, _c = elo_players
+    payload = {
+        "player_a": a.player_id,
+        "player_b": b.player_id,
+        "match_date": TODAY.isoformat(),
+        "best_of_legs": best_of,
+        "score_a": score_a,
+        "score_b": score_b,
+        "force": False,
+        "again": False,
+    }
+    resp = player_client.post(
+        reverse("elo:match_create"),
+        data=_json.dumps(payload),
+        content_type="application/json",
+        HTTP_X_INERTIA="true",
+    )
+    assert resp.status_code in (302, 303)
+    m = Match.objects.get()
+    assert (m.best_of_legs, m.score_a, m.score_b) == (best_of, score_a, score_b)
+
+
+@pytest.mark.django_db
+def test_best_of_9_rejects_an_impossible_result(player_client, elo_players):
+    import json as _json
+
+    a, b, _c = elo_players
+    payload = {
+        "player_a": a.player_id,
+        "player_b": b.player_id,
+        "match_date": TODAY.isoformat(),
+        "best_of_legs": 9,
+        "score_a": 3,
+        "score_b": 2,
+    }
+    player_client.post(
+        reverse("elo:match_create"),
+        data=_json.dumps(payload),
+        content_type="application/json",
+        HTTP_X_INERTIA="true",
+    )
+    assert not Match.objects.exists()

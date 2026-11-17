@@ -34,6 +34,7 @@ export default function Invites({ invitations, page, pages }: Props) {
   const statusLabel = { open: t("open"), expiring: t("expires soon"), expired: t("expired"), accepted: t("accepted") };
   const cancel = (inv: Invite) =>
     modals.openConfirmModal({
+      modalId: "confirm", // one at a time: a double tap must not stack a second dialog
       title: t("Cancel invitation"),
       children: <Text size="sm">{t("Cancel the invitation for %(email)s? The prepared account is deleted.", { email: inv.email })}</Text>,
       labels: { confirm: t("Cancel invitation"), cancel: t("Back") },

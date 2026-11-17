@@ -25,6 +25,7 @@ from django.apps import apps
 from django.conf import settings
 from django.core.management import call_command
 from django.db import connections, transaction
+from django.utils.translation import gettext as _
 
 from app.core.models import AuditAction
 from app.core.services import log_action
@@ -66,9 +67,11 @@ def _source_db(path: str):
         tables = {r[0] for r in con.execute("select name from sqlite_master where type='table'")}
         con.close()
     except sqlite3.DatabaseError as exc:
-        raise ImportAborted(f"Not a readable SQLite database: {exc}") from exc
+        raise ImportAborted(
+            _("Not a readable SQLite database: %(error)s") % {"error": exc}
+        ) from exc
     if not {"penalties_penalty", "accounts_user", "players_player"} <= tables:
-        raise ImportAborted("This is not a penalty database (penalty tables missing).")
+        raise ImportAborted(_("This is not a penalty database (penalty tables missing)."))
     tmpdir = tempfile.mkdtemp(prefix="penalty-import-")
     copy = os.path.join(tmpdir, "source.sqlite3")
     shutil.copyfile(path, copy)
@@ -153,9 +156,9 @@ def _run(alias: str, report: ImportReport, actor) -> None:
                 key = _key(obj, merge_fields, {})
                 if key in existing:
                     maps[label][old_pk] = existing[key]
-                    report.add(f"{model._meta.verbose_name_plural} matched")
+                    report.add(_("%(what)s matched") % {"what": model._meta.verbose_name_plural})
                     if label in ("players.Player", "accounts.User"):
-                        report.matched.append((label.split(".")[1].lower(), str(obj), str(obj)))
+                        report.matched.append((str(model._meta.verbose_name), str(obj), str(obj)))
                     continue
             if label == "penalties.TeamCatalogAmount" and obj.amount_eur is None:
                 # legacy row "use the catalog amount" -> store that amount
@@ -163,7 +166,7 @@ def _run(alias: str, report: ImportReport, actor) -> None:
                     pk=obj.catalog_item_id
                 )
                 obj.amount_eur = item.amount_eur
-                report.add("legacy team amounts healed")
+                report.add(_("legacy team amounts healed"))
             missing = [
                 f.name
                 for f in model._meta.concrete_fields
@@ -173,7 +176,10 @@ def _run(alias: str, report: ImportReport, actor) -> None:
                 and not f.has_default()
             ]
             if missing:
-                report.warnings.append(f"{label} #{old_pk} skipped: empty {', '.join(missing)}.")
+                report.warnings.append(
+                    _("%(what)s #%(id)s skipped: empty %(fields)s.")
+                    % {"what": model._meta.verbose_name, "id": old_pk, "fields": ", ".join(missing)}
+                )
                 continue
             if (
                 label == "matchdays.Season"
@@ -192,7 +198,9 @@ def _run(alias: str, report: ImportReport, actor) -> None:
             if merge_fields:
                 existing[_key(obj, merge_fields, {})] = obj.pk
         if created:
-            report.add(f"{model._meta.verbose_name_plural} imported", len(created))
+            report.add(
+                _("%(what)s imported") % {"what": model._meta.verbose_name_plural}, len(created)
+            )
         _copy_m2m(model, alias, maps)
 
     # Group memberships of imported accounts keep is_staff in sync (signals).
@@ -209,7 +217,11 @@ def _run(alias: str, report: ImportReport, actor) -> None:
     for label, n in src_counts.items():
         mapped = len(maps[label])
         report.checks.append(
-            (f"{label.split('.')[1]} rows", mapped == n, f"{mapped} of {n} copied")
+            (
+                str(apps.get_model(label)._meta.verbose_name_plural),
+                mapped == n,
+                _("%(done)s of %(total)s copied") % {"done": mapped, "total": n},
+            )
         )
     log_action(
         AuditAction.DATA_IMPORTED,

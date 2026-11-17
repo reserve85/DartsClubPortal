@@ -3279,3 +3279,138 @@ msgstr ""
 
 msgid "Users, invitations, approvals, admin areas"
 msgstr ""
+
+msgid "%(players)s players, %(matches)s matches in the portal"
+msgstr ""
+
+msgid "Account '%(user)s': password could not be taken over."
+msgstr ""
+
+msgid "Counts"
+msgstr ""
+
+msgid "The portal player chosen for '%(name)s' does not exist or already has Elo data."
+msgstr ""
+
+msgid "Elo history recalculated"
+msgstr ""
+
+msgid "Account mapping for '%(user)s': '%(target)s' not found."
+msgstr ""
+
+msgid "The ZIP file contains no database.db."
+msgstr ""
+
+msgid "matches imported"
+msgstr ""
+
+msgid "players matched"
+msgstr ""
+
+msgid "Existing Elo data was deleted before the import (replace)."
+msgstr ""
+
+msgid "accounts created"
+msgstr ""
+
+msgid "%(matches)s matches, %(differ)s differ from the old system (largest difference %(worst).4f)"
+msgstr ""
+
+msgid "accounts matched"
+msgstr ""
+
+msgid "Not a readable SQLite database: %(error)s"
+msgstr ""
+
+msgid "Current Elo of every player"
+msgstr ""
+
+msgid "accounts skipped (system account)"
+msgstr ""
+
+msgid "This is not an Elo database (tables 'players'/'matches' missing)."
+msgstr ""
+
+msgid "The portal already contains Elo data. Use 'replace' to delete it first."
+msgstr ""
+
+msgid "Entry date of '%(name)s' moved to the first match (%(date)s)."
+msgstr ""
+
+msgid "players created"
+msgstr ""
+
+msgid "largest difference %(worst).4f"
+msgstr ""
+
+msgid "Match %(id)s skipped: unknown player."
+msgstr ""
+
+msgid "Duplicate player name in the Elo database, renamed to '%(name)s'."
+msgstr ""
+
+msgid "%(what)s imported"
+msgstr ""
+
+msgid "This is not a penalty database (penalty tables missing)."
+msgstr ""
+
+msgid "%(what)s #%(id)s skipped: empty %(fields)s."
+msgstr ""
+
+msgid "%(done)s of %(total)s copied"
+msgstr ""
+
+msgid "%(what)s matched"
+msgstr ""
+
+msgid "legacy team amounts healed"
+msgstr ""
+
+msgid "Only shown for accounts without a linked player (e.g. a club account)."
+msgstr ""
+
+msgid "New e-mail address"
+msgstr ""
+
+msgid "This is already your e-mail address."
+msgstr ""
+
+msgid "Current password"
+msgstr ""
+
+msgid "The password is not correct."
+msgstr ""
+
+msgid "The e-mail change was withdrawn."
+msgstr ""
+
+msgid "We sent a confirmation link to %(email)s. Until you confirm it, your current address stays in use."
+msgstr ""
+
+msgid "Your e-mail address was changed."
+msgstr ""
+
+msgid "Change e-mail"
+msgstr ""
+
+msgid "E-mail address"
+msgstr ""
+
+msgid "No player linked."
+msgstr ""
+
+msgid "The admins link players and change their names."
+msgstr ""
+
+msgid "The new address gets a confirmation link. Until you confirm it, your current address stays in use."
+msgstr ""
+
+msgid "Waiting for confirmation: %(email)s"
+msgstr ""
+
+msgid "Withdraw change"
+msgstr ""
+
+msgid "no player"
+msgstr ""
