@@ -1,8 +1,8 @@
 Django>=5.2,<5.3          # 5.2 LTS
-django-allauth>=65.19,<66 # signup/login/logout/password reset & change, email verification
+django-allauth>=65.22.1,<66  # signup/login/logout/password reset & change, email verification
 gunicorn>=21.2,<24        # prod server; EXACTLY ONE worker (SQLite concurrency)
-whitenoise>=6.6           # static files serving; wired via MIDDLEWARE + STORAGES
-argon2-cffi>=23.1         # Elo import: keeps the argon2 password hashes of Elo accounts
+whitenoise>=6.12.0        # static files serving; wired via MIDDLEWARE + STORAGES
+argon2-cffi>=25.1.0       # keeps the argon2 password hashes of accounts from the old Elo system
 qrcode[pil]>=8.2          # QR-code login for shared club accounts
 inertia-django==2.0.0     # pages are React + Mantine components rendered through Inertia
 django-vite==3.2.0        # loads the Vite-built frontend (app/static/dist)

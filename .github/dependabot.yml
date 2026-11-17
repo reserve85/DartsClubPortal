@@ -6,6 +6,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      # Django 6 needs Python 3.12+; major upgrades are done by hand.
+      - dependency-name: django
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: npm
     directory: "/frontend"
     schedule:
@@ -14,6 +18,10 @@ updates:
     groups:
       frontend:
         patterns: ["*"]
+    ignore:
+      # Major versions (e.g. TypeScript 7) are upgraded by hand and tested.
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
@@ -22,3 +30,10 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
+    ignore:
+      # Base images stay on the tested Node / Python line (python 3.11 -> 3.15
+      # counts as a minor update); new lines are adopted by hand.
+      - dependency-name: node
+        update-types: ["version-update:semver-major"]
+      - dependency-name: python
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
