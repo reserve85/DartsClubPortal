@@ -18,8 +18,9 @@ work off the captain and the cashier.
 ## Features
 
 **Elo ranking** (module `elo`)
-- Enter a match in seconds on the phone: players, result (locked to valid
-  scores, also "first to 11"), optional 180s, high finishes, low darts, average.
+- Enter a match in seconds on the phone: pick two players, tap the result -
+  one button per valid score for every format (best of 1 to 21), optional
+  180s, high finishes, low darts, average.
 - Live ranking with podium, monthly / yearly / all-time view, rank movements.
 - Player pages with Elo curve, records and statistics; head-to-head with win chance.
 - Corrections recalculate the history automatically.
@@ -34,23 +35,46 @@ work off the captain and the cashier.
   player, one transparent financial overview for everybody.
 - Mails: each penalty, a daily digest, payment receipts.
 
+**Members - one place for every person**
+- Every player with or without a login: teams of the season, Elo and account
+  at a glance, filters with counts (without account, invited, without Elo ...).
+- **Quick add:** type a name, press Enter - several at once, one per line.
+- **Invite** or **add to Elo** straight from the list; a member page with
+  teams, Elo, account (invite, link, unlink) and the picture.
+- Player pictures are cropped round like in a messenger app: move and zoom
+  inside the circle.
+
 **For the whole club**
-- Roles *System / Admin / User* plus the assignments *captain* and *cashier*
-  – a page "Who may do what?" explains them to every member.
-- Invitations, self-registration with approval, QR login for the shared
-  tablet at the board, player pictures, club logo.
-- Audit log, import of the old Elo and penalty databases, CSV exports.
-- Unsubscribe link in every optional mail, cookie-free tracking-free design.
+- Roles *System / Admin / User* plus the assignments *captain* and *cashier*;
+  admin rights split into the areas *Elo*, *Penalty* and *Portal*. A page
+  "Who may do what?" explains everything to every member.
+- Invitations, self-registration with approval, members change their own
+  e-mail (with a confirmation link) and password.
+- **Club account** for the shared tablet at the board: the only account with
+  a QR login, printed as an A4 poster with club logo and address.
+- **Import & Export:** full backup (database, pictures, club logo) as one ZIP,
+  restore with a safety copy taken first, CSV exports, import of the old Elo
+  and penalty databases.
+- Audit log, unsubscribe link in every optional mail, cookie-free and
+  tracking-free design.
 
 ## Screenshots
 
-| Elo ranking | Player | Financial overview |
-|---|---|---|
-| ![Elo ranking](docs/screenshots/elo-ranking.png) | ![Player](docs/screenshots/elo-player.png) | ![Financial overview](docs/screenshots/financial-overview.png) |
+| Elo ranking | Head-to-head |
+|---|---|
+| ![Elo ranking](docs/screenshots/elo-ranking.png) | ![Head-to-head](docs/screenshots/head-to-head.png) |
 
-| Match entry | Penalty | Matchday | Login |
+| Financial overview | Members |
+|---|---|
+| ![Financial overview](docs/screenshots/financial-overview.png) | ![Members](docs/screenshots/members.png) |
+
+| Match entry | Members | Member | Import & Export |
 |---|---|---|---|
-| ![Match entry](docs/screenshots/phone-match-entry.png) | ![Penalty](docs/screenshots/phone-penalty.png) | ![Matchday](docs/screenshots/phone-matchday.png) | ![Login](docs/screenshots/phone-login.png) |
+| ![Match entry](docs/screenshots/phone-match-entry.png) | ![Members](docs/screenshots/phone-members.png) | ![Member](docs/screenshots/phone-member.png) | ![Import & Export](docs/screenshots/phone-import-export.png) |
+
+| Matchday | Penalty | Settings | Login |
+|---|---|---|---|
+| ![Matchday](docs/screenshots/phone-matchday.png) | ![Penalty](docs/screenshots/phone-penalty.png) | ![Settings](docs/screenshots/phone-settings.png) | ![Login](docs/screenshots/phone-login.png) |
 
 <sub>Demo data with invented names.</sub>
 
@@ -75,10 +99,13 @@ docker compose up -d --build
 Every option is documented in [`portainer_compose.yaml`](portainer_compose.yaml)
 and [`.env.example`](.env.example): modules (`MODULES=elo,penalty`), SMTP for
 the mails, imprint / privacy contact, HTTPS behind a reverse proxy, Elo
-parameters. Data (SQLite, logo, pictures) lives in the volume `dart_data`;
-back it up like any folder.
+parameters. Data (SQLite, logo, pictures) lives in the volume `dart_data`.
 
-**Coming from the old systems?** *Administration → Import* takes the
+**Backups:** *Administration → Import & Export* downloads a full backup
+(database, pictures, club logo) as one ZIP and restores it again - a safety
+copy of the current state is saved to `data/backups` first.
+
+**Coming from the old systems?** *Administration → Import & Export → Import* takes the
 penalty database (`db.sqlite3`) and the Elo database or backup ZIP – with a
 preview before anything is saved. See [docs/SWITCH_OVER.md](docs/SWITCH_OVER.md).
 
