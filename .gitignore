@@ -235,3 +235,6 @@ __marimo__/
 # Frontend build output + dependencies
 app/static/dist/
 frontend/node_modules/
+
+# Local, never committed: live compose files with secrets
+private/
