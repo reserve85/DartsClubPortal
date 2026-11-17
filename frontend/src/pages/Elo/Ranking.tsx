@@ -1,5 +1,5 @@
 import { Head, Link } from "@inertiajs/react";
-import { Affix, Badge, Box, Button, Group, Paper, SimpleGrid, Stack, Text, UnstyledButton } from "@mantine/core";
+import { Badge, Box, Button, Group, Paper, SimpleGrid, Stack, Text, UnstyledButton } from "@mantine/core";
 import { IconCrown, IconList, IconPlus, IconSwords } from "@tabler/icons-react";
 import { type Period, PeriodFilter } from "../../components/PeriodFilter";
 import { PlayerAvatar } from "../../components/PlayerAvatar";
@@ -160,11 +160,6 @@ export default function Ranking({ period, includeInactive, entries, fieldSize, m
         <Button component={Link} href="/elo/matches/" leftSection={<IconList size={16} />}>{t("Matches")}</Button>
       </Group>
 
-      <Affix position={{ bottom: 20, right: 20 }} hiddenFrom="sm">
-        <Button component={Link} href="/elo/matches/new/" size="lg" radius="xl" leftSection={<IconPlus size={20} />} style={{ boxShadow: "0 10px 30px rgba(0,0,0,.35)" }}>
-          {t("Match")}
-        </Button>
-      </Affix>
     </>
   );
 }
