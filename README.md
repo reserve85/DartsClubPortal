@@ -7,6 +7,7 @@ design, German and English, light and dark, made for the phone at the board.
 [![Tests](https://github.com/reserve85/DartsClubPortal/actions/workflows/test.yml/badge.svg)](https://github.com/reserve85/DartsClubPortal/actions/workflows/test.yml)
 [![Docker](https://github.com/reserve85/DartsClubPortal/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/reserve85/DartsClubPortal/pkgs/container/darts_club_portal)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Donate with PayPal](https://img.shields.io/badge/donate-PayPal-00457C?logo=paypal&logoColor=white)](https://paypal.me/TobiasWKraft/5)
 
 ## Goal
 
