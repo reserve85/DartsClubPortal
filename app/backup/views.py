@@ -1,10 +1,10 @@
-"""Import & Export: one page for the data of the portal.
+"""Import & Export: backup, restore and exports of the portal data.
 
 * Database export: a consistent copy of the live SQLite database (SQLite
   online backup API - safe while the portal is running).
 * Full backup: a ZIP with the database plus the pictures (player avatars,
   club logo) that live next to it in ``MEDIA_ROOT``.
-* CSV exports (Elo) and the import of the old systems are linked here too.
+* CSV exports (Elo) are linked here too.
 
 Database and backup are for Portal admins, the CSV exports for Elo admins.
 """
@@ -90,12 +90,11 @@ class DataTransferView(LoginRequiredMixin, View):
             request,
             "Admin/DataTransfer",
             props={
-                "can": {"backup": portal, "import": portal, "csv": elo},
+                "can": {"backup": portal, "csv": elo},
                 "urls": {
                     "database": reverse("data_export_db"),
                     "backup": reverse("data_export_zip"),
                     "restore": reverse("data_restore"),
-                    "import": reverse("importer:import"),
                     "csv": [
                         {"href": reverse("elo:export_ranking"), "label": "ranking"},
                         {"href": reverse("elo:export_matches"), "label": "matches"},

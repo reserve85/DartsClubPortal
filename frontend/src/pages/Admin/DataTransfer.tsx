@@ -1,14 +1,14 @@
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import { Alert, Button, Checkbox, FileInput, Group, Paper, PasswordInput, SimpleGrid, Stack, Text } from "@mantine/core";
 import { modals } from "@mantine/modals";
-import { IconAlertTriangle, IconArchive, IconDatabaseExport, IconDatabaseImport, IconDownload, IconFileTypeCsv, IconRestore } from "@tabler/icons-react";
+import { IconAlertTriangle, IconArchive, IconDatabaseExport, IconDownload, IconFileTypeCsv, IconRestore } from "@tabler/icons-react";
 import { type ReactNode, useState } from "react";
 import { PageHeader } from "../../components/ui";
 import { useT } from "../../i18n";
 
 interface Props {
-  can: { backup: boolean; import: boolean; csv: boolean };
-  urls: { database: string; backup: string; restore: string; import: string; csv: { href: string; label: "ranking" | "matches" | "players" }[] };
+  can: { backup: boolean; csv: boolean };
+  urls: { database: string; backup: string; restore: string; csv: { href: string; label: "ranking" | "matches" | "players" }[] };
 }
 
 function Card({ icon, title, text, children }: { icon: ReactNode; title: string; text: string; children: ReactNode }) {
@@ -26,14 +26,14 @@ function Card({ icon, title, text, children }: { icon: ReactNode; title: string;
   );
 }
 
-/** One place for the data: backup, CSV exports, import of the old systems. */
+/** One place for the data: backup, restore, CSV exports. */
 export default function DataTransfer({ can, urls }: Props) {
   const t = useT();
   const csvLabel = { ranking: t("Ranking (CSV)"), matches: t("Matches (CSV)"), players: t("Players (CSV)") };
   return (
     <>
       <Head title={t("Import & Export")} />
-      <PageHeader title={t("Import & Export")} subtitle={t("Back up the data, export lists, take over the old systems.")} left={<IconDatabaseExport size={40} stroke={1.5} />} />
+      <PageHeader title={t("Import & Export")} subtitle={t("Back up and restore the data, export lists.")} left={<IconDatabaseExport size={40} stroke={1.5} />} />
       <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
         {can.backup && (
           <Card
@@ -63,15 +63,6 @@ export default function DataTransfer({ can, urls }: Props) {
             {urls.csv.map((c) => (
               <Button key={c.href} variant="default" size="sm" component="a" href={c.href} leftSection={<IconDownload size={14} />}>{csvLabel[c.label]}</Button>
             ))}
-          </Card>
-        )}
-        {can.import && (
-          <Card
-            icon={<IconDatabaseImport size={24} />}
-            title={t("Import")}
-            text={t("Take over the data of the old Elo and penalty systems, with a preview first.")}
-          >
-            <Button variant="default" component={Link} href={urls.import} leftSection={<IconDatabaseImport size={16} />}>{t("Open import")}</Button>
           </Card>
         )}
       </SimpleGrid>

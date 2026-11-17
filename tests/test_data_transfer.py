@@ -31,10 +31,10 @@ def _admin(email, **areas):
 
 def test_page_shows_what_each_area_may_do(admin_client, role_groups, player_client):
     props = inertia_props(admin_client.get(PAGE))
-    assert props["can"] == {"backup": True, "import": True, "csv": True}
+    assert props["can"] == {"backup": True, "csv": True}
     assert len(props["urls"]["csv"]) == 3
     elo = inertia_props(_admin("elo@example.com", admin_elo=True).get(PAGE))
-    assert elo["can"] == {"backup": False, "import": False, "csv": True}
+    assert elo["can"] == {"backup": False, "csv": True}
     assert _admin("pen@example.com", admin_penalty=True).get(PAGE).status_code == 403
     assert player_client.get(PAGE).status_code == 403
 

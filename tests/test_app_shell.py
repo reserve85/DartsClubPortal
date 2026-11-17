@@ -32,9 +32,12 @@ def _hrefs(props, key):
 
 
 def test_menu_groups_per_role(admin_client, captain_client, player_client):
-    assert _groups(_props(admin_client)) == ["elo", "penalty", "captain", "admin"]
-    assert _groups(_props(captain_client)) == ["elo", "penalty", "captain"]
+    # team management (matchdays, teams, catalog, cash box) lives in "penalty"
+    assert _groups(_props(admin_client)) == ["elo", "penalty", "admin"]
+    assert _groups(_props(captain_client)) == ["elo", "penalty"]
     assert _groups(_props(player_client)) == ["elo", "penalty"]
+    player_penalty = _hrefs(_props(player_client), "penalty")
+    assert reverse("matchdays:matchday_list") not in player_penalty
 
 
 def test_admin_menu_contents(admin_client):
@@ -47,12 +50,12 @@ def test_admin_menu_contents(admin_client):
         "elo:manage",
     ):
         assert reverse(name) in admin
-    assert reverse("teams:team_list") in _hrefs(_props(admin_client), "captain")
+    assert reverse("teams:team_list") in _hrefs(_props(admin_client), "penalty")
 
 
 def test_captain_menu_has_team_tools_but_no_admin(captain_client):
     props = _props(captain_client)
-    captain = _hrefs(props, "captain")
+    captain = _hrefs(props, "penalty")
     assert (
         reverse("matchdays:matchday_list") in captain and reverse("teams:cashier_list") in captain
     )

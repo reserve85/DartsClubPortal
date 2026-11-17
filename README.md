@@ -53,8 +53,7 @@ work off the captain and the cashier.
 - **Club account** for the shared tablet at the board: the only account with
   a QR login, printed as an A4 poster with club logo and address.
 - **Import & Export:** full backup (database, pictures, club logo) as one ZIP,
-  restore with a safety copy taken first, CSV exports, import of the old Elo
-  and penalty databases.
+  restore with a safety copy taken first, CSV exports.
 - Audit log, unsubscribe link in every optional mail, cookie-free and
   tracking-free design.
 
@@ -104,10 +103,6 @@ parameters. Data (SQLite, logo, pictures) lives in the volume `dart_data`.
 **Backups:** *Administration → Import & Export* downloads a full backup
 (database, pictures, club logo) as one ZIP and restores it again - a safety
 copy of the current state is saved to `data/backups` first.
-
-**Coming from the old systems?** *Administration → Import & Export → Import* takes the
-penalty database (`db.sqlite3`) and the Elo database or backup ZIP – with a
-preview before anything is saved. See [docs/SWITCH_OVER.md](docs/SWITCH_OVER.md).
 
 ## Security
 

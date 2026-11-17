@@ -258,7 +258,7 @@ LOCAL_APPS = [
     "app.dashboard",
     "app.notifications",
     "app.elo",
-    "app.importer",
+    "app.backup",
     "inertia",
     "django_vite",
 ]

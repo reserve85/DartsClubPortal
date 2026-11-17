@@ -42,18 +42,6 @@ def test_club_account_cannot_be_admin_or_a_person(admin_client, player_user):
     assert not player_user.is_club_account
 
 
-def test_import_makes_unclaimed_logins_club_accounts(tmp_path, db, role_groups):
-    from app.importer.elo_import import import_elo
-    from tests.test_importer import make_elo_db
-
-    import_elo(make_elo_db(tmp_path / "elo.db"))
-    imported = User.objects.filter(legacy_username__isnull=False)
-    # the Elo USER login nobody claimed is the club account, the Elo ADMIN is not
-    assert imported.filter(is_club_account=True).count() == 1
-    assert not imported.filter(is_club_account=True, admin_elo=True).exists()
-    assert imported.filter(is_club_account=False, admin_elo=True).count() == 1
-
-
 def test_migration_marks_existing_imported_club_logins(role_groups):
     migration = importlib.import_module("app.accounts.migrations.0011_club_account")
     club = User.objects.create_user(

@@ -14,7 +14,7 @@ User = get_user_model()
 
 ELO_PAGES = ["elo:manage"]
 PENALTY_PAGES = ["season_list", "teams:team_list", "matchdays:matchday_list", "teams:cashier_list"]
-PORTAL_PAGES = ["accounts:user_list", "audit_list", "importer:import", "club_logo_admin"]
+PORTAL_PAGES = ["accounts:user_list", "audit_list", "accounts:invite_list", "club_logo_admin"]
 
 
 def _admin(role_groups, email, **areas):

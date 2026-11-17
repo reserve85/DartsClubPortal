@@ -9,13 +9,12 @@ feature modules are switched on or off with `MODULES`:
 | `penalty` | Penalty management: teams, matchdays, penalties, payments, cash box |
 | `elo` | Elo ranking: matches, ranking, statistics, head-to-head, monthly summary |
 
-Roles and module access: [docs/ROLES.md](ROLES.md). Switching over from
-the two old systems: [docs/SWITCH_OVER.md](SWITCH_OVER.md).
+Roles and module access: [docs/ROLES.md](ROLES.md).
 
 A disabled module is completely hidden (no menu, no pages); its data stays in
 the database and is back when the module is switched on again. The portal grew
 out of **DartsPenaltySystem** (full history in this repository); existing
-penalty databases keep working unchanged, Elo databases are imported. Plan and roll-out:
+penalty databases keep working unchanged. Plan and roll-out:
 [docs/ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Module "penalty" (penalties)

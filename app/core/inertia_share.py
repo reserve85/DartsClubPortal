@@ -51,7 +51,7 @@ def _item(label, name, icon, *args, **extra):
 
 
 def navigation(user) -> list[dict]:
-    """Menu groups for this account: Elo · Penalty · Captain · Administration."""
+    """Menu groups for this account: Elo · Penalty (incl. team management) · Administration."""
     groups = []
     scopes = user_admin_scopes(user)
     is_admin = "penalty" in scopes  # team management of every team
@@ -67,25 +67,24 @@ def navigation(user) -> list[dict]:
             {"key": "elo", "label": "Elo", "icon": "target", "items": [i for i in items if i]}
         )
     if has_module(user, PENALTY):
-        items = [_item(_("Financial overview"), "dashboard:financial_overview", "coins")]
-        groups.append(
-            {"key": "penalty", "label": "Penalty", "icon": "cash", "items": [i for i in items if i]}
-        )
-    if has_module(user, PENALTY) and (is_admin or user_is_captain(user)):
+        # Matchdays, teams, catalog and cash box only exist with the penalty
+        # module: one "Penalty" group (captains: their team as a hint).
+        manages = is_admin or user_is_captain(user)
         team = getattr(user, "team", None)
-        items = [
-            _item(_("Matchdays"), "matchdays:matchday_list", "calendar"),
-            _item(_("Teams & Players"), "teams:team_list", "users"),
-            _item(_("Penalty catalog"), "penalties:catalog_list", "book"),
-            _item(_("Cash box"), "teams:cashier_list", "wallet"),
-        ]
-        label = _("Captain") if not is_admin else _("Team management")
+        items = [_item(_("Financial overview"), "dashboard:financial_overview", "coins")]
+        if manages:
+            items += [
+                _item(_("Matchdays"), "matchdays:matchday_list", "calendar"),
+                _item(_("Teams & Players"), "teams:team_list", "users"),
+                _item(_("Penalty catalog"), "penalties:catalog_list", "book"),
+                _item(_("Cash box"), "teams:cashier_list", "wallet"),
+            ]
         groups.append(
             {
-                "key": "captain",
-                "label": label,
-                "hint": team.name if team is not None and not is_admin else "",
-                "icon": "flag",
+                "key": "penalty",
+                "label": "Penalty",
+                "hint": team.name if manages and team is not None and not is_admin else "",
+                "icon": "cash",
                 "items": [i for i in items if i],
             }
         )

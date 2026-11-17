@@ -36,7 +36,7 @@ DartsClubPortal (Django, 1 container, 1 SQLite database, 1 volume)
 ├── elo         NEW: matches, Elo calculation, ranking, statistics, head-to-head,
 │               export (CSV), QR login
 ├── portal      "My overview": Elo tile + penalty tile
-└── importer    imports of the Elo and the penalty database
+└── backup      Import & Export: full backup / restore, database download
 ```
 
 **Module switch (`MODULES`)**
@@ -73,6 +73,10 @@ DartsClubPortal (Django, 1 container, 1 SQLite database, 1 volume)
   stays, with the token in the QR code as in Elo v1.0.39.
 
 ## 3. Importing the existing databases
+
+> **Done and removed.** The switch-over is complete and both old systems are
+> shut down; the import (page and `import_*` commands) was removed afterwards.
+> Backups are made and restored under *Administration → Import & Export*.
 
 Both imports work the same way: **choose file → preview → match people →
 import → verification report**.

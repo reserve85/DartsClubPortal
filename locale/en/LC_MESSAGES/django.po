@@ -3801,3 +3801,6 @@ msgstr ""
 
 msgid "Your password"
 msgstr ""
+
+msgid "Back up and restore the data, export lists."
+msgstr ""

@@ -4780,6 +4780,9 @@ msgstr "Backup jetzt einspielen?"
 msgid "Your password"
 msgstr "Dein Passwort"
 
+msgid "Back up and restore the data, export lists."
+msgstr "Daten sichern und wiederherstellen, Listen exportieren."
+
 #~ msgid "Balance (owed)"
 #~ msgstr "Saldo (geschuldet)"
 
