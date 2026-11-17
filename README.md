@@ -9,6 +9,8 @@ design, German and English, light and dark, made for the phone at the board.
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Donate with PayPal](https://img.shields.io/badge/donate-PayPal-00457C?logo=paypal&logoColor=white)](https://paypal.me/TobiasWKraft/5)
 
+![Darts Club Portal: Elo ranking](docs/screenshots/elo-ranking.png)
+
 ## Goal
 
 Club life produces two kinds of numbers: *who plays how well* and *who owes
@@ -100,6 +102,7 @@ Every option is documented in [`portainer_compose.yaml`](portainer_compose.yaml)
 and [`.env.example`](.env.example): modules (`MODULES=elo,penalty`), SMTP for
 the mails, imprint / privacy contact, HTTPS behind a reverse proxy, Elo
 parameters. Data (SQLite, logo, pictures) lives in the volume `dart_data`.
+Step by step, HTTPS and updates: [docs/INSTALLATION.md](docs/INSTALLATION.md).
 
 **Backups:** *Administration → Import & Export* downloads a full backup
 (database, pictures, club logo) as one ZIP and restores it again - a safety
@@ -118,12 +121,17 @@ copy of the current state is saved to `data/backups` first.
   [GitHub security advisory](https://github.com/reserve85/DartsClubPortal/security/advisories/new)
   instead of a public issue.
 
+## Documentation
+
+- [Installation & configuration](docs/INSTALLATION.md) - Docker / Portainer, HTTPS, updates, every option
+- [Admin guide](docs/ADMIN_GUIDE.md) - roles, members, club account and QR poster, backup
+- [Contributing](CONTRIBUTING.md) - local setup, checks, conventions
+- [Security policy](SECURITY.md)
+
 ## Development
 
-Django 5.2 · django-allauth · React 19 + Mantine 9 via Inertia · Vite · SQLite ·
-pytest (800+ tests) · ruff. Setup, architecture and all details:
-[docs/DETAILS.md](docs/DETAILS.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md),
-roles: [docs/ROLES.md](docs/ROLES.md).
+Django 5.2 · django-allauth · React 19 + Mantine 9 via Inertia · Vite ·
+TypeScript · SQLite · pytest (870+ tests) · ruff. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Support the project
 
