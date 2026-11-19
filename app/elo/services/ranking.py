@@ -2,6 +2,8 @@
 
 Positions are always computed over the FULL field - every player whose entry
 date is on or before the period end, inactive and disabled players included.
+Order: Elo (exact value); on an exact tie the matches between the tied
+players decide (matches won, then legs won), then all wins, then the name.
 The "include inactive" switch only decides which rows are shown, never the
 position numbers, so a position is identical with and without the switch and
 consistent with Best Rank.
@@ -132,6 +134,53 @@ def _records(from_date: date, to_date: date) -> dict[int, dict]:
     return records
 
 
+TIE = 1e-9  # Elo values closer than this are equal
+
+
+def _tiebreak(group: list, until) -> list:
+    """Order players with exactly the same Elo: head-to-head (matches, then
+    legs won among the tied players), then all wins, then the name."""
+    ids = {r["p"].player_id for r in group}
+    h2h_wins = dict.fromkeys(ids, 0)
+    h2h_legs = dict.fromkeys(ids, 0)
+    wins = dict.fromkeys(ids, 0)
+    matches = Match.objects.filter(Q(player_a_id__in=ids) | Q(player_b_id__in=ids))
+    if until is not None:
+        matches = matches.filter(date__lte=until)
+    for a, b, winner, legs_a, legs_b in matches.values_list(
+        "player_a_id", "player_b_id", "winner_id", "score_a", "score_b"
+    ):
+        if winner in ids:
+            wins[winner] += 1
+        if a in ids and b in ids:
+            h2h_wins[winner] += 1
+            h2h_legs[a] += legs_a or 0
+            h2h_legs[b] += legs_b or 0
+    return sorted(
+        group,
+        key=lambda r: (
+            -h2h_wins[r["p"].player_id],
+            -h2h_legs[r["p"].player_id],
+            -wins[r["p"].player_id],
+            r["p"].player.name,
+        ),
+    )
+
+
+def _ordered(rows: list, key: str, until) -> list:
+    """Highest ``key`` (Elo) first; exact ties go through :func:`_tiebreak`."""
+    rows = sorted(rows, key=lambda r: (-r[key], r["p"].player.name))
+    out, i = [], 0
+    while i < len(rows):
+        j = i + 1
+        while j < len(rows) and abs(rows[j][key] - rows[i][key]) < TIE:
+            j += 1
+        group = rows[i:j]
+        out.extend(_tiebreak(group, until) if len(group) > 1 else group)
+        i = j
+    return out
+
+
 def generate_ranking(from_date=None, to_date=None, include_inactive: bool = False) -> Ranking:
     if to_date is None:
         to_date = timezone.localdate()
@@ -175,11 +224,10 @@ def generate_ranking(from_date=None, to_date=None, include_inactive: bool = Fals
                 "has_history": True,
             }
         )
-    rows.sort(key=lambda r: (-r["end"], r["p"].player.name))
-    start_pos = {
-        r["p"].player_id: i + 1
-        for i, r in enumerate(sorted(rows, key=lambda r: (-r["start"], r["p"].player.name)))
-    }
+    rows = _ordered(rows, "end", to_date)
+    # Position before the period: same rules, matches up to the day before.
+    before = from_date.fromordinal(from_date.toordinal() - 1)
+    start_pos = {r["p"].player_id: i + 1 for i, r in enumerate(_ordered(rows, "start", before))}
     entries = []
     for i, r in enumerate(rows):
         pos = i + 1
@@ -337,7 +385,8 @@ def best_rank(player_id: int) -> dict:
     """Lowest rank number ever reached, evaluated at the end of each match day.
 
     The field of a day is every player entered by that day (disabled ones
-    included); ties are broken by name exactly like the ranking table.
+    included); exact Elo ties (very rare) are broken by name here, without
+    the head-to-head step of the ranking table.
     """
     profiles = list(EloProfile.objects.select_related("player"))
     if not any(p.player_id == player_id for p in profiles):

@@ -34,8 +34,27 @@ interface Props {
 
 const MEDALS = ["🥇", "🥈", "🥉"];
 
-function Podium({ top }: { top: RankingEntry[] }) {
-  const f = useFormat();
+/**
+ * Elo as shown in the ranking: whole numbers, but players who would look equal
+ * get as many decimals as it takes to see who is ahead (up to two). Exactly
+ * equal values stay whole numbers - there the head-to-head decides.
+ */
+function eloLabels(entries: RankingEntry[], f: ReturnType<typeof useFormat>) {
+  const digits = (v: number) => {
+    for (const d of [0, 1, 2]) {
+      const same = entries.filter((x) => x.elo.toFixed(d) === v.toFixed(d)).length;
+      if (same <= 1) return d;
+    }
+    return 0;
+  };
+  return (v: number) => {
+    const d = digits(v);
+    // Like every Elo value: no thousands separator (1612,4 - not 1.612,4).
+    return d === 0 ? f.elo(v) : v.toFixed(d).replace(".", f.decimalSeparator);
+  };
+}
+
+function Podium({ top, elo }: { top: RankingEntry[]; elo: (v: number) => string }) {
   const order = [top[1], top[0], top[2]];
   const heights = [72, 96, 56];
   return (
@@ -56,7 +75,7 @@ function Podium({ top }: { top: RankingEntry[] }) {
                   background: i === 1 ? "linear-gradient(180deg, rgba(247,103,7,.35), rgba(247,103,7,.06))" : "var(--mantine-color-default-hover)",
                 }}
               >
-                <Text fw={900} className="num">{MEDALS[[1, 0, 2][i]]} {f.elo(e.elo)}</Text>
+                <Text fw={900} className="num">{MEDALS[[1, 0, 2][i]]} {elo(e.elo)}</Text>
               </Paper>
             </Stack>
           </UnstyledButton>
@@ -68,7 +87,7 @@ function Podium({ top }: { top: RankingEntry[] }) {
   );
 }
 
-export function RankingRow({ e, me, periodQuery }: { e: RankingEntry; me: boolean; periodQuery: string }) {
+export function RankingRow({ e, me, periodQuery, elo }: { e: RankingEntry; me: boolean; periodQuery: string; elo?: (v: number) => string }) {
   const t = useT();
   const tn = useTn();
   const f = useFormat();
@@ -105,7 +124,7 @@ export function RankingRow({ e, me, periodQuery }: { e: RankingEntry; me: boolea
         <Text size="xs" c="dimmed" truncate>{sub}</Text>
       </Box>
       <Box ta="right">
-        <Text fw={800} size="lg" className="num">{f.elo(e.elo)}</Text>
+        <Text fw={800} size="lg" className="num">{elo ? elo(e.elo) : f.elo(e.elo)}</Text>
         <Group gap={6} justify="flex-end" wrap="nowrap">
           <Delta value={e.eloChange} size="xs" />
           {e.positionChange ? (
@@ -123,6 +142,7 @@ export default function Ranking({ period, includeInactive, entries, fieldSize, m
   const t = useT();
   const tn = useTn();
   const f = useFormat();
+  const elo = eloLabels(entries, f);
   const periodQuery = new URLSearchParams({ period: period.key, from: period.from, to: period.to }).toString();
   return (
     <>
@@ -139,12 +159,12 @@ export default function Ranking({ period, includeInactive, entries, fieldSize, m
         <PeriodFilter period={period} today={today} includeInactive={includeInactive} />
       </PageHeader>
 
-      {entries.length >= 3 && <Podium top={entries.slice(0, 3)} />}
+      {entries.length >= 3 && <Podium top={entries.slice(0, 3)} elo={elo} />}
 
       {entries.length ? (
         <Paper withBorder style={{ overflow: "hidden" }}>
           {entries.map((e) => (
-            <RankingRow key={e.playerId} e={e} me={e.playerId === myPlayerId} periodQuery={periodQuery} />
+            <RankingRow key={e.playerId} e={e} me={e.playerId === myPlayerId} periodQuery={periodQuery} elo={elo} />
           ))}
         </Paper>
       ) : (

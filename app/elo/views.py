@@ -130,7 +130,7 @@ def entry_props(e, pics) -> dict:
         "name": e.name,
         "avatar": pics.get(e.player_id, ""),
         "position": e.position,
-        "elo": round(e.elo, 1),
+        "elo": round(e.elo, 2),
         "eloChange": round(e.elo_change, 1),
         "positionChange": e.position_change,
         "matches": e.matches,
