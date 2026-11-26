@@ -296,7 +296,12 @@ class UserCreateView(GroupRequiredMixin, LoginRequiredMixin, InertiaFormMixin, C
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        log_action(AuditAction.USER_CREATED, user=self.request.user, target=self.object)
+        log_action(
+            AuditAction.USER_CREATED,
+            user=self.request.user,
+            target=self.object,
+            metadata={"account": self.object.email},
+        )
         messages.success(self.request, _("User created."))
         return response
 
@@ -391,8 +396,16 @@ class UserUpdateView(GroupRequiredMixin, LoginRequiredMixin, InertiaFormMixin, U
                     _("You are the only Admin. Give the Admin role to another user first."),
                 )
                 return self.form_invalid(form)
+        from app.core.services import form_changes
+
+        changes = form_changes(form)
         response = super().form_valid(form)
-        log_action(AuditAction.USER_UPDATED, user=self.request.user, target=self.object)
+        log_action(
+            AuditAction.USER_UPDATED,
+            user=self.request.user,
+            target=self.object,
+            metadata={"account": self.object.email, "changes": changes},
+        )
         messages.success(self.request, _("User updated."))
         return response
 
@@ -773,10 +786,18 @@ class SettingsView(LoginRequiredMixin, View):
     def post(self, request):
         form = SettingsForm(request_data(request), instance=request.user)
         if form.is_valid():
+            from app.core.services import form_changes
+
+            changes = form_changes(form)
             form.save()
             if {"penalty_notify_mode", "penalty_notify_time"} & set(form.changed_data):
                 reschedule_pending(request.user)
-            log_action(AuditAction.USER_UPDATED, user=request.user, target=request.user)
+            log_action(
+                AuditAction.USER_UPDATED,
+                user=request.user,
+                target=request.user,
+                metadata={"settings": changes},
+            )
             messages.success(request, _("Settings saved."))
             response = redirect("accounts:settings")
             response.set_cookie(

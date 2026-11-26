@@ -19,7 +19,7 @@ from inertia import render as inertia_render
 from app.core.inertia_utils import form_errors, form_schema
 from app.core.models import AuditAction, AuditLog
 from app.core.permissions import GROUP_ADMIN, GroupRequiredMixin
-from app.core.services import log_action
+from app.core.services import form_changes, log_action
 from app.core.utils import numeric_pk, safe_next_url
 from app.matchdays.forms import SeasonForm
 from app.matchdays.models import Season
@@ -282,7 +282,12 @@ class SeasonCreateView(GroupRequiredMixin, LoginRequiredMixin, View):
                     # install) become that season's roster — every later season
                     # starts EMPTY and gets its assignment per season.
                     bind_unassigned_memberships(season)
-                log_action(AuditAction.SEASON_CREATED, user=request.user, target=season)
+                log_action(
+                    AuditAction.SEASON_CREATED,
+                    user=request.user,
+                    target=season,
+                    metadata={"name": season.name, "changes": form_changes(form)},
+                )
             messages.success(request, _("Season created."))
             _import_nuliga(request, form, season)
             return redirect("season_list")
@@ -306,12 +311,13 @@ class SeasonUpdateView(GroupRequiredMixin, LoginRequiredMixin, View):
         season = self.get_object()
         form = SeasonForm(request.POST, instance=season)
         if form.is_valid():
+            changes = form_changes(form)
             form.save()
             log_action(
                 AuditAction.SEASON_UPDATED,
                 user=request.user,
                 target=season,
-                metadata={"is_default": season.is_default},
+                metadata={"name": season.name, "changes": changes},
             )
             messages.success(request, _("Season updated."))
             _import_nuliga(request, form, season)
@@ -379,7 +385,12 @@ class SeasonDeleteView(GroupRequiredMixin, LoginRequiredMixin, View):
                 _("This season cannot be deleted because players are still assigned to it."),
             )
             return redirect("season_list")
-        log_action(AuditAction.SEASON_DELETED, user=request.user, target=season)
+        log_action(
+            AuditAction.SEASON_DELETED,
+            user=request.user,
+            target=season,
+            metadata={"name": season.name},
+        )
         season.delete()
         messages.success(request, _("Season deleted."))
         return redirect("season_list")

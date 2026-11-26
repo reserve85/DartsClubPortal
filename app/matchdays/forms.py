@@ -65,6 +65,7 @@ class SeasonForm(forms.ModelForm):
                 initial=link.team_url if link else "",
                 widget=forms.URLInput(attrs={"placeholder": "https://….liga.nu/…/teamPortrait?…"}),
             )
+        self.change_labels = {f"nuliga_{t.pk}": f"nuLiga {t.name}" for t in self.nuliga_teams}
         self.nuliga_status = {team_id: link for team_id, link in links.items()}
 
     def clean(self):

@@ -41,11 +41,11 @@ function NextMatchdays({ teams, calendars }: { teams: NextTeam[]; calendars: Cal
             p="xs"
             radius="md"
             withBorder
-            style={team.own ? { borderColor: "var(--mantine-color-dart-6)", background: "var(--mantine-color-dart-light)" } : undefined}
+            style={team.own ? { background: "var(--mantine-color-brand-light)", boxShadow: "inset 3px 0 0 var(--mantine-color-brand-6)" } : undefined}
           >
             <Group gap={6} mb={4}>
               <Text fw={800} size="sm">{team.team}</Text>
-              {team.own && <Badge size="xs" color="dart">{t("my team")}</Badge>}
+              {team.own && <Badge size="xs" color="brand">{t("my team")}</Badge>}
             </Group>
             {team.matchdays.map((m) => {
               const line = (
@@ -55,7 +55,7 @@ function NextMatchdays({ teams, calendars }: { teams: NextTeam[]; calendars: Cal
                   </Text>
                   <Box style={{ minWidth: 0 }}>
                     <Text size="sm" truncate>
-                      <Badge size="xs" variant="light" color={m.home ? "teal" : "gray"} mr={6}>{m.venue}</Badge>
+                      <Badge size="xs" variant="light" color="brand" mr={6}>{m.venue}</Badge>
                       {m.opponent}
                     </Text>
                     {m.location && <Text size="xs" c="dimmed" truncate>{m.location}</Text>}

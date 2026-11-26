@@ -38,7 +38,7 @@ export function CalendarSubscribe({ calendars, size = "sm" }: { calendars: Calen
             <Group key={c.url} justify="space-between" wrap="nowrap" gap="xs">
               <Group gap={6} wrap="nowrap" style={{ minWidth: 0 }}>
                 <Text size="sm" fw={700} truncate>{c.team}</Text>
-                {c.own && <Badge size="xs" color="dart">{t("my team")}</Badge>}
+                {c.own && <Badge size="xs" color="brand">{t("my team")}</Badge>}
               </Group>
               <Group gap={6} wrap="nowrap">
                 <Button size="xs" component="a" href={c.webcal}>{t("Subscribe")}</Button>

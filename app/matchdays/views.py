@@ -252,7 +252,12 @@ class MatchdayCreateView(LoginRequiredMixin, InertiaFormMixin, CreateView):
     def form_valid(self, form):
         form.instance.created_by = self.request.user
         response = super().form_valid(form)
-        log_action(AuditAction.MATCHDAY_CREATED, user=self.request.user, target=self.object)
+        log_action(
+            AuditAction.MATCHDAY_CREATED,
+            user=self.request.user,
+            target=self.object,
+            metadata={"matchday": self.object.display_label},
+        )
         messages.success(self.request, _("Matchday created."))
         return response
 
@@ -324,8 +329,16 @@ class MatchdayUpdateView(LoginRequiredMixin, InertiaFormMixin, UpdateView):
         return reverse("matchdays:matchday_detail", args=[self.object.pk])
 
     def form_valid(self, form):
+        from app.core.services import form_changes
+
+        changes = form_changes(form)
         response = super().form_valid(form)
-        log_action(AuditAction.MATCHDAY_UPDATED, user=self.request.user, target=self.object)
+        log_action(
+            AuditAction.MATCHDAY_UPDATED,
+            user=self.request.user,
+            target=self.object,
+            metadata={"matchday": self.object.display_label, "changes": changes},
+        )
         messages.success(self.request, _("Matchday updated."))
         return response
 
@@ -480,6 +493,7 @@ class MatchdayDeleteView(LoginRequiredMixin, View):
     def post(self, request, pk):
         matchday = self.get_object()
         self._check_permission(matchday)
+        label = matchday.display_label
         has_penalties = Penalty.all_objects().filter(matchday=matchday).exists()
         if has_penalties:
             messages.error(
@@ -490,7 +504,12 @@ class MatchdayDeleteView(LoginRequiredMixin, View):
                 ),
             )
             return redirect("matchdays:matchday_detail", pk=matchday.pk)
-        log_action(AuditAction.MATCHDAY_DELETED, user=request.user, target=matchday)
+        log_action(
+            AuditAction.MATCHDAY_DELETED,
+            user=request.user,
+            target=matchday,
+            metadata={"matchday": label},
+        )
         if matchday.nuliga_uid and not matchday.nuliga_removed:
             # Deleted on purpose: the import must not bring it back.
             from app.matchdays.models import NuligaLink

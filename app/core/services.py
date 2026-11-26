@@ -21,6 +21,60 @@ def log_action(action, *, user=None, target=None, metadata=None) -> AuditLog:
     return entry
 
 
+def _shown(field, value) -> str:
+    """A form value as readable text for the audit log."""
+    from datetime import date, datetime, time
+
+    from django import forms
+
+    if value in (None, "", [], ()):
+        return "–"
+    if isinstance(field, forms.ModelMultipleChoiceField):
+        items = list(value)
+        if items and not hasattr(items[0], "pk"):
+            items = list(field.queryset.filter(pk__in=items))
+        return ", ".join(sorted(str(i) for i in items)) or "–"
+    if isinstance(field, forms.ModelChoiceField) and not hasattr(value, "pk"):
+        value = field.queryset.filter(pk=value).first() or value
+    if isinstance(field, forms.TypedChoiceField | forms.ChoiceField) and not isinstance(
+        field, forms.ModelChoiceField
+    ):
+        value = dict(field.choices).get(value, dict(field.choices).get(str(value), value))
+    if isinstance(value, bool):
+        return "✓" if value else "✗"
+    if isinstance(value, datetime):
+        return value.strftime("%d.%m.%Y %H:%M")
+    if isinstance(value, date):
+        return value.strftime("%d.%m.%Y")
+    if isinstance(value, time):
+        return value.strftime("%H:%M")
+    return str(value)[:200]
+
+
+def form_changes(form) -> list[str]:
+    """What an edit form changed, as "Label: old → new" lines for the audit log.
+
+    Password fields are never written; ``form.change_labels`` may rename fields
+    (e.g. one nuLiga link per team).
+    """
+    labels = getattr(form, "change_labels", {})
+    out = []
+    for name in form.changed_data:
+        if "password" in name:
+            continue
+        field = form.fields[name]
+        old = form.initial.get(name, field.initial)
+        if callable(old):
+            old = old()
+        new = form.cleaned_data.get(name)
+        before, after = _shown(field, old), _shown(field, new)
+        if before == after:
+            continue
+        label = labels.get(name) or str(field.label or name)
+        out.append(f"{label}: {before} → {after}")
+    return out
+
+
 def log_email_outcome(
     *,
     success: bool,
