@@ -62,6 +62,26 @@ before it changes anything, and the account is signed out everywhere.
 4. A new password makes every printed code invalid and signs the tablet
    out: print the poster again.
 
+## nuLiga: matchdays imported automatically
+
+1. Open the team in nuLiga (league → group → click the team) and copy the
+   address of that page.
+2. *Penalty → Seasons → Edit*: paste it next to the team under **nuLiga** and
+   save. The matchdays of the season are imported right away - date, time,
+   home or away, opponent and the venue address. Matchdays you entered by
+   hand are linked instead of doubled (same day, or same opponent when the
+   match was moved).
+3. From then on the portal checks nuLiga every day from 06:00. The captain
+   gets a message (in the app and by e-mail) when a matchday is added, moved,
+   changes home/away or the venue, or leaves the schedule. A matchday that
+   left the schedule is only marked - delete it yourself if it is cancelled.
+4. *Matchdays → Sync with nuLiga now* imports at once (admins: every team,
+   captains: their team). The link belongs to the season: paste the new
+   team page when the next season starts.
+
+The overview shows the **next matchdays** of every team - the next two
+weeks, at least the next one - with the own teams first.
+
 ## Everyday tasks
 
 - **Matchday:** *Penalty → Matchdays → New*, choose the participants, add

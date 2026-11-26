@@ -102,6 +102,16 @@ class Matchday(models.Model):
     )
     date = models.DateField(db_index=True, verbose_name=_("date"))
     description = models.CharField(max_length=255, blank=True, verbose_name=_("description"))
+    # Filled by the nuLiga import (empty for matchdays entered by hand).
+    start_time = models.TimeField(null=True, blank=True, verbose_name=_("start time"))
+    location = models.CharField(max_length=255, blank=True, verbose_name=_("location"))
+    nuliga_uid = models.CharField(max_length=100, blank=True, db_index=True, editable=False)
+    nuliga_removed = models.BooleanField(
+        default=False,
+        editable=False,
+        verbose_name=_("removed in nuLiga"),
+        help_text=_("No longer in the nuLiga schedule - check and delete it if it is cancelled."),
+    )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -152,3 +162,27 @@ class MatchdayPlayer(models.Model):
         ]
         verbose_name = _("matchday player")
         verbose_name_plural = _("matchday players")
+
+
+class NuligaLink(models.Model):
+    """The nuLiga team page of one team in one season - the source of its matchdays.
+
+    The team page (``teamPortrait``) links a calendar feed; the import reads
+    that feed once a day and creates or updates the season's matchdays.
+    """
+
+    season = models.ForeignKey(Season, on_delete=models.CASCADE, related_name="nuliga_links")
+    team = models.ForeignKey("teams.Team", on_delete=models.CASCADE, related_name="nuliga_links")
+    team_url = models.URLField(max_length=500, verbose_name=_("nuLiga team page"))
+    feed_url = models.URLField(max_length=500, blank=True, editable=False)
+    nuliga_name = models.CharField(max_length=255, blank=True, editable=False)
+    last_sync_at = models.DateTimeField(null=True, blank=True, editable=False)
+    last_error = models.CharField(max_length=500, blank=True, editable=False)
+
+    class Meta:
+        constraints: ClassVar[list] = [
+            models.UniqueConstraint(fields=["season", "team"], name="unique_nuliga_link")
+        ]
+
+    def __str__(self):
+        return f"{self.team} {self.season}"

@@ -1,6 +1,6 @@
 import { Head, Link, router } from "@inertiajs/react";
 import { Alert, Avatar, Badge, Box, Button, Checkbox, Group, Modal, Paper, ScrollArea, SimpleGrid, Stack, Text, UnstyledButton } from "@mantine/core";
-import { IconEdit, IconPlus, IconUsers } from "@tabler/icons-react";
+import { IconAlertTriangle, IconEdit, IconPlus, IconUsers } from "@tabler/icons-react";
 import { useState } from "react";
 import { PlayerAvatar } from "../../components/PlayerAvatar";
 import { EmptyState, PageHeader, ReadOnlyBadge, Section, StatGrid, StatTile } from "../../components/ui";
@@ -31,6 +31,9 @@ interface Props {
     season: string;
     opponent: string;
     venue: string;
+    time: string;
+    location: string;
+    nuligaRemoved: boolean;
     description: string;
     isToday: boolean;
   };
@@ -109,7 +112,7 @@ export default function MatchdayDetail({ matchday: m, canManage, participants, e
       <Head title={m.label} />
       <PageHeader
         title={m.opponent ? `${m.team} – ${m.opponent}` : m.label}
-        subtitle={[f.date(m.date), m.venue, m.season].filter(Boolean).join(" · ")}
+        subtitle={[f.date(m.date), m.time, m.venue, m.location, m.season].filter(Boolean).join(" · ")}
         left={<Avatar color={colorFor(m.team)} variant="filled" radius="xl" size={52}>{m.team.slice(0, 2).toUpperCase()}</Avatar>}
         actions={
           canManage ? (
@@ -125,6 +128,11 @@ export default function MatchdayDetail({ matchday: m, canManage, participants, e
         {m.isToday && <Badge color="teal" variant="filled" mb={m.description ? "xs" : 0}>{t("Today")}</Badge>}
         {m.description && <Text size="sm">{m.description}</Text>}
       </PageHeader>
+      {m.nuligaRemoved && (
+        <Alert color="red" variant="light" icon={<IconAlertTriangle />} mb="md">
+          {t("This matchday is no longer in the nuLiga schedule. If it was cancelled, delete it (edit page).")}
+        </Alert>
+      )}
 
       <StatGrid>
         <StatTile label={t("Participants")} value={participants.length} />

@@ -50,6 +50,60 @@ class SeasonForm(forms.ModelForm):
             # The chip template compares primary keys, so expose pks (the
             # automatic initial would be a Team queryset).
             self.initial["teams"] = list(self.instance.teams.values_list("pk", flat=True))
+        # One nuLiga team page per team: the source of its matchdays this season.
+        links = {}
+        if self.instance.pk:
+            links = {link.team_id: link for link in self.instance.nuliga_links.all()}
+        self.nuliga_teams = list(Team.objects.order_by("name"))
+        for team in self.nuliga_teams:
+            link = links.get(team.pk)
+            self.fields[f"nuliga_{team.pk}"] = forms.URLField(
+                required=False,
+                max_length=500,
+                assume_scheme="https",
+                label=_("nuLiga team page"),
+                initial=link.team_url if link else "",
+                widget=forms.URLInput(attrs={"placeholder": "https://….liga.nu/…/teamPortrait?…"}),
+            )
+        self.nuliga_status = {team_id: link for team_id, link in links.items()}
+
+    def clean(self):
+        from app.matchdays.nuliga import NuligaError, check_url
+
+        cleaned = super().clean()
+        for team in self.nuliga_teams:
+            name = f"nuliga_{team.pk}"
+            url = cleaned.get(name)
+            if url:
+                try:
+                    cleaned[name] = check_url(url)
+                except NuligaError as exc:
+                    self.add_error(name, str(exc))
+        return cleaned
+
+    def save_nuliga(self, season) -> list:
+        """Store the team pages; returns the links that are new or changed."""
+        from app.matchdays.models import NuligaLink
+
+        changed = []
+        for team in self.nuliga_teams:
+            url = self.cleaned_data.get(f"nuliga_{team.pk}") or ""
+            link = NuligaLink.objects.filter(season=season, team=team).first()
+            if not url:
+                if link is not None:
+                    link.delete()
+                continue
+            if link is None:
+                link = NuligaLink(season=season, team=team)
+            elif link.team_url == url:
+                continue
+            link.team_url = url
+            link.feed_url = ""
+            link.last_sync_at = None
+            link.last_error = ""
+            link.save()
+            changed.append(link)
+        return changed
 
 
 class MatchdayForm(forms.ModelForm):

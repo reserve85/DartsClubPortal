@@ -78,6 +78,13 @@ def _run() -> None:
 
             flush_elo_digests()
             maybe_send_monthly()
+            # nuLiga: matchdays of the default season once a day (from 06:00).
+            from app.core.modules import PENALTY, is_enabled
+
+            if is_enabled(PENALTY):
+                from app.matchdays.nuliga import sync_due
+
+                sync_due()
         except Exception:  # pragma: no cover — a dead thread must never be silent
             logger.exception("Outbox flush failed.")
         finally:

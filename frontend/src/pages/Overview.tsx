@@ -1,5 +1,5 @@
 import { Head, Link, usePage } from "@inertiajs/react";
-import { Badge, Box, Button, Group, Paper, SimpleGrid, Text, UnstyledButton } from "@mantine/core";
+import { Badge, Box, Button, Group, Paper, SimpleGrid, Stack, Text, UnstyledButton } from "@mantine/core";
 import { IconCoins, IconPlus, IconTrophy } from "@tabler/icons-react";
 import { BalanceTiles } from "../components/BalanceTiles";
 import { PlayerAvatar } from "../components/PlayerAvatar";
@@ -13,12 +13,66 @@ interface Props {
     me: { playerId: number; elo: number; position: number | null; monthChange: number; recent: { id: number; date: string; won: boolean; oppName: string; me: number; opp: number }[] } | null;
   } | null;
   penalty: { me: boolean | null; season?: string; total?: number; paid?: number; balance?: number } | null;
+  nextMatchdays: NextTeam[];
   today: string;
+}
+interface NextTeam {
+  team: string;
+  own: boolean;
+  matchdays: { id: number; date: string; time: string; opponent: string; venue: string; home: boolean; location: string; url: string | null }[];
+}
+
+/** Next matchdays of every team: the next two weeks, at least the next one; own teams first. */
+function NextMatchdays({ teams }: { teams: NextTeam[] }) {
+  const t = useT();
+  const f = useFormat();
+  return (
+    <Paper withBorder p="md">
+      <Text fw={800} mb="sm">📅 {t("Next matchdays")}</Text>
+      <Stack gap="xs">
+        {teams.map((team) => (
+          <Paper
+            key={team.team}
+            p="xs"
+            radius="md"
+            withBorder
+            style={team.own ? { borderColor: "var(--mantine-color-dart-6)", background: "var(--mantine-color-dart-light)" } : undefined}
+          >
+            <Group gap={6} mb={4}>
+              <Text fw={800} size="sm">{team.team}</Text>
+              {team.own && <Badge size="xs" color="dart">{t("my team")}</Badge>}
+            </Group>
+            {team.matchdays.map((m) => {
+              const line = (
+                <Group gap={8} wrap="nowrap" align="flex-start">
+                  <Text size="sm" fw={700} className="num" w={92} style={{ flexShrink: 0 }}>
+                    {f.date(m.date)}{m.time ? ` ${m.time}` : ""}
+                  </Text>
+                  <Box style={{ minWidth: 0 }}>
+                    <Text size="sm" truncate>
+                      <Badge size="xs" variant="light" color={m.home ? "teal" : "gray"} mr={6}>{m.venue}</Badge>
+                      {m.opponent}
+                    </Text>
+                    {m.location && <Text size="xs" c="dimmed" truncate>{m.location}</Text>}
+                  </Box>
+                </Group>
+              );
+              return m.url ? (
+                <UnstyledButton key={m.id} component={Link} href={m.url} display="block" py={2}>{line}</UnstyledButton>
+              ) : (
+                <Box key={m.id} py={2}>{line}</Box>
+              );
+            })}
+          </Paper>
+        ))}
+      </Stack>
+    </Paper>
+  );
 }
 
 const row = { display: "flex", alignItems: "center", gap: 12, borderBottom: "1px solid var(--mantine-color-default-border)" } as const;
 
-export default function Overview({ elo, penalty, today }: Props) {
+export default function Overview({ elo, penalty, nextMatchdays, today }: Props) {
   const t = useT();
   const f = useFormat();
   const { auth } = usePage<SharedProps>().props;
@@ -91,6 +145,7 @@ export default function Overview({ elo, penalty, today }: Props) {
             </Group>
           </Paper>
         )}
+        {nextMatchdays.length > 0 && <NextMatchdays teams={nextMatchdays} />}
         {!elo && !penalty && <EmptyState>{t("No module is available for your account. Please contact an administrator.")}</EmptyState>}
       </SimpleGrid>
     </>

@@ -4911,3 +4911,121 @@ msgstr "Noch kein Ergebnis: Es gelten die Grenzen von Best of %(n)s. Mit dem Erg
 
 msgid "The statistics do not fit the result - please correct them."
 msgstr "Die Statistik passt nicht zum Ergebnis – bitte korrigieren."
+
+msgid "start time"
+msgstr "Beginn"
+
+msgid "location"
+msgstr "Spiellokal"
+
+msgid "removed in nuLiga"
+msgstr "in nuLiga entfallen"
+
+msgid "No longer in the nuLiga schedule - check and delete it if it is cancelled."
+msgstr "Nicht mehr im nuLiga-Spielplan – prüfen und löschen, falls er ausfällt."
+
+msgid "nuLiga team page"
+msgstr "nuLiga-Mannschaftsseite"
+
+msgid "Only nuLiga addresses (https://….liga.nu/…) are allowed."
+msgstr "Nur nuLiga-Adressen (https://….liga.nu/…) sind erlaubt."
+
+#, python-format
+msgid "nuLiga could not be reached: %(error)s"
+msgstr "nuLiga ist nicht erreichbar: %(error)s"
+
+msgid "The nuLiga answer is unexpectedly large."
+msgstr "Die Antwort von nuLiga ist unerwartet groß."
+
+msgid "No calendar found on this page. Please use the link of the team page (Mannschaft)."
+msgstr "Auf dieser Seite ist kein Kalender. Bitte den Link der Mannschaftsseite verwenden."
+
+msgid "The nuLiga calendar of this team is empty."
+msgstr "Der nuLiga-Kalender dieser Mannschaft ist leer."
+
+#, python-format
+msgid "Match no. %(n)s"
+msgstr "Begegnung Nr. %(n)s"
+
+msgid "back in the nuLiga schedule"
+msgstr "wieder im nuLiga-Spielplan"
+
+#, python-format
+msgid "moved from %(old)s to %(new)s"
+msgstr "verlegt von %(old)s auf %(new)s"
+
+#, python-format
+msgid "now %(venue)s"
+msgstr "jetzt %(venue)s"
+
+#, python-format
+msgid "opponent: %(name)s"
+msgstr "Gegner: %(name)s"
+
+#, python-format
+msgid "venue: %(place)s"
+msgstr "Spiellokal: %(place)s"
+
+#, python-format
+msgid "New: %(m)s"
+msgstr "Neu: %(m)s"
+
+#, python-format
+msgid "Linked: %(m)s"
+msgstr "Verknüpft: %(m)s"
+
+#, python-format
+msgid "No longer in nuLiga: %(m)s"
+msgstr "Nicht mehr in nuLiga: %(m)s"
+
+#, python-format
+msgid "nuLiga: %(n)s matchdays of %(team)s imported."
+msgstr "nuLiga: %(n)s Spieltage von %(team)s importiert."
+
+#, python-format
+msgid "nuLiga: the schedule of %(team)s changed (%(n)s)."
+msgstr "nuLiga: Der Spielplan von %(team)s hat sich geändert (%(n)s)."
+
+msgid "nuLiga"
+msgstr "nuLiga"
+
+msgid "Paste the address of the team page in nuLiga (open the league, click the team, copy the address). The matchdays of this season are imported right away and then checked every day; the captain is told about every change."
+msgstr "Adresse der Mannschaftsseite in nuLiga einfügen (Liga öffnen, Mannschaft anklicken, Adresse kopieren). Die Spieltage dieser Saison werden sofort importiert und danach täglich abgeglichen; der Kapitän erfährt jede Änderung."
+
+#, python-format
+msgid "nuLiga · %(team)s: %(new)s matchdays imported, %(linked)s linked."
+msgstr "nuLiga · %(team)s: %(new)s Spieltage importiert, %(linked)s verknüpft."
+
+#, python-format
+msgid "nuLiga · %(team)s: everything is up to date."
+msgstr "nuLiga · %(team)s: alles aktuell."
+
+#, python-format
+msgid "The matchdays of %(team)s were imported from nuLiga:"
+msgstr "Die Spieltage von %(team)s wurden aus nuLiga importiert:"
+
+#, python-format
+msgid "The nuLiga schedule of %(team)s changed:"
+msgstr "Der nuLiga-Spielplan von %(team)s hat sich geändert:"
+
+msgid "Open matchdays"
+msgstr "Spieltage öffnen"
+
+#, python-format
+msgid "Checked daily, last time %(when)s."
+msgstr "Wird täglich abgeglichen, zuletzt am %(when)s."
+
+msgid "Checked daily."
+msgstr "Wird täglich abgeglichen."
+
+msgid "Sync with nuLiga now"
+msgstr "Jetzt mit nuLiga abgleichen"
+
+msgid "This matchday is no longer in the nuLiga schedule. If it was cancelled, delete it (edit page)."
+msgstr "Dieser Spieltag steht nicht mehr im nuLiga-Spielplan. Falls er ausfällt, bitte löschen (Bearbeiten-Seite)."
+
+msgid "Next matchdays"
+msgstr "Nächste Spieltage"
+
+msgid "my team"
+msgstr "meine Mannschaft"

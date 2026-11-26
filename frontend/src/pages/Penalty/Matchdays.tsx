@@ -1,8 +1,9 @@
 import { Head, Link, router } from "@inertiajs/react";
 import { ActionIcon, Badge, Box, Button, Group, Pagination, Paper, Select, Stack, Text, Tooltip, UnstyledButton } from "@mantine/core";
-import { IconChevronRight, IconPlus, IconSortAscending, IconSortDescending } from "@tabler/icons-react";
+import { IconAlertTriangle, IconChevronRight, IconPlus, IconRefresh, IconSortAscending, IconSortDescending } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { EmptyState, PageHeader, ReadOnlyBadge } from "../../components/ui";
+import { useState } from "react";
 import { useT, useTn } from "../../i18n";
 
 interface Row {
@@ -12,9 +13,17 @@ interface Row {
   team: string;
   opponent: string;
   venue: string;
+  time: string;
+  location: string;
+  nuliga: boolean;
+  nuligaRemoved: boolean;
   isToday: boolean;
   isPast: boolean;
   canManage: boolean;
+}
+interface NuligaInfo {
+  syncUrl: string;
+  teams: { name: string; lastSync: string | null; error: string }[];
 }
 interface Props {
   rows: Row[];
@@ -28,6 +37,38 @@ interface Props {
   total: number;
   season: string;
   canCreate: boolean;
+  nuliga: NuligaInfo | null;
+}
+
+/** "Sync with nuLiga" - the daily import, right now. */
+function NuligaBar({ info }: { info: NuligaInfo }) {
+  const t = useT();
+  const [busy, setBusy] = useState(false);
+  const last = info.teams.map((x) => x.lastSync).filter(Boolean).sort().pop();
+  const errors = info.teams.filter((x) => x.error);
+  return (
+    <Paper withBorder p="sm" radius="md" mb="md">
+      <Group justify="space-between" gap="sm">
+        <Box style={{ minWidth: 0 }}>
+          <Text size="sm" fw={700}>nuLiga</Text>
+          <Text size="xs" c="dimmed">
+            {last ? t("Checked daily, last time %(when)s.", { when: dayjs(last).format("DD.MM. HH:mm") }) : t("Checked daily.")}
+          </Text>
+          {errors.map((x) => (
+            <Text key={x.name} size="xs" c="red"><IconAlertTriangle size={12} /> {x.name}: {x.error}</Text>
+          ))}
+        </Box>
+        <Button
+          variant="light"
+          leftSection={<IconRefresh size={16} />}
+          loading={busy}
+          onClick={() => router.post(info.syncUrl, {}, { preserveScroll: true, onStart: () => setBusy(true), onFinish: () => setBusy(false) })}
+        >
+          {t("Sync with nuLiga now")}
+        </Button>
+      </Group>
+    </Paper>
+  );
 }
 
 export default function Matchdays(p: Props) {
@@ -81,6 +122,8 @@ export default function Matchdays(p: Props) {
         </Group>
       </PageHeader>
 
+      {p.nuliga && <NuligaBar info={p.nuliga} />}
+
       {p.rows.length === 0 ? (
         <EmptyState>{t("No matchdays yet.")}</EmptyState>
       ) : (
@@ -99,10 +142,13 @@ export default function Matchdays(p: Props) {
                       <Text fw={700} truncate>{m.opponent ? `${m.team} – ${m.opponent}` : m.label}</Text>
                       <Group gap={6} mt={4}>
                         <Badge variant="light" color="brand">{m.venue}</Badge>
+                        {m.time && <Badge variant="light" color="gray">{m.time}</Badge>}
+                        {m.nuligaRemoved && <Badge color="red" variant="light">{t("removed in nuLiga")}</Badge>}
                         {m.isToday && <Badge color="teal" variant="filled">{t("Today")}</Badge>}
                         {!m.isPast && !m.isToday && <Badge color="gray" variant="light">{t("upcoming")}</Badge>}
                         {!m.canManage && <ReadOnlyBadge label={t("read only")} />}
                       </Group>
+                      {m.location && <Text size="xs" c="dimmed" truncate mt={4}>{m.location}</Text>}
                     </Box>
                     <IconChevronRight size={18} style={{ opacity: 0.5, flexShrink: 0 }} />
                   </Group>

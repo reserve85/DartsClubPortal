@@ -1,0 +1,7 @@
+{% extends "emails/base_email.txt" %}{% load i18n %}
+{% block content %}{% if first %}{% blocktranslate with team=team.name %}The matchdays of {{ team }} were imported from nuLiga:{% endblocktranslate %}{% else %}{% blocktranslate with team=team.name %}The nuLiga schedule of {{ team }} changed:{% endblocktranslate %}{% endif %}
+{% for line in lines %}
+- {{ line }}{% endfor %}
+
+{% translate "Open matchdays" %}: {{ url }}
+{% endblock %}

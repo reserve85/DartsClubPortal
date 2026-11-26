@@ -128,6 +128,10 @@ class MatchdayListView(LoginRequiredMixin, View):
                     "team": m.team.name,
                     "opponent": m.opponent,
                     "venue": m.get_venue_display(),
+                    "time": m.start_time.strftime("%H:%M") if m.start_time else "",
+                    "location": m.location,
+                    "nuliga": bool(m.nuliga_uid),
+                    "nuligaRemoved": m.nuliga_removed,
                     "isToday": m.date == today,
                     "isPast": m.date < today,
                     "canManage": user_can_manage_team(request.user, m.team),
@@ -144,8 +148,65 @@ class MatchdayListView(LoginRequiredMixin, View):
             "total": page.paginator.count,
             "season": season.name if season else "",
             "canCreate": user_is_penalty_admin(request.user) or request.user.team_id is not None,
+            "nuliga": _nuliga_info(request.user, season),
         }
         return inertia_render(request, "Penalty/Matchdays", props=props, template_data=context)
+
+
+def _nuliga_links(user, season):
+    """nuLiga team pages of the season this account may import."""
+    from app.matchdays.models import NuligaLink
+
+    if season is None:
+        return []
+    links = NuligaLink.objects.filter(season=season).select_related("team", "season")
+    return [link for link in links if user_can_manage_team(user, link.team)]
+
+
+def _nuliga_info(user, season):
+    links = _nuliga_links(user, season)
+    if not links:
+        return None
+    return {
+        "syncUrl": reverse("matchdays:nuliga_sync"),
+        "teams": [
+            {
+                "name": link.team.name,
+                "lastSync": timezone.localtime(link.last_sync_at).isoformat()
+                if link.last_sync_at
+                else None,
+                "error": link.last_error,
+            }
+            for link in links
+        ],
+    }
+
+
+class NuligaSyncView(LoginRequiredMixin, View):
+    """POST: import the nuLiga schedule now (admins: every team, captains: their team)."""
+
+    def post(self, request):
+        from app.matchdays.nuliga import NuligaError, summary_lines, sync_link
+
+        assert_admin_or_captain(request.user)
+        links = _nuliga_links(request.user, season_for_request(request))
+        if not links:
+            raise PermissionDenied
+        for link in links:
+            try:
+                result = sync_link(link, actor=request.user)
+            except NuligaError as exc:
+                messages.error(request, f"nuLiga · {link.team.name}: {exc}")
+                continue
+            lines = summary_lines(result)
+            if lines:
+                messages.success(request, f"nuLiga · {link.team.name}: " + " · ".join(lines[:6]))
+            else:
+                messages.info(
+                    request,
+                    _("nuLiga · %(team)s: everything is up to date.") % {"team": link.team.name},
+                )
+        return redirect("matchdays:matchday_list")
 
 
 class MatchdayCreateView(LoginRequiredMixin, InertiaFormMixin, CreateView):
@@ -277,6 +338,9 @@ class MatchdayDetailView(LoginRequiredMixin, DetailView):
                 "season": md.season.name if md.season else "",
                 "opponent": md.opponent,
                 "venue": md.get_venue_display(),
+                "time": md.start_time.strftime("%H:%M") if md.start_time else "",
+                "location": md.location,
+                "nuligaRemoved": md.nuliga_removed,
                 "description": md.description,
                 "isToday": md.date == today,
             },

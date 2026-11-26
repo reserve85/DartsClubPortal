@@ -39,6 +39,8 @@ interface FieldTable {
   /** Create only: typing into this field fills every untouched number cell. */
   copyFrom?: string;
   empty?: string;
+  /** Inputs fill the cell (e.g. addresses). */
+  wide?: boolean;
 }
 
 function TableFields({
@@ -79,8 +81,8 @@ function TableFields({
                     if (!f) return <Table.Td key={name} />;
                     const compact = { ...f, label: "", help: "" };
                     return (
-                      <Table.Td key={name} ta={f.type === "switch" ? "center" : undefined} miw={f.type === "number" ? 130 : undefined}>
-                        <Box display="inline-block" aria-label={`${f.label}: ${row.label}`}>
+                      <Table.Td key={name} ta={f.type === "switch" ? "center" : undefined} miw={f.type === "number" ? 130 : table.wide ? 240 : undefined} w={table.wide ? "100%" : undefined}>
+                        <Box display={table.wide ? "block" : "inline-block"} aria-label={`${f.label}: ${row.label}`}>
                           <Field
                             field={compact}
                             value={f.disabled ? f.value : data[name]}

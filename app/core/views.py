@@ -11,6 +11,7 @@ from django.db.models import Count
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 from inertia import render as inertia_render
@@ -190,6 +191,58 @@ class SeasonListView(GroupRequiredMixin, LoginRequiredMixin, View):
         return inertia_render(request, "Admin/Seasons", props=props, template_data=context)
 
 
+def _nuliga_table(form):
+    """One nuLiga team page per team (the import of its matchdays)."""
+
+    def status(team):
+        link = form.nuliga_status.get(team.pk)
+        if link is None or link.last_sync_at is None:
+            return team.name
+        when = timezone.localtime(link.last_sync_at).strftime("%d.%m. %H:%M")
+        if link.last_error:
+            return f"{team.name} · ⚠ {link.last_error}"
+        return f"{team.name} · ✓ {when}"
+
+    return {
+        "title": str(_("nuLiga")),
+        "help": str(
+            _(
+                "Paste the address of the team page in nuLiga (open the league, click the "
+                "team, copy the address). The matchdays of this season are imported right "
+                "away and then checked every day; the captain is told about every change."
+            )
+        ),
+        "headers": [str(_("Team")), str(_("nuLiga team page"))],
+        "rows": [
+            {"label": status(team), "fields": [f"nuliga_{team.pk}"]} for team in form.nuliga_teams
+        ],
+        "empty": str(_("No teams yet.")),
+        "wide": True,
+    }
+
+
+def _import_nuliga(request, form, season):
+    """Save the team pages and import the new or changed ones right away."""
+    from app.matchdays.nuliga import NuligaError, sync_link
+
+    for link in form.save_nuliga(season):
+        try:
+            result = sync_link(link, notify=False, actor=request.user)
+        except NuligaError as exc:
+            messages.warning(request, f"nuLiga · {link.team.name}: {exc}")
+            continue
+        messages.success(
+            request,
+            _("nuLiga · %(team)s: %(new)s matchdays imported, %(linked)s linked.")
+            % {"team": link.team.name, "new": len(result.created), "linked": len(result.adopted)},
+        )
+        for matchday, changes in result.changed:
+            messages.info(
+                request,
+                f"nuLiga · {link.team.name}: {matchday.opponent} – {', '.join(changes)}",
+            )
+
+
 def _season_form_page(request, form, season=None):
     """The season create/edit form as the generic React form page."""
     props = {
@@ -200,6 +253,7 @@ def _season_form_page(request, form, season=None):
         "subtitle": season.name if season else "",
         "submitLabel": str(_("Save changes")) if season else str(_("Create season")),
         "cancelUrl": reverse("season_list"),
+        "table": _nuliga_table(form),
     }
     if season is not None:
         props.update(
@@ -236,6 +290,7 @@ class SeasonCreateView(GroupRequiredMixin, LoginRequiredMixin, View):
                     bind_unassigned_memberships(season)
                 log_action(AuditAction.SEASON_CREATED, user=request.user, target=season)
             messages.success(request, _("Season created."))
+            _import_nuliga(request, form, season)
             return redirect("season_list")
         return _season_form_page(request, form)
 
@@ -265,6 +320,7 @@ class SeasonUpdateView(GroupRequiredMixin, LoginRequiredMixin, View):
                 metadata={"is_default": season.is_default},
             )
             messages.success(request, _("Season updated."))
+            _import_nuliga(request, form, season)
             return redirect("season_list")
         return _season_form_page(request, form, season)
 
