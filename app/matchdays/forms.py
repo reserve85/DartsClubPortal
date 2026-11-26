@@ -135,6 +135,7 @@ class MatchdayForm(forms.ModelForm):
             "description",
             "nuliga_manual",
         ]
+        labels: ClassVar[dict] = {"venue": _("Home / away"), "location": _("Venue address")}
         widgets: ClassVar[dict] = {
             "start_time": forms.TimeInput(attrs={"type": "time"}, format="%H:%M"),
             # type="date" strictly requires ISO (YYYY-MM-DD). Without an explicit

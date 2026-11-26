@@ -566,6 +566,7 @@ MSGIDS: list[str] = [
     "Win chance in the next match (Elo)",
     "Win rate",
     "With account",
+    "With reminders 4 hours and 90 minutes before the start (iPhone, Outlook; Google Calendar uses its own reminders).",
     "Withdraw change",
     "Without Elo",
     "Without account",

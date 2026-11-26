@@ -14,7 +14,7 @@ import {
   Textarea,
   TextInput,
 } from "@mantine/core";
-import { DatePickerInput, TimeInput } from "@mantine/dates";
+import { DatePickerInput, TimePicker } from "@mantine/dates";
 import { usePage } from "@inertiajs/react";
 import dayjs from "dayjs";
 import type { ReactNode } from "react";
@@ -77,6 +77,8 @@ export function Field({
     required: field.required,
     disabled: field.disabled,
     error: error || field.error || undefined,
+    // Help below the input: fields side by side stay aligned however long it is.
+    inputWrapperOrder: ["label", "input", "description", "error"] as ("label" | "input" | "description" | "error")[],
   };
   const choices = field.choices ?? [];
   const comma = usePage<{ site?: { language: string } }>().props.site?.language !== "en";
@@ -216,7 +218,7 @@ export function Field({
       );
     case "time":
       return (
-        <TimeInput {...common} value={String(value ?? "")} onChange={(e) => onChange(e.currentTarget.value)} />
+        <TimePicker {...common} format="24h" clearable={!field.required} value={String(value ?? "").slice(0, 5)} onChange={(v) => onChange(v ? v.slice(0, 5) : "")} />
       );
     default:
       return (
@@ -238,12 +240,18 @@ export function Field({
  * side (e.g. [["date", "venue"]]); fields not mentioned get their own row.
  * ``render`` may replace single fields with a custom control.
  */
+export interface FieldGroup {
+  title: string;
+  rows: string[][];
+}
+
 export function FormFields({
   fields,
   data,
   setData,
   errors = {},
   rows = [],
+  groups,
   render,
 }: {
   fields: FieldDef[];
@@ -251,8 +259,30 @@ export function FormFields({
   setData: (name: string, value: unknown) => void;
   errors?: Record<string, string>;
   rows?: string[][];
+  /** Titled sections, each with its rows; fields of no group follow at the end. */
+  groups?: FieldGroup[];
   render?: (field: FieldDef) => ReactNode | undefined;
 }) {
+  if (groups?.length) {
+    const grouped = new Set(groups.flatMap((g) => g.rows.flat()));
+    const rest = fields.filter((f) => !grouped.has(f.name));
+    return (
+      <Stack gap="lg">
+        {groups.map((g) => {
+          const names = new Set(g.rows.flat());
+          const own = fields.filter((f) => names.has(f.name));
+          if (!own.length) return null;
+          return (
+            <Stack key={g.title} gap="sm">
+              <Text size="xs" fw={800} tt="uppercase" c="dimmed">{g.title}</Text>
+              <FormFields fields={own} data={data} setData={setData} errors={errors} rows={g.rows} render={render} />
+            </Stack>
+          );
+        })}
+        {rest.length > 0 && <FormFields fields={rest} data={data} setData={setData} errors={errors} rows={rows} render={render} />}
+      </Stack>
+    );
+  }
   const byName = new Map(fields.map((f) => [f.name, f]));
   const placed = new Set<string>();
   const blocks: ReactNode[] = [];

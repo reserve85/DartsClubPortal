@@ -1,6 +1,6 @@
 import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
 import { Alert, Anchor, Button, Grid, Group, type MantineColorScheme, Paper, PasswordInput, SegmentedControl, Select, Stack, Switch, Text, TextInput, useMantineColorScheme } from "@mantine/core";
-import { TimeInput } from "@mantine/dates";
+import { TimePicker } from "@mantine/dates";
 import { IconAlertTriangle, IconInfoCircle, IconKey, IconMail, IconMailForward } from "@tabler/icons-react";
 import { type KeyboardEvent, useEffect, useState } from "react";
 import { AvatarUpload } from "../../components/AvatarUpload";
@@ -136,11 +136,12 @@ export default function Settings({ values, fields, choices, player, passwordUrl,
                       form.setData("penalty_notify_mode", daily ? "daily" : "immediate"),
                     )}
                   {has("penalty_notify_time") && ((has("penalty_notify_mode") && d.penalty_notify_mode === "daily") || (d.elo_match_notify && d.elo_match_digest)) && (
-                    <TimeInput
+                    <TimePicker
+                      format="24h"
                       label={t("Digest time")}
                       description={t("Daily summaries (penalties and Elo matches) arrive at this time.")}
-                      value={d.penalty_notify_time}
-                      onChange={(e) => form.setData("penalty_notify_time", e.currentTarget.value)}
+                      value={String(d.penalty_notify_time ?? "").slice(0, 5)}
+                      onChange={(v) => form.setData("penalty_notify_time", v ? v.slice(0, 5) : "")}
                       error={errors.penalty_notify_time}
                       maw={260}
                     />

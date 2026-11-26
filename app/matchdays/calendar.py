@@ -23,6 +23,7 @@ SALT = "matchday-calendar"
 PAST_DAYS = 90
 LENGTH = timedelta(hours=4)
 CRLF = chr(13) + chr(10)
+REMINDERS = ("-PT4H", "-PT90M")
 
 
 def token_for(team_id: int | None) -> str:
@@ -142,6 +143,16 @@ def build_calendar(matchdays, name: str, host: str) -> str:
             lines.append(f"DESCRIPTION:{_text(chr(10).join(details))}")
         lines.append("STATUS:CANCELLED" if md.nuliga_removed else "STATUS:CONFIRMED")
         lines.append("TRANSP:OPAQUE")
+        if md.start_time and not md.nuliga_removed:
+            # Default reminders: 4 hours and 90 minutes before the start.
+            for trigger in REMINDERS:
+                lines += [
+                    "BEGIN:VALARM",
+                    "ACTION:DISPLAY",
+                    f"DESCRIPTION:{_text(pair)}",
+                    f"TRIGGER:{trigger}",
+                    "END:VALARM",
+                ]
         lines.append("END:VEVENT")
     lines.append("END:VCALENDAR")
     return CRLF.join(_fold(line) for line in lines) + CRLF

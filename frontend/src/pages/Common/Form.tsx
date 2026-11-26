@@ -2,7 +2,7 @@ import { Head, Link, useForm } from "@inertiajs/react";
 import { Alert, Avatar, Box, Button, Group, Paper, Stack, Table, Text } from "@mantine/core";
 import { IconAlertTriangle, IconInfoCircle } from "@tabler/icons-react";
 import { confirmPost } from "../../components/elo";
-import { Field, FormFields, initialData, type FieldDef } from "../../components/FormFields";
+import { Field, FormFields, initialData, type FieldDef, type FieldGroup } from "../../components/FormFields";
 import { PlayerAvatar } from "../../components/PlayerAvatar";
 import { PasswordSetCard, type PasswordSet } from "../../components/PasswordSetCard";
 import { PageHeader } from "../../components/ui";
@@ -25,6 +25,8 @@ interface Props {
   deleteConfirm?: string;
   notice?: string;
   rows?: string[][];
+  /** Titled sections (see FormFields). */
+  groups?: FieldGroup[];
   table?: FieldTable;
   /** Edit account: portal admins set a new password (with confirmation). */
   passwordSet?: PasswordSet | null;
@@ -166,6 +168,7 @@ export default function FormPage(p: Props) {
               setData={setField}
               errors={errors}
               rows={p.rows}
+              groups={p.groups}
             />
             {p.table && (
               <TableFields table={p.table} fields={p.fields} data={form.data} setData={setField} errors={errors} />

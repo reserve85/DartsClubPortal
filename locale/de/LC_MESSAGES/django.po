@@ -5134,3 +5134,21 @@ msgstr "Alles aktuell – nichts geändert."
 
 msgid "Every change is also in the audit log."
 msgstr "Jede Änderung steht auch im Audit-Log."
+
+msgid "With reminders 4 hours and 90 minutes before the start (iPhone, Outlook; Google Calendar uses its own reminders)."
+msgstr "Mit Erinnerung 4 Stunden und 90 Minuten vor Spielbeginn (iPhone, Outlook; Google Kalender nutzt seine eigenen Erinnerungen)."
+
+msgid "Fixture"
+msgstr "Begegnung"
+
+msgid "Date and venue"
+msgstr "Termin & Spiellokal"
+
+msgid "More"
+msgstr "Weiteres"
+
+msgid "Home / away"
+msgstr "Heim / Auswärts"
+
+msgid "Venue address"
+msgstr "Spiellokal (Adresse)"

@@ -361,6 +361,8 @@ class TestCalendar:
         assert r"LOCATION:Halle\, Weg 1" in body
         assert "Spielstart: 19:30" in body or "Match start: 19:30" in body
         assert "STATUS:CANCELLED" in body
+        # Reminders 4 h and 90 min before - only for the match with a start time
+        assert body.count("TRIGGER:-PT4H") == 1 and body.count("TRIGGER:-PT90M") == 1
         # 4 hours from 19:30 local time
         start = body.split("DTSTART:")[1][:16]
         end = body.split("DTEND:")[1][:16]

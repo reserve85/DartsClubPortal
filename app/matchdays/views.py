@@ -219,6 +219,15 @@ class NuligaSyncView(LoginRequiredMixin, View):
         return redirect("matchdays:matchday_list")
 
 
+def _matchday_groups():
+    """The matchday form in sections: who, when and where, notes."""
+    return [
+        {"title": str(_("Fixture")), "rows": [["team", "season"], ["opponent", "venue"]]},
+        {"title": str(_("Date and venue")), "rows": [["date", "start_time"], ["location"]]},
+        {"title": str(_("More")), "rows": [["description"], ["nuliga_manual"]]},
+    ]
+
+
 class MatchdayCreateView(LoginRequiredMixin, InertiaFormMixin, CreateView):
     model = Matchday
     form_class = MatchdayForm
@@ -240,7 +249,7 @@ class MatchdayCreateView(LoginRequiredMixin, InertiaFormMixin, CreateView):
             "subtitle": str(_("Add the players afterwards on the matchday page.")),
             "submitLabel": str(_("Create matchday")),
             "cancelUrl": reverse("matchdays:matchday_list"),
-            "rows": [["team", "season"], ["opponent", "venue"], ["date", "start_time"]],
+            "groups": _matchday_groups(),
         }
 
     def get_initial(self):
@@ -295,7 +304,7 @@ class MatchdayUpdateView(LoginRequiredMixin, InertiaFormMixin, UpdateView):
             "deleteConfirm": str(
                 _("Delete this matchday? Matchdays with penalties cannot be deleted.")
             ),
-            "rows": [["team", "season"], ["opponent", "venue"], ["date", "start_time"]],
+            "groups": _matchday_groups(),
             **self._nuliga_props(),
         }
 

@@ -52,6 +52,9 @@ export function CalendarSubscribe({ calendars, size = "sm" }: { calendars: Calen
           ))}
         </Stack>
         <Text size="xs" c="dimmed" mt="md">
+          {t("With reminders 4 hours and 90 minutes before the start (iPhone, Outlook; Google Calendar uses its own reminders).")}
+        </Text>
+        <Text size="xs" c="dimmed" mt={4}>
           {t("Google Calendar: Other calendars → From URL → paste the copied link.")}
         </Text>
       </Modal>

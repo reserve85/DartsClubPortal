@@ -23,7 +23,7 @@ import {
   TextInput,
   Tooltip,
 } from "@mantine/core";
-import { DatePickerInput } from "@mantine/dates";
+import { DatePickerInput, TimePicker } from "@mantine/dates";
 
 // Club blue (#206bc4) and dart orange (#f76707) as 10-shade palettes.
 const brand: MantineColorsTuple = [
@@ -62,6 +62,7 @@ export const theme = createTheme({
       defaultProps: { size: "md", allowDeselect: false, comboboxProps: { shadow: "md" } },
     }),
     DatePickerInput: DatePickerInput.extend({ defaultProps: { size: "md", valueFormat: "DD.MM.YYYY" } }),
+    TimePicker: TimePicker.extend({ defaultProps: { size: "md", format: "24h" } }),
     SegmentedControl: SegmentedControl.extend({ defaultProps: { radius: "xl" } }),
     Switch: Switch.extend({ defaultProps: { size: "md" } }),
     Menu: Menu.extend({ defaultProps: { shadow: "md", radius: "md", withinPortal: true } }),
