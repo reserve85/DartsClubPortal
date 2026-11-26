@@ -12,6 +12,7 @@ import {
   Button,
   Card,
   createTheme,
+  InputWrapper,
   type MantineColorsTuple,
   Menu,
   Modal,
@@ -56,6 +57,8 @@ export const theme = createTheme({
     Card: Card.extend({ defaultProps: { withBorder: true, radius: "lg", padding: "md" } }),
     Paper: Paper.extend({ defaultProps: { radius: "lg" } }),
     Badge: Badge.extend({ defaultProps: { variant: "light", radius: "sm" } }),
+    // Help text below the input everywhere: fields side by side stay aligned.
+    InputWrapper: InputWrapper.extend({ defaultProps: { inputWrapperOrder: ["label", "input", "description", "error"] } }),
     TextInput: TextInput.extend({ defaultProps: { size: "md" } }),
     NumberInput: NumberInput.extend({ defaultProps: { size: "md" } }),
     Select: Select.extend({

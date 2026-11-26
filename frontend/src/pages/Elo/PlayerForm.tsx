@@ -1,5 +1,5 @@
 import { Head, Link, useForm } from "@inertiajs/react";
-import { Alert, Button, Group, NumberInput, Paper, Select, Stack, TextInput } from "@mantine/core";
+import { Alert, Button, Group, NumberInput, Paper, Select, SimpleGrid, Stack, TextInput } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { IconAlertTriangle } from "@tabler/icons-react";
 import dayjs from "dayjs";
@@ -37,7 +37,7 @@ export default function PlayerForm({ mode, persons = [], defaults, player, today
         title={edit ? player.name : t("Add player to the Elo ranking")}
         subtitle={edit ? t("Edit Elo player") : undefined}
       />
-      <Paper withBorder p="md">
+      <Paper withBorder p="md" maw={760}>
         <form onSubmit={(e) => { e.preventDefault(); form.post(url); }}>
           <Stack>
             {errors.form && <Alert color="red" icon={<IconAlertTriangle />}>{errors.form}</Alert>}
@@ -57,6 +57,7 @@ export default function PlayerForm({ mode, persons = [], defaults, player, today
             {(edit || !d.existing) && (
               <TextInput label={t("Name")} value={d.name} onChange={(e) => form.setData("name", e.currentTarget.value)} error={errors.name} required maxLength={120} />
             )}
+            <SimpleGrid cols={{ base: 1, xs: 2 }} spacing="md">
             <NumberInput
               label={t("Start Elo")}
               description={edit ? t("Changing it recalculates every match of this player.") : undefined}
@@ -80,6 +81,7 @@ export default function PlayerForm({ mode, persons = [], defaults, player, today
               onChange={(v) => form.setData("entry_date", v ? dayjs(v).format("YYYY-MM-DD") : d.entry_date)}
               error={errors.entry_date}
             />
+            </SimpleGrid>
             <Group>
               <Button type="submit" loading={form.processing}>{edit ? t("Save changes") : t("Add player")}</Button>
               <Button color="gray" component={Link} href="/elo/manage/">{t("Cancel")}</Button>

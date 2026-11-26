@@ -248,6 +248,10 @@ def _season_form_page(request, form, season=None):
         "submitLabel": str(_("Save changes")) if season else str(_("Create season")),
         "cancelUrl": reverse("season_list"),
         "table": _nuliga_table(form),
+        "groups": [
+            {"title": str(_("Season")), "rows": [["name"], ["is_default"]]},
+            {"title": str(_("Teams")), "rows": [["teams"]]},
+        ],
     }
     if season is not None:
         props.update(

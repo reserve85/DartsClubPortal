@@ -132,7 +132,12 @@ class CatalogFormMixin(InertiaFormMixin):
             "title": str(_("New catalog item") if is_create else _("Edit catalog item")),
             "subtitle": "" if is_create else form.instance.description,
             "cancelUrl": reverse("penalties:catalog_list"),
-            "rows": [["amount_eur", "type"]],
+            "groups": [
+                {
+                    "title": str(_("Catalog entry")),
+                    "rows": [["description"], ["amount_eur", "type"], ["affects_both_players"]],
+                }
+            ],
             "table": {
                 "title": str(_("Team fees")),
                 "help": str(

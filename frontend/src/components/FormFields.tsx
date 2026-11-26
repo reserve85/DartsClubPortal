@@ -269,8 +269,8 @@ export function FormFields({
     return (
       <Stack gap="lg">
         {groups.map((g) => {
-          const names = new Set(g.rows.flat());
-          const own = fields.filter((f) => names.has(f.name));
+          // The section's row order wins over the field order of the form.
+          const own = g.rows.flat().map((n) => fields.find((f) => f.name === n)).filter(Boolean) as FieldDef[];
           if (!own.length) return null;
           return (
             <Stack key={g.title} gap="sm">

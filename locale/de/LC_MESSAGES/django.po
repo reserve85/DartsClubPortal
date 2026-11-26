@@ -5152,3 +5152,18 @@ msgstr "Heim / Auswärts"
 
 msgid "Venue address"
 msgstr "Spiellokal (Adresse)"
+
+msgid "Invitation"
+msgstr "Einladung"
+
+msgid "Role and access"
+msgstr "Rolle & Zugriff"
+
+msgid "Assignment"
+msgstr "Zuordnung"
+
+msgid "Role and rights"
+msgstr "Rolle & Rechte"
+
+msgid "Catalog entry"
+msgstr "Katalogeintrag"

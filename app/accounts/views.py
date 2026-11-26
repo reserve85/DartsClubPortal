@@ -277,6 +277,28 @@ class UserApprovalView(GroupRequiredMixin, LoginRequiredMixin, View):
         return redirect("accounts:approval_list")
 
 
+def _account_groups(with_password: bool = False) -> list:
+    """Account forms in sections: the account, role and rights, assignments."""
+    groups = [
+        {
+            "title": str(_("Account")),
+            "rows": [["email", "full_name"], ["preferred_language", "is_active"]],
+        },
+        {
+            "title": str(_("Role and rights")),
+            "rows": [
+                ["role"],
+                ["admin_elo", "admin_penalty", "admin_portal"],
+                ["elo_access", "penalty_access"],
+            ],
+        },
+        {"title": str(_("Assignment")), "rows": [["player_link", "team"], ["is_club_account"]]},
+    ]
+    if with_password:
+        groups.append({"title": str(_("Password")), "rows": [["password1", "password2"]]})
+    return groups
+
+
 class UserCreateView(GroupRequiredMixin, LoginRequiredMixin, InertiaFormMixin, CreateView):
     groups: ClassVar[list] = [GROUP_ADMIN]
     model = User
@@ -291,7 +313,7 @@ class UserCreateView(GroupRequiredMixin, LoginRequiredMixin, InertiaFormMixin, C
             ),
             "submitLabel": str(_("Create user")),
             "cancelUrl": reverse("accounts:user_list"),
-            "rows": [["password1", "password2"]],
+            "groups": _account_groups(with_password=True),
         }
 
     def form_valid(self, form):
@@ -341,6 +363,7 @@ class UserUpdateView(GroupRequiredMixin, LoginRequiredMixin, InertiaFormMixin, U
             "badgePerson": True,
             "submitLabel": str(_("Save changes")),
             "cancelUrl": reverse("accounts:user_list"),
+            "groups": _account_groups(),
             "passwordSet": self._password_set(user),
             "notice": str(
                 _(
@@ -567,6 +590,14 @@ class InviteCreateView(GroupRequiredMixin, LoginRequiredMixin, InertiaFormMixin,
             ),
             "submitLabel": str(_("Send invitation")),
             "cancelUrl": reverse("accounts:invite_list"),
+            "groups": [
+                {"title": str(_("Invitation")), "rows": [["email", "preferred_language"]]},
+                {
+                    "title": str(_("Role and access")),
+                    "rows": [["role"], ["elo_access", "penalty_access"]],
+                },
+                {"title": str(_("Assignment")), "rows": [["player", "team"]]},
+            ],
         }
 
     def form_valid(self, form):
