@@ -69,7 +69,6 @@ export default function PenaltyAssign({ matchday, items, players, values, errors
       <Head title={t("Add penalty")} />
       <PageHeader title={t("Add penalty")} subtitle={matchday.label} />
       <form
-        style={{ maxWidth: 760 }}
         onSubmit={(e) => {
           e.preventDefault();
           form.transform((data) => ({ ...data, double_partner: item?.both ? data.double_partner : "", amount_eur: item?.manual ? data.amount_eur : "" }));

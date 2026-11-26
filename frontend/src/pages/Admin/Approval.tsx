@@ -39,7 +39,7 @@ export default function Approval({ pendingUser: u, fields, errors, action, backU
         subtitle={`${u.email}${u.joined ? ` · ${t("registered")} ${f.date(u.joined)}` : ""}`}
         left={<PlayerAvatar name={u.name || u.email} size={52} />}
       />
-      <Paper withBorder p={{ base: "md", sm: "lg" }} maw={760}>
+      <Paper withBorder p={{ base: "md", sm: "lg" }}>
         <form onSubmit={(e) => { e.preventDefault(); form.post(action, { preserveScroll: "errors" }); }}>
           <Stack gap="lg">
             <Text size="sm">{t("Link the account to an existing player, create a new player, or leave both empty for an account without player.")}</Text>

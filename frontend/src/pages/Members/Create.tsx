@@ -38,7 +38,7 @@ export default function MemberCreate({ season, teams, defaultTeam, captainTeam, 
     <>
       <Head title={t("New member")} />
       <PageHeader title={t("New member")} subtitle={t("One form for the person, team, Elo ranking and login.")} left={<IconUserPlus size={40} stroke={1.5} />} />
-      <Paper withBorder p={{ base: "md", sm: "lg" }} maw={640}>
+      <Paper withBorder p={{ base: "md", sm: "lg" }}>
         <form
           onSubmit={(e) => {
             e.preventDefault();

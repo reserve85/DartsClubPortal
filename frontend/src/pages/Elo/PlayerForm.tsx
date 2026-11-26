@@ -37,7 +37,7 @@ export default function PlayerForm({ mode, persons = [], defaults, player, today
         title={edit ? player.name : t("Add player to the Elo ranking")}
         subtitle={edit ? t("Edit Elo player") : undefined}
       />
-      <Paper withBorder p="md" maw={760}>
+      <Paper withBorder p={{ base: "md", sm: "lg" }}>
         <form onSubmit={(e) => { e.preventDefault(); form.post(url); }}>
           <Stack>
             {errors.form && <Alert color="red" icon={<IconAlertTriangle />}>{errors.form}</Alert>}

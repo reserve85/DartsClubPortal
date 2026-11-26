@@ -144,7 +144,7 @@ export default function FormPage(p: Props) {
           ) : undefined
         }
       />
-      <Paper withBorder p={{ base: "md", sm: "lg" }} maw={p.table?.wide ? 1200 : 760}>
+      <Paper withBorder p={{ base: "md", sm: "lg" }}>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -205,7 +205,7 @@ export default function FormPage(p: Props) {
         </form>
       </Paper>
       {p.passwordSet && (
-        <Box maw={760} mt="md">
+        <Box mt="md">
           <PasswordSetCard data={p.passwordSet} />
         </Box>
       )}

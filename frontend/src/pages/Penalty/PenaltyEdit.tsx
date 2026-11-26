@@ -39,7 +39,7 @@ export default function PenaltyEdit({ penalty: p, deleteUrl, groupCount, groupPl
         subtitle={[p.player, p.catalog, p.matchday].filter(Boolean).join(" · ")}
         left={<PlayerAvatar name={p.player} src={p.playerAvatar} size={52} />}
       />
-      <Paper withBorder p={{ base: "md", sm: "lg" }} maw={760}>
+      <Paper withBorder p={{ base: "md", sm: "lg" }}>
         <form onSubmit={(e) => { e.preventDefault(); form.post(`/penalties/${p.id}/edit/`, { preserveScroll: "errors" }); }}>
           <Stack gap="lg">
             {group && (
