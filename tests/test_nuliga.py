@@ -1,6 +1,6 @@
 """nuLiga import: feed parsing, matchday sync, captain notices, rights, daily run."""
 
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 from unittest import mock
 
 import pytest
@@ -382,3 +382,69 @@ class TestCalendar:
         assert cals[0]["webcal"].startswith("webcal://") and len(cals) == 3  # 2 teams + all
         overview = inertia_props(captain_client.get(reverse("overview")))
         assert overview["calendars"][0]["url"] == cals[0]["url"]
+
+
+@pytest.mark.django_db
+class TestRetries:
+    def _fail(self, link):
+        with (
+            mock.patch.object(nuliga, "_fetch", side_effect=nuliga.NuligaError("down")),
+            pytest.raises(nuliga.NuligaError),
+        ):
+            nuliga.sync_link(link)
+        link.refresh_from_db()
+
+    def test_hourly_retry_then_the_system_admin_hears_about_it(self, link):
+        from django.contrib.auth import get_user_model
+        from notifications.models import Notification
+
+        system = get_user_model().objects.create_superuser(email="sys@example.com", password="pw")
+        berlin = timezone.get_current_timezone()
+        self._fail(link)
+        assert link.failures == 1
+        tried = timezone.localtime(link.last_sync_at)
+        # Retried after an hour - even at night - not before.
+        assert nuliga.links_due(tried + timedelta(minutes=30)) == []
+        assert nuliga.links_due(tried + timedelta(minutes=61)) == [link]
+        for _i in range(nuliga.MAX_RETRIES - 1):
+            self._fail(link)
+        assert link.failures == nuliga.MAX_RETRIES
+        assert Notification.objects.filter(recipient=system).count() == 1
+        assert any(system.email in m.to for m in mail.outbox)
+        # Then back to once a day; one more failure tells nobody again.
+        later = timezone.localtime(link.last_sync_at) + timedelta(hours=2)
+        if later.date() == timezone.localtime(link.last_sync_at).date():
+            assert nuliga.links_due(later) == []
+        self._fail(link)
+        assert Notification.objects.filter(recipient=system).count() == 1
+        assert berlin  # time zone of the club
+
+    def test_success_resets_the_counter(self, link):
+        self._fail(link)
+        with _serve(_feed(HOME)):
+            nuliga.sync_link(link, notify=False)
+        link.refresh_from_db()
+        assert link.failures == 0 and link.last_error == ""
+
+    def test_unexpected_errors_count_too(self, link):
+        with (
+            mock.patch.object(nuliga, "_fetch", side_effect=ValueError("odd")),
+            pytest.raises(nuliga.NuligaError),
+        ):
+            nuliga.sync_link(link)
+        link.refresh_from_db()
+        assert link.failures == 1 and "odd" in link.last_error
+
+    def test_sync_now_reports_the_result(self, captain_client, link):
+        from django.contrib.messages import get_messages
+
+        with _serve(_feed(HOME)):
+            captain_client.post(reverse("matchdays:nuliga_sync"))
+            resp = captain_client.post(reverse("matchdays:nuliga_sync"))
+        texts = [str(m) for m in get_messages(resp.wsgi_request)]
+        assert any("1" in t and link.team.name in t for t in texts)
+
+    def test_error_tag_on_the_matchday_list(self, captain_client, link):
+        self._fail(link)
+        info = inertia_props(captain_client.get(reverse("matchdays:matchday_list")))["nuliga"]
+        assert info["teams"][0]["retrying"] and not info["teams"][0]["gaveUp"]

@@ -5082,3 +5082,27 @@ msgstr "Google Kalender: Weitere Kalender → Per URL → kopierten Link einfüg
 #, python-format
 msgid "Match start: %(time)s"
 msgstr "Spielstart: %(time)s"
+
+#, python-format
+msgid "nuLiga import of %(team)s failed %(n)s times in a row."
+msgstr "nuLiga-Import von %(team)s ist %(n)s-mal hintereinander fehlgeschlagen."
+
+#, python-format
+msgid "The nuLiga import of %(team)s failed %(n)s times in a row. The portal keeps trying once a day; the matchdays may be out of date."
+msgstr "Der nuLiga-Import von %(team)s ist %(n)s-mal hintereinander fehlgeschlagen. Das Portal versucht es weiter einmal täglich; die Spieltage sind eventuell nicht aktuell."
+
+msgid "Last error"
+msgstr "Letzter Fehler"
+
+msgid "Check the nuLiga team page of the season"
+msgstr "nuLiga-Mannschaftsseite der Saison prüfen"
+
+#, python-format
+msgid "nuLiga · %(team)s: everything is up to date (%(n)s matchdays checked)."
+msgstr "nuLiga · %(team)s: alles aktuell (%(n)s Spieltage geprüft)."
+
+msgid "Sync error with nuLiga - next try in about 1 hour"
+msgstr "Abgleich mit nuLiga fehlgeschlagen – nächster Versuch in etwa 1 Stunde"
+
+msgid "Sync error with nuLiga - the system admin is informed"
+msgstr "Abgleich mit nuLiga fehlgeschlagen – der System-Admin ist informiert"

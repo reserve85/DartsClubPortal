@@ -22,7 +22,7 @@ import logging
 import re
 import urllib.request
 from dataclasses import dataclass, field
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 from urllib.parse import urljoin, urlsplit
 from zoneinfo import ZoneInfo
 
@@ -37,6 +37,8 @@ from app.matchdays.models import Matchday, NuligaLink, Season, VenueChoice
 logger = logging.getLogger("app.matchdays")
 
 DAILY_FROM = time(6, 0)
+RETRY_AFTER = timedelta(hours=1)
+MAX_RETRIES = 24
 MAX_BYTES = 2_000_000
 TIMEOUT = 20
 FEED_HREF = re.compile(r"""href\s*=\s*["']([^"']*getTeamMeetingsWebcal[^"']*)["']""", re.IGNORECASE)
@@ -208,6 +210,7 @@ class SyncResult:
     removed: list = field(default_factory=list)
     # nuLiga changed a matchday managed by hand: told once, not taken over.
     noted: list = field(default_factory=list)  # (matchday, [change texts])
+    checked: int = 0  # matches in the nuLiga schedule
     first: bool = False
 
     @property
@@ -225,7 +228,11 @@ def _venue_label(value: str) -> str:
 
 
 def sync_link(link: NuligaLink, *, notify: bool = True, actor=None) -> SyncResult:
-    """Import the feed of one team page; returns what changed."""
+    """Import the feed of one team page; returns what changed.
+
+    A failure is counted: the daily run retries every hour, and after
+    ``MAX_RETRIES`` failures in a row the system admin is told once.
+    """
     result = SyncResult(first=link.last_sync_at is None)
     link.last_sync_at = timezone.now()
     try:
@@ -237,17 +244,54 @@ def sync_link(link: NuligaLink, *, notify: bool = True, actor=None) -> SyncResul
         name = own_team(events)
         with transaction.atomic():
             _apply(link, events, name, result)
+        result.checked = len(events)
         link.nuliga_name = name[:255]
         link.last_error = ""
-    except NuligaError as exc:
-        link.last_error = str(exc)[:500]
-        link.save(update_fields=["last_sync_at", "last_error", "feed_url"])
-        logger.warning("nuLiga import failed for %s: %s", link, exc)
-        raise
-    link.save(update_fields=["last_sync_at", "last_error", "feed_url", "nuliga_name"])
+        link.failures = 0
+    except Exception as exc:
+        error = exc if isinstance(exc, NuligaError) else NuligaError(str(exc) or type(exc).__name__)
+        link.last_error = str(error)[:500]
+        link.failures = min(link.failures + 1, 32000)
+        link.save(update_fields=["last_sync_at", "last_error", "feed_url", "failures"])
+        logger.warning("nuLiga import failed for %s (%s in a row): %s", link, link.failures, exc)
+        if link.failures == MAX_RETRIES:
+            notify_system_admins(link)
+        raise error from exc
+    link.save(update_fields=["last_sync_at", "last_error", "feed_url", "nuliga_name", "failures"])
     if notify and result.anything:
         notify_captains(link, result)
     return result
+
+
+def notify_system_admins(link: NuligaLink) -> None:
+    """The import failed ``MAX_RETRIES`` times in a row: tell the system account(s)."""
+    from django.contrib.auth import get_user_model
+
+    from app.notifications.inapp import notify_user
+    from app.notifications.services import NotificationService, absolute_url, email_configured
+
+    url = absolute_url(reverse("season_update", args=[link.season_id]))
+    for user in get_user_model().objects.filter(is_superuser=True, is_active=True):
+        lang = user.preferred_language or settings.LANGUAGE_CODE
+
+        def verb(t=link.team, n=link.failures):
+            return _("nuLiga import of %(team)s failed %(n)s times in a row.") % {
+                "team": t.name,
+                "n": n,
+            }
+
+        notify_user(recipient=user, verb=verb, level="warning")
+        if not user.email or not email_configured():
+            continue
+        with translation.override(lang):
+            subject = str(verb())
+        NotificationService().send_templated(
+            recipients=[user],
+            template_base="emails/nuliga_failed",
+            subject=subject,
+            language=lang,
+            context={"link": link, "team": link.team, "error": link.last_error, "url": url},
+        )
 
 
 def _values(event: Event, name: str) -> dict:
@@ -464,18 +508,24 @@ def notify_captains(link: NuligaLink, result: SyncResult) -> None:
 
 # ------------------------------------------------------------------- runs
 def links_due(now: datetime | None = None):
-    """Links of the default season not imported yet today (from 06:00 on)."""
+    """Links of the default season to import now.
+
+    Once a day from 06:00; after a failure every hour (any time of day) up to
+    ``MAX_RETRIES`` times, then back to once a day.
+    """
     now = timezone.localtime(now or timezone.now())
-    if now.time() < DAILY_FROM:
-        return []
     season = Season.default() or Season.objects.order_by("-name").first()
     if season is None:
         return []
-    return [
-        link
-        for link in NuligaLink.objects.filter(season=season).select_related("team", "season")
-        if link.last_sync_at is None or timezone.localtime(link.last_sync_at).date() < now.date()
-    ]
+    due = []
+    for link in NuligaLink.objects.filter(season=season).select_related("team", "season"):
+        last = timezone.localtime(link.last_sync_at) if link.last_sync_at else None
+        if 0 < link.failures < MAX_RETRIES:
+            if last is None or now - last >= RETRY_AFTER:
+                due.append(link)
+        elif now.time() >= DAILY_FROM and (last is None or last.date() < now.date()):
+            due.append(link)
+    return due
 
 
 def sync_due(now: datetime | None = None) -> int:

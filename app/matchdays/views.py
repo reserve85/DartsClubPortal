@@ -174,6 +174,8 @@ def _nuliga_links(user, season):
 
 
 def _nuliga_info(user, season):
+    from app.matchdays.nuliga import MAX_RETRIES
+
     links = _nuliga_links(user, season)
     if not links:
         return None
@@ -186,6 +188,9 @@ def _nuliga_info(user, season):
                 if link.last_sync_at
                 else None,
                 "error": link.last_error,
+                # Retried every hour until MAX_RETRIES, then the system admin knows.
+                "retrying": 0 < link.failures < MAX_RETRIES,
+                "gaveUp": link.failures >= MAX_RETRIES,
             }
             for link in links
         ],
@@ -212,9 +217,10 @@ class NuligaSyncView(LoginRequiredMixin, View):
             if lines:
                 messages.success(request, f"nuLiga · {link.team.name}: " + " · ".join(lines[:6]))
             else:
-                messages.info(
+                messages.success(
                     request,
-                    _("nuLiga · %(team)s: everything is up to date.") % {"team": link.team.name},
+                    _("nuLiga · %(team)s: everything is up to date (%(n)s matchdays checked).")
+                    % {"team": link.team.name, "n": result.checked},
                 )
         return redirect("matchdays:matchday_list")
 

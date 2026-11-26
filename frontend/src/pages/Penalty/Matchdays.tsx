@@ -25,7 +25,7 @@ interface Row {
 }
 interface NuligaInfo {
   syncUrl: string;
-  teams: { name: string; lastSync: string | null; error: string }[];
+  teams: { name: string; lastSync: string | null; error: string; retrying: boolean; gaveUp: boolean }[];
 }
 interface Props {
   rows: Row[];
@@ -58,7 +58,12 @@ function NuligaBar({ info }: { info: NuligaInfo }) {
             {last ? t("Checked daily, last time %(when)s.", { when: dayjs(last).format("DD.MM. HH:mm") }) : t("Checked daily.")}
           </Text>
           {errors.map((x) => (
-            <Text key={x.name} size="xs" c="red"><IconAlertTriangle size={12} /> {x.name}: {x.error}</Text>
+            <Box key={x.name} mt={4}>
+              <Badge color="red" variant="light" leftSection={<IconAlertTriangle size={12} />}>
+                {x.gaveUp ? t("Sync error with nuLiga - the system admin is informed") : t("Sync error with nuLiga - next try in about 1 hour")}
+              </Badge>
+              <Text size="xs" c="dimmed">{x.name}: {x.error}</Text>
+            </Box>
           ))}
         </Box>
         <Button

@@ -75,6 +75,9 @@ before it changes anything, and the account is signed out everywhere.
    gets a message (in the app and by e-mail) when a matchday is added, moved,
    changes home/away or the venue, or leaves the schedule. A matchday that
    left the schedule is only marked - delete it yourself if it is cancelled.
+   If nuLiga cannot be reached, the import tries again every hour (the
+   matchday page shows it); after 24 failures in a row the system account
+   gets a message, and the import goes back to once a day.
 4. *Matchdays → Sync with nuLiga now* imports at once (admins: every team,
    captains: their team). The link belongs to the season: paste the new
    team page when the next season starts.

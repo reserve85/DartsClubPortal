@@ -1,0 +1,8 @@
+{% extends "emails/base_email.html" %}{% load i18n %}
+{% block content %}
+<p>{% blocktranslate with team=team.name n=link.failures %}The nuLiga import of {{ team }} failed {{ n }} times in a row. The portal keeps trying once a day; the matchdays may be out of date.{% endblocktranslate %}</p>
+<p><strong>{% translate "Last error" %}:</strong> {{ error }}</p>
+<p><a href="{{ url }}" style="display:inline-block;background-color:#0d6efd;color:#ffffff;text-decoration:none;padding:10px 16px;border-radius:6px;">
+    {% translate "Check the nuLiga team page of the season" %}
+</a></p>
+{% endblock %}

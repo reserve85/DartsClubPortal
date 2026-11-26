@@ -493,6 +493,8 @@ MSGIDS: list[str] = [
     "Subscribe",
     "Subscribe to calendar",
     "Switch colour scheme",
+    "Sync error with nuLiga - next try in about 1 hour",
+    "Sync error with nuLiga - the system admin is informed",
     "Sync with nuLiga now",
     "System",
     "Team",

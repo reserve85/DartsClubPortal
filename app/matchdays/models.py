@@ -189,6 +189,9 @@ class NuligaLink(models.Model):
     nuliga_name = models.CharField(max_length=255, blank=True, editable=False)
     last_sync_at = models.DateTimeField(null=True, blank=True, editable=False)
     last_error = models.CharField(max_length=500, blank=True, editable=False)
+    # Failed imports in a row: retried every hour, the system admin hears
+    # about it after 24 of them.
+    failures = models.PositiveSmallIntegerField(default=0, editable=False)
     # Matches whose matchday was deleted on purpose: never imported again.
     ignored_uids = models.JSONField(default=list, blank=True, editable=False)
 
