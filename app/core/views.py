@@ -52,7 +52,7 @@ class OverviewView(LoginRequiredMixin, View):
 
         from app.core.overview import build_overview
 
-        return inertia_render(request, "Overview", props=build_overview(request.user))
+        return inertia_render(request, "Overview", props=build_overview(request.user, request))
 
 
 class RightsView(LoginRequiredMixin, View):

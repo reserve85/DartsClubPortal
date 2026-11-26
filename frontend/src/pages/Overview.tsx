@@ -2,6 +2,7 @@ import { Head, Link, usePage } from "@inertiajs/react";
 import { Badge, Box, Button, Group, Paper, SimpleGrid, Stack, Text, UnstyledButton } from "@mantine/core";
 import { IconCoins, IconPlus, IconTrophy } from "@tabler/icons-react";
 import { BalanceTiles } from "../components/BalanceTiles";
+import { CalendarSubscribe, type CalendarLink } from "../components/CalendarSubscribe";
 import { PlayerAvatar } from "../components/PlayerAvatar";
 import { Delta, EmptyState, PageHeader, StatGrid, StatTile } from "../components/ui";
 import { useFormat, useT } from "../i18n";
@@ -14,6 +15,7 @@ interface Props {
   } | null;
   penalty: { me: boolean | null; season?: string; total?: number; paid?: number; balance?: number } | null;
   nextMatchdays: NextTeam[];
+  calendars: CalendarLink[];
   today: string;
 }
 interface NextTeam {
@@ -23,12 +25,15 @@ interface NextTeam {
 }
 
 /** Next matchdays of every team: the next two weeks, at least the next one; own teams first. */
-function NextMatchdays({ teams }: { teams: NextTeam[] }) {
+function NextMatchdays({ teams, calendars }: { teams: NextTeam[]; calendars: CalendarLink[] }) {
   const t = useT();
   const f = useFormat();
   return (
     <Paper withBorder p="md">
-      <Text fw={800} mb="sm">📅 {t("Next matchdays")}</Text>
+      <Group justify="space-between" mb="sm" gap="xs">
+        <Text fw={800}>📅 {t("Next matchdays")}</Text>
+        <CalendarSubscribe calendars={calendars} size="xs" />
+      </Group>
       <Stack gap="xs">
         {teams.map((team) => (
           <Paper
@@ -72,7 +77,7 @@ function NextMatchdays({ teams }: { teams: NextTeam[] }) {
 
 const row = { display: "flex", alignItems: "center", gap: 12, borderBottom: "1px solid var(--mantine-color-default-border)" } as const;
 
-export default function Overview({ elo, penalty, nextMatchdays, today }: Props) {
+export default function Overview({ elo, penalty, nextMatchdays, calendars, today }: Props) {
   const t = useT();
   const f = useFormat();
   const { auth } = usePage<SharedProps>().props;
@@ -145,7 +150,7 @@ export default function Overview({ elo, penalty, nextMatchdays, today }: Props) 
             </Group>
           </Paper>
         )}
-        {nextMatchdays.length > 0 && <NextMatchdays teams={nextMatchdays} />}
+        {nextMatchdays.length > 0 && <NextMatchdays teams={nextMatchdays} calendars={calendars} />}
         {!elo && !penalty && <EmptyState>{t("No module is available for your account. Please contact an administrator.")}</EmptyState>}
       </SimpleGrid>
     </>

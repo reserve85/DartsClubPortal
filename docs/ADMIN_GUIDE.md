@@ -78,6 +78,14 @@ before it changes anything, and the account is signed out everywhere.
 4. *Matchdays → Sync with nuLiga now* imports at once (admins: every team,
    captains: their team). The link belongs to the season: paste the new
    team page when the next season starts.
+5. **Different agreement with the opponent** (another time, a day earlier):
+   edit the matchday and tick **Manage by hand**. nuLiga no longer changes
+   it; when nuLiga changes something there, the captain is told once.
+   Untick it to follow nuLiga again. A deleted matchday is not imported
+   again.
+6. **Subscribe to calendar** (matchdays page and overview): the matchdays of
+   a team - or of every team - in the phone's calendar, kept up to date by
+   the portal (hand-made changes and cancellations included).
 
 The overview shows the **next matchdays** of every team - the next two
 weeks, at least the next one - with the own teams first.

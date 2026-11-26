@@ -129,9 +129,13 @@ class MatchdayForm(forms.ModelForm):
             "opponent",
             "venue",
             "date",
+            "start_time",
+            "location",
             "description",
+            "nuliga_manual",
         ]
         widgets: ClassVar[dict] = {
+            "start_time": forms.TimeInput(attrs={"type": "time"}, format="%H:%M"),
             # type="date" strictly requires ISO (YYYY-MM-DD). Without an explicit
             # format the locale decides (de: dd.mm.yyyy), which the browser cannot
             # map onto the date input -> it shows an EMPTY field although the date
@@ -139,9 +143,14 @@ class MatchdayForm(forms.ModelForm):
             "date": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
         }
 
+    NULIGA_FIELDS: ClassVar[tuple] = ("date", "start_time", "venue", "opponent", "location")
+
     def __init__(self, *args, user=None, season=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.team_locked = False
+        if not self.instance.nuliga_uid:
+            # Only matchdays imported from nuLiga can be taken out of the import.
+            del self.fields["nuliga_manual"]
         # Precedence admin > captain: an Admin who also sits in the Captain
         # group keeps the free team choice (roles are single-valued by design,
         # but the Django admin group editor can produce hybrid accounts).
@@ -188,6 +197,17 @@ class MatchdayForm(forms.ModelForm):
 
     def clean(self):
         cleaned = super().clean()
+        if self.instance.nuliga_uid and not cleaned.get("nuliga_manual"):
+            # nuLiga would overwrite the change with the next import.
+            for name in self.NULIGA_FIELDS:
+                if name in cleaned and cleaned[name] != getattr(self.instance, name):
+                    self.add_error(
+                        name,
+                        _(
+                            'Comes from nuLiga. Tick "manage by hand" to keep your '
+                            "change - otherwise nuLiga sets it back."
+                        ),
+                    )
         season = cleaned.get("season")
         if season is None:
             if self.instance.pk:

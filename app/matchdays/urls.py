@@ -1,6 +1,7 @@
 from django.urls import path
 
 from app.matchdays import views
+from app.matchdays.calendar import MatchdayCalendarView
 
 app_name = "matchdays"
 
@@ -8,6 +9,7 @@ urlpatterns = [
     path("", views.MatchdayListView.as_view(), name="matchday_list"),
     path("create/", views.MatchdayCreateView.as_view(), name="matchday_create"),
     path("nuliga/sync/", views.NuligaSyncView.as_view(), name="nuliga_sync"),
+    path("calendar/<str:token>.ics", MatchdayCalendarView.as_view(), name="calendar"),
     path("<int:pk>/", views.MatchdayDetailView.as_view(), name="matchday_detail"),
     path(
         "<int:pk>/participants/",

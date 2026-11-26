@@ -132,6 +132,7 @@ class MatchdayListView(LoginRequiredMixin, View):
                     "location": m.location,
                     "nuliga": bool(m.nuliga_uid),
                     "nuligaRemoved": m.nuliga_removed,
+                    "nuligaManual": bool(m.nuliga_uid) and m.nuliga_manual,
                     "isToday": m.date == today,
                     "isPast": m.date < today,
                     "canManage": user_can_manage_team(request.user, m.team),
@@ -149,8 +150,17 @@ class MatchdayListView(LoginRequiredMixin, View):
             "season": season.name if season else "",
             "canCreate": user_is_penalty_admin(request.user) or request.user.team_id is not None,
             "nuliga": _nuliga_info(request.user, season),
+            "calendars": _calendars(request, season),
         }
         return inertia_render(request, "Penalty/Matchdays", props=props, template_data=context)
+
+
+def _calendars(request, season):
+    from app.matchdays.calendar import calendar_links
+
+    user = request.user
+    own = {user.team_id} if user.team_id else set()
+    return calendar_links(request, teams_for_season(season).order_by("name"), own)
 
 
 def _nuliga_links(user, season):
@@ -230,7 +240,7 @@ class MatchdayCreateView(LoginRequiredMixin, InertiaFormMixin, CreateView):
             "subtitle": str(_("Add the players afterwards on the matchday page.")),
             "submitLabel": str(_("Create matchday")),
             "cancelUrl": reverse("matchdays:matchday_list"),
-            "rows": [["team", "season"], ["opponent", "venue"]],
+            "rows": [["team", "season"], ["opponent", "venue"], ["date", "start_time"]],
         }
 
     def get_initial(self):
@@ -280,7 +290,34 @@ class MatchdayUpdateView(LoginRequiredMixin, InertiaFormMixin, UpdateView):
             "deleteConfirm": str(
                 _("Delete this matchday? Matchdays with penalties cannot be deleted.")
             ),
-            "rows": [["team", "season"], ["opponent", "venue"]],
+            "rows": [["team", "season"], ["opponent", "venue"], ["date", "start_time"]],
+            **self._nuliga_props(),
+        }
+
+    def _nuliga_props(self):
+        md = self.object
+        if not md.nuliga_uid:
+            return {}
+        if md.nuliga_removed:
+            note = _("No longer in the nuLiga schedule - delete it if it is cancelled.")
+        elif md.nuliga_manual:
+            note = _(
+                "Managed by hand: nuLiga no longer changes this matchday; the captain "
+                "is told when nuLiga changes something. Untick to follow nuLiga again."
+            )
+        else:
+            note = _(
+                "Comes from nuLiga and follows it every day. For a different agreement "
+                'with the opponent (time, day), tick "manage by hand".'
+            )
+        return {
+            "notice": str(note),
+            "deleteConfirm": str(
+                _(
+                    "Delete this matchday? It is not imported from nuLiga again. "
+                    "Matchdays with penalties cannot be deleted."
+                )
+            ),
         }
 
     def get_success_url(self):
@@ -341,6 +378,7 @@ class MatchdayDetailView(LoginRequiredMixin, DetailView):
                 "time": md.start_time.strftime("%H:%M") if md.start_time else "",
                 "location": md.location,
                 "nuligaRemoved": md.nuliga_removed,
+                "nuligaManual": bool(md.nuliga_uid) and md.nuliga_manual,
                 "description": md.description,
                 "isToday": md.date == today,
             },
@@ -453,6 +491,14 @@ class MatchdayDeleteView(LoginRequiredMixin, View):
             )
             return redirect("matchdays:matchday_detail", pk=matchday.pk)
         log_action(AuditAction.MATCHDAY_DELETED, user=request.user, target=matchday)
+        if matchday.nuliga_uid and not matchday.nuliga_removed:
+            # Deleted on purpose: the import must not bring it back.
+            from app.matchdays.models import NuligaLink
+
+            link = NuligaLink.objects.filter(team=matchday.team, season=matchday.season).first()
+            if link is not None and matchday.nuliga_uid not in link.ignored_uids:
+                link.ignored_uids = [*link.ignored_uids, matchday.nuliga_uid]
+                link.save(update_fields=["ignored_uids"])
         matchday.delete()
         messages.success(request, _("Matchday deleted."))
         return redirect("matchdays:matchday_list")

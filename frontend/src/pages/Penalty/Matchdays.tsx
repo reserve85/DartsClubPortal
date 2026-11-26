@@ -2,6 +2,7 @@ import { Head, Link, router } from "@inertiajs/react";
 import { ActionIcon, Badge, Box, Button, Group, Pagination, Paper, Select, Stack, Text, Tooltip, UnstyledButton } from "@mantine/core";
 import { IconAlertTriangle, IconChevronRight, IconPlus, IconRefresh, IconSortAscending, IconSortDescending } from "@tabler/icons-react";
 import dayjs from "dayjs";
+import { CalendarSubscribe, type CalendarLink } from "../../components/CalendarSubscribe";
 import { EmptyState, PageHeader, ReadOnlyBadge } from "../../components/ui";
 import { useState } from "react";
 import { useT, useTn } from "../../i18n";
@@ -17,6 +18,7 @@ interface Row {
   location: string;
   nuliga: boolean;
   nuligaRemoved: boolean;
+  nuligaManual: boolean;
   isToday: boolean;
   isPast: boolean;
   canManage: boolean;
@@ -38,6 +40,7 @@ interface Props {
   season: string;
   canCreate: boolean;
   nuliga: NuligaInfo | null;
+  calendars: CalendarLink[];
 }
 
 /** "Sync with nuLiga" - the daily import, right now. */
@@ -87,11 +90,14 @@ export default function Matchdays(p: Props) {
         title={t("Matchdays")}
         subtitle={[p.season, tn("%(n)s matchday", "%(n)s matchdays", p.total)].filter(Boolean).join(" · ")}
         actions={
-          p.canCreate && (
-            <Button component={Link} href="/matchdays/create/" leftSection={<IconPlus size={18} />}>
-              {t("New matchday")}
-            </Button>
-          )
+          <Group gap="xs">
+            <CalendarSubscribe calendars={p.calendars} />
+            {p.canCreate && (
+              <Button component={Link} href="/matchdays/create/" leftSection={<IconPlus size={18} />}>
+                {t("New matchday")}
+              </Button>
+            )}
+          </Group>
         }
       >
         <Group gap="sm" wrap="wrap" align="flex-end">
@@ -144,6 +150,7 @@ export default function Matchdays(p: Props) {
                         <Badge variant="light" color="brand">{m.venue}</Badge>
                         {m.time && <Badge variant="light" color="gray">{m.time}</Badge>}
                         {m.nuligaRemoved && <Badge color="red" variant="light">{t("removed in nuLiga")}</Badge>}
+                        {m.nuligaManual && <Badge color="yellow" variant="light">{t("managed by hand")}</Badge>}
                         {m.isToday && <Badge color="teal" variant="filled">{t("Today")}</Badge>}
                         {!m.isPast && !m.isToday && <Badge color="gray" variant="light">{t("upcoming")}</Badge>}
                         {!m.canManage && <ReadOnlyBadge label={t("read only")} />}

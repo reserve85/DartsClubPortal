@@ -257,3 +257,121 @@ def test_home_right_swapped_before_the_import(link, season, team):
     assert manual.nuliga_uid == "u1" and manual.venue == "home"
     changes = result.changed[0][1]
     assert any("09.01.2027" in c for c in changes) and len(changes) == 2
+
+
+@pytest.mark.django_db
+class TestManagedByHand:
+    def _imported(self, link):
+        with _serve(_feed(HOME)):
+            nuliga.sync_link(link, notify=False)
+        return Matchday.objects.get(nuliga_uid="u1")
+
+    def test_hand_values_stay_and_a_nuliga_change_is_told_once(self, link, captain_user):
+        md = self._imported(link)
+        md.nuliga_manual = True
+        md.start_time = time(19, 30)  # agreed with the opponent
+        md.save()
+        with _serve(_feed(HOME)):
+            assert not nuliga.sync_link(link).anything  # nothing new in nuLiga
+        md.refresh_from_db()
+        assert md.start_time == time(19, 30)
+        moved = HOME.replace("20270109T140000", "20270116T140000")
+        with _serve(_feed(moved)):
+            result = nuliga.sync_link(link)
+            again = nuliga.sync_link(link)
+        md.refresh_from_db()
+        assert md.date == date(2027, 1, 9) and md.start_time == time(19, 30)
+        assert len(result.noted) == 1 and "16.01.2027" in result.noted[0][1][0]
+        lines = nuliga.summary_lines(result)
+        assert any("managed by hand" in x or "von Hand" in x for x in lines)
+        assert not again.anything  # told once, not every day
+
+    def test_untick_follows_nuliga_again(self, link):
+        md = self._imported(link)
+        md.nuliga_manual, md.start_time = True, time(19, 30)
+        md.save()
+        md.nuliga_manual = False
+        md.save()
+        with _serve(_feed(HOME)):
+            nuliga.sync_link(link, notify=False)
+        md.refresh_from_db()
+        assert md.start_time == time(14, 0)
+
+    def test_edit_needs_the_tick(self, admin_client, link):
+        md = self._imported(link)
+        url = reverse("matchdays:matchday_update", args=[md.pk])
+        data = {
+            "team": md.team_id,
+            "season": md.season_id,
+            "opponent": md.opponent,
+            "venue": md.venue,
+            "date": "2027-01-08",
+            "start_time": "19:30",
+            "location": md.location,
+            "description": md.description,
+        }
+        props = inertia_props(admin_client.post(url, data))
+        assert "date" in props["errors"] and "start_time" in props["errors"]
+        md.refresh_from_db()
+        assert md.date == date(2027, 1, 9)
+        resp = admin_client.post(url, {**data, "nuliga_manual": "on"})
+        assert resp.status_code == 302
+        md.refresh_from_db()
+        assert md.nuliga_manual and md.date == date(2027, 1, 8) and md.start_time == time(19, 30)
+
+    def test_hand_matchdays_have_no_tick(self, admin_client, season, team):
+        md = Matchday.objects.create(team=team, season=season, opponent="X", date=date(2027, 1, 1))
+        props = inertia_props(admin_client.get(reverse("matchdays:matchday_update", args=[md.pk])))
+        assert "nuliga_manual" not in [f["name"] for f in props["fields"]]
+
+    def test_deleted_matchday_is_not_imported_again(self, admin_client, link):
+        md = self._imported(link)
+        admin_client.post(reverse("matchdays:matchday_delete", args=[md.pk]))
+        assert not Matchday.objects.exists()
+        with _serve(_feed(HOME)):
+            result = nuliga.sync_link(link, notify=False)
+        assert not result.anything and not Matchday.objects.exists()
+
+
+@pytest.mark.django_db
+class TestCalendar:
+    def test_feed_of_one_team(self, client, season, team, other_team):
+        from app.matchdays.calendar import token_for
+
+        today = timezone.localdate()
+        Matchday.objects.create(
+            team=team,
+            season=season,
+            opponent="SV Gast",
+            date=today,
+            start_time=time(19, 30),
+            location="Halle, Weg 1",
+            venue="home",
+        )
+        Matchday.objects.create(
+            team=team, season=season, opponent="Weg", date=today, venue="away", nuliga_removed=True
+        )
+        Matchday.objects.create(team=other_team, season=season, opponent="Fremd", date=today)
+        resp = client.get(reverse("matchdays:calendar", args=[token_for(team.pk)]))
+        body = resp.content.decode()
+        assert resp.status_code == 200 and resp["Content-Type"].startswith("text/calendar")
+        assert body.count("BEGIN:VEVENT") == 2 and "Fremd" not in body
+        assert "SV Gast" in body and r"LOCATION:Halle\, Weg 1" in body
+        assert "STATUS:CANCELLED" in body and "DTEND:" in body
+
+    def test_all_teams_and_bad_tokens(self, client, season, team, other_team):
+        from app.matchdays.calendar import token_for
+
+        Matchday.objects.create(
+            team=other_team, season=season, opponent="Fremd", date=timezone.localdate()
+        )
+        body = client.get(reverse("matchdays:calendar", args=[token_for(None)])).content.decode()
+        assert "Fremd" in body
+        assert client.get(reverse("matchdays:calendar", args=["forged"])).status_code == 404
+
+    def test_links_on_the_pages(self, captain_client, season, team, other_team):
+        cals = inertia_props(captain_client.get(reverse("matchdays:matchday_list")))["calendars"]
+        assert cals[0]["team"] == team.name and cals[0]["own"]
+        assert cals[0]["webcal"].startswith("webcal://") and len(cals) == 3  # 2 teams + all
+        overview = inertia_props(captain_client.get(reverse("overview")))
+        assert overview["calendars"][0]["url"] == cals[0]["url"]

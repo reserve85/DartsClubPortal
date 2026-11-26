@@ -140,9 +140,30 @@ def _next_matchdays(user) -> list:
     return rows
 
 
-def build_overview(user) -> dict:
+def _calendars(request, user) -> list:
+    from app.matchdays.calendar import calendar_links
+    from app.matchdays.models import Season
+    from app.players.models import PlayerTeam
+    from app.teams.services import teams_for_season
+
+    season = (
+        Season.objects.filter(is_default=True).first() or Season.objects.order_by("-name").first()
+    )
+    own = {user.team_id} if user.team_id else set()
+    player = getattr(user, "player_link", None)
+    if player is not None and season is not None:
+        own |= set(
+            PlayerTeam.objects.filter(player=player, season=season).values_list(
+                "team_id", flat=True
+            )
+        )
+    return calendar_links(request, teams_for_season(season).order_by("name"), own)
+
+
+def build_overview(user, request=None) -> dict:
     mods = user_modules(user)
     return {
+        "calendars": _calendars(request, user) if mods.get("penalty") else [],
         "elo": _elo_card(user) if mods.get("elo") else None,
         "penalty": _penalty_card(user) if mods.get("penalty") else None,
         "nextMatchdays": _next_matchdays(user) if mods.get("penalty") else [],

@@ -5029,3 +5029,52 @@ msgstr "Nächste Spieltage"
 
 msgid "my team"
 msgstr "meine Mannschaft"
+
+msgid "manage by hand"
+msgstr "von Hand verwalten"
+
+msgid "managed by hand"
+msgstr "von Hand verwaltet"
+
+msgid "Date, time, home/away, opponent and venue are no longer taken from nuLiga (e.g. a different time agreed with the opponent)."
+msgstr "Datum, Uhrzeit, Heim/Auswärts, Gegner und Spiellokal werden nicht mehr aus nuLiga übernommen (z. B. eine mit dem Gegner abgesprochene andere Uhrzeit)."
+
+msgid "Comes from nuLiga. Tick \"manage by hand\" to keep your change - otherwise nuLiga sets it back."
+msgstr "Kommt aus nuLiga. Haken bei „von Hand verwalten“ setzen, damit deine Änderung bleibt – sonst setzt nuLiga sie zurück."
+
+msgid "No longer in the nuLiga schedule - delete it if it is cancelled."
+msgstr "Nicht mehr im nuLiga-Spielplan – löschen, falls er ausfällt."
+
+msgid "Managed by hand: nuLiga no longer changes this matchday; the captain is told when nuLiga changes something. Untick to follow nuLiga again."
+msgstr "Von Hand verwaltet: nuLiga ändert diesen Spieltag nicht mehr; der Kapitän erfährt, wenn sich in nuLiga etwas ändert. Haken entfernen, um wieder nuLiga zu folgen."
+
+msgid "Comes from nuLiga and follows it every day. For a different agreement with the opponent (time, day), tick \"manage by hand\"."
+msgstr "Kommt aus nuLiga und wird täglich abgeglichen. Für eine andere Absprache mit dem Gegner (Uhrzeit, Tag) „von Hand verwalten“ anhaken."
+
+msgid "Delete this matchday? It is not imported from nuLiga again. Matchdays with penalties cannot be deleted."
+msgstr "Diesen Spieltag löschen? Er wird nicht erneut aus nuLiga importiert. Spieltage mit Penalties können nicht gelöscht werden."
+
+#, python-format
+msgid "%(m)s: nuLiga %(changes)s - not taken over, managed by hand"
+msgstr "%(m)s: nuLiga %(changes)s – nicht übernommen, von Hand verwaltet"
+
+msgid "Penalty & league play"
+msgstr "Penalty & Spielbetrieb"
+
+msgid "Subscribe to calendar"
+msgstr "Kalender abonnieren"
+
+msgid "The matchdays appear in the calendar app of your phone and stay up to date by themselves (also moved or cancelled ones)."
+msgstr "Die Spieltage erscheinen im Kalender deines Handys und bleiben von selbst aktuell (auch verlegte oder abgesagte)."
+
+msgid "Subscribe"
+msgstr "Abonnieren"
+
+msgid "Copy link (e.g. for Google Calendar)"
+msgstr "Link kopieren (z. B. für Google Kalender)"
+
+msgid "Copy the address:"
+msgstr "Adresse kopieren:"
+
+msgid "Google Calendar: Other calendars → From URL → paste the copied link."
+msgstr "Google Kalender: Weitere Kalender → Per URL → kopierten Link einfügen."

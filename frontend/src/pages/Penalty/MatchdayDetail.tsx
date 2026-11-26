@@ -34,6 +34,7 @@ interface Props {
     time: string;
     location: string;
     nuligaRemoved: boolean;
+    nuligaManual: boolean;
     description: string;
     isToday: boolean;
   };
@@ -112,7 +113,7 @@ export default function MatchdayDetail({ matchday: m, canManage, participants, e
       <Head title={m.label} />
       <PageHeader
         title={m.opponent ? `${m.team} – ${m.opponent}` : m.label}
-        subtitle={[f.date(m.date), m.time, m.venue, m.location, m.season].filter(Boolean).join(" · ")}
+        subtitle={[f.date(m.date), m.time, m.venue, m.location, m.season, m.nuligaManual ? t("managed by hand") : ""].filter(Boolean).join(" · ")}
         left={<Avatar color={colorFor(m.team)} variant="filled" radius="xl" size={52}>{m.team.slice(0, 2).toUpperCase()}</Avatar>}
         actions={
           canManage ? (

@@ -84,7 +84,7 @@ def navigation(user) -> list[dict]:
         groups.append(
             {
                 "key": "penalty",
-                "label": "Penalty",
+                "label": str(_("Penalty & league play")),
                 "hint": team.name if manages and team is not None and not is_admin else "",
                 "icon": "cash",
                 "items": [i for i in items if i],

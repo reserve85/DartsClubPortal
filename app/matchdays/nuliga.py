@@ -206,11 +206,13 @@ class SyncResult:
     adopted: list = field(default_factory=list)
     changed: list = field(default_factory=list)  # (matchday, [change texts])
     removed: list = field(default_factory=list)
+    # nuLiga changed a matchday managed by hand: told once, not taken over.
+    noted: list = field(default_factory=list)  # (matchday, [change texts])
     first: bool = False
 
     @property
     def anything(self) -> bool:
-        return bool(self.created or self.adopted or self.changed or self.removed)
+        return bool(self.created or self.adopted or self.changed or self.removed or self.noted)
 
 
 def _description(event: Event) -> str:
@@ -263,8 +265,10 @@ def _apply(link: NuligaLink, events: list[Event], name: str, result: SyncResult)
     matchdays = Matchday.objects.filter(team=link.team, season=link.season)
     by_uid = {m.nuliga_uid: m for m in matchdays.exclude(nuliga_uid="")}
     manual = list(matchdays.filter(nuliga_uid=""))
-    events = [e for e in events if not e.cancelled]
-    seen = {e.uid for e in events}
+    link.refresh_from_db(fields=["ignored_uids"])  # deletions may be newer than ``link``
+    ignored = set(link.ignored_uids or [])
+    events = [e for e in events if not e.cancelled and e.uid not in ignored]
+    seen = {e.uid for e in events} | ignored
     found: dict[str, tuple] = {}  # uid -> (matchday, adopted?)
 
     # 1. Known matches, then matchdays entered by hand on the same day.
@@ -296,6 +300,7 @@ def _apply(link: NuligaLink, events: list[Event], name: str, result: SyncResult)
 
     for event in events:
         values = _values(event, name)
+        snapshot = _snapshot(values)
         matchday, adopted = found.get(event.uid, (None, False))
         if matchday is None:
             matchday = Matchday(
@@ -303,6 +308,7 @@ def _apply(link: NuligaLink, events: list[Event], name: str, result: SyncResult)
                 season=link.season,
                 description=_description(event),
                 nuliga_uid=event.uid,
+                nuliga_data=snapshot,
                 **values,
             )
             matchday.save()
@@ -312,14 +318,27 @@ def _apply(link: NuligaLink, events: list[Event], name: str, result: SyncResult)
             matchday.nuliga_uid = event.uid
             if not matchday.description:
                 matchday.description = _description(event)
+        back = matchday.nuliga_removed
+        matchday.nuliga_removed = False
+        if matchday.nuliga_manual:
+            # Managed by hand: keep its values, report a nuLiga change once.
+            before = matchday.nuliga_data
+            changes = _changes(_unsnapshot(before), values) if before else []
+            matchday.nuliga_data = snapshot
+            matchday.save()
+            if back:
+                changes.append(str(_("back in the nuLiga schedule")))
+            if changes:
+                result.noted.append((matchday, changes))
+            continue
         changes = _changes(matchday, values)
         if adopted:
             # A new start time or address on the same day is no news.
             changes = [c for c in changes if matchday.date != values["date"] and c]
         for key, value in values.items():
             setattr(matchday, key, value)
-        if matchday.nuliga_removed:
-            matchday.nuliga_removed = False
+        matchday.nuliga_data = snapshot
+        if back:
             changes.append(str(_("back in the nuLiga schedule")))
         matchday.save()
         if adopted:
@@ -333,7 +352,30 @@ def _apply(link: NuligaLink, events: list[Event], name: str, result: SyncResult)
             result.removed.append(matchday)
 
 
-def _changes(matchday: Matchday, values: dict) -> list[str]:
+def _snapshot(values: dict) -> dict:
+    return {
+        "date": values["date"].isoformat(),
+        "time": values["start_time"].strftime("%H:%M") if values["start_time"] else "",
+        "venue": values["venue"],
+        "opponent": values["opponent"],
+        "location": values["location"],
+    }
+
+
+def _unsnapshot(data: dict):
+    """The last nuLiga values as an object ``_changes`` can compare."""
+    from types import SimpleNamespace
+
+    return SimpleNamespace(
+        date=date.fromisoformat(data["date"]),
+        start_time=time.fromisoformat(data["time"]) if data.get("time") else None,
+        venue=data.get("venue", ""),
+        opponent=data.get("opponent", ""),
+        location=data.get("location", ""),
+    )
+
+
+def _changes(matchday, values: dict) -> list[str]:
     out = []
     if matchday.date != values["date"] or matchday.start_time != values["start_time"]:
         old = matchday.date.strftime("%d.%m.%Y") + (
@@ -373,6 +415,11 @@ def summary_lines(result: SyncResult) -> list[str]:
     lines += [_("Linked: %(m)s") % {"m": label(m)} for m in result.adopted if m.pk not in changed]
     lines += [f"{label(m)}: {', '.join(changes)}" for m, changes in result.changed]
     lines += [_("No longer in nuLiga: %(m)s") % {"m": label(m)} for m in result.removed]
+    lines += [
+        _("%(m)s: nuLiga %(changes)s - not taken over, managed by hand")
+        % {"m": label(m), "changes": ", ".join(changes)}
+        for m, changes in result.noted
+    ]
     return lines
 
 
@@ -393,7 +440,11 @@ def notify_captains(link: NuligaLink, result: SyncResult) -> None:
                 }
             return _("nuLiga: the schedule of %(team)s changed (%(n)s).") % {
                 "team": t.name,
-                "n": len(r.created) + len(r.adopted) + len(r.changed) + len(r.removed),
+                "n": len(r.created)
+                + len(r.adopted)
+                + len(r.changed)
+                + len(r.removed)
+                + len(r.noted),
             }
 
         notify_user(recipient=user, verb=verb, level="info")

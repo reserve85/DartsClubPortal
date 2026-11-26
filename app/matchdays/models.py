@@ -106,6 +106,17 @@ class Matchday(models.Model):
     start_time = models.TimeField(null=True, blank=True, verbose_name=_("start time"))
     location = models.CharField(max_length=255, blank=True, verbose_name=_("location"))
     nuliga_uid = models.CharField(max_length=100, blank=True, db_index=True, editable=False)
+    nuliga_manual = models.BooleanField(
+        default=False,
+        verbose_name=_("manage by hand"),
+        help_text=_(
+            "Date, time, home/away, opponent and venue are no longer taken from nuLiga "
+            "(e.g. a different time agreed with the opponent)."
+        ),
+    )
+    # What nuLiga said last time - to report a nuLiga change of a matchday
+    # managed by hand once, not every day.
+    nuliga_data = models.JSONField(default=dict, blank=True, editable=False)
     nuliga_removed = models.BooleanField(
         default=False,
         editable=False,
@@ -178,6 +189,8 @@ class NuligaLink(models.Model):
     nuliga_name = models.CharField(max_length=255, blank=True, editable=False)
     last_sync_at = models.DateTimeField(null=True, blank=True, editable=False)
     last_error = models.CharField(max_length=500, blank=True, editable=False)
+    # Matches whose matchday was deleted on purpose: never imported again.
+    ignored_uids = models.JSONField(default=list, blank=True, editable=False)
 
     class Meta:
         constraints: ClassVar[list] = [
