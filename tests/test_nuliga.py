@@ -356,8 +356,15 @@ class TestCalendar:
         body = resp.content.decode()
         assert resp.status_code == 200 and resp["Content-Type"].startswith("text/calendar")
         assert body.count("BEGIN:VEVENT") == 2 and "Fremd" not in body
-        assert "SV Gast" in body and r"LOCATION:Halle\, Weg 1" in body
-        assert "STATUS:CANCELLED" in body and "DTEND:" in body
+        assert f"SUMMARY:[H] {team.name} - SV Gast" in body
+        assert f"SUMMARY:[A] Weg - {team.name}" in body
+        assert r"LOCATION:Halle\, Weg 1" in body
+        assert "Spielstart: 19:30" in body or "Match start: 19:30" in body
+        assert "STATUS:CANCELLED" in body
+        # 4 hours from 19:30 local time
+        start = body.split("DTSTART:")[1][:16]
+        end = body.split("DTEND:")[1][:16]
+        assert int(end[9:11]) - int(start[9:11]) in (4, -20)
 
     def test_all_teams_and_bad_tokens(self, client, season, team, other_team):
         from app.matchdays.calendar import token_for

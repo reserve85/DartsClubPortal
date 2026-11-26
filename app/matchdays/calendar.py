@@ -21,7 +21,8 @@ from app.matchdays.models import Matchday
 
 SALT = "matchday-calendar"
 PAST_DAYS = 90
-LENGTH = timedelta(hours=3)
+LENGTH = timedelta(hours=4)
+CRLF = chr(13) + chr(10)
 
 
 def token_for(team_id: int | None) -> str:
@@ -87,7 +88,20 @@ def _utc(moment: datetime) -> str:
     return moment.astimezone(ZoneInfo("UTC")).strftime("%Y%m%dT%H%M%SZ")
 
 
+def _venue_lines(location: str) -> list[str]:
+    """ "Hall (0903): Street 1, 63814 Town" -> ["Hall (0903)", "Street 1", "63814 Town"]."""
+    name, sep, address = location.partition(": ")
+    if not sep:
+        return [location]
+    return [name.strip(), *[part.strip() for part in address.split(", ") if part.strip()]]
+
+
 def build_calendar(matchdays, name: str, host: str) -> str:
+    """One event per matchday, in the style the club already uses:
+    "[H] Home - Guest" / "[A] Home - Guest", 4 hours, start time and venue
+    address in the description."""
+    from django.utils.translation import gettext as _
+
     local = ZoneInfo(settings.TIME_ZONE)
     stamp = _utc(timezone.now())
     lines = [
@@ -97,6 +111,7 @@ def build_calendar(matchdays, name: str, host: str) -> str:
         "CALSCALE:GREGORIAN",
         "METHOD:PUBLISH",
         f"X-WR-CALNAME:{_text(name)}",
+        f"X-WR-TIMEZONE:{settings.TIME_ZONE}",
         "X-PUBLISHED-TTL:PT6H",
         "REFRESH-INTERVAL;VALUE=DURATION:PT6H",
     ]
@@ -111,16 +126,25 @@ def build_calendar(matchdays, name: str, host: str) -> str:
                 f"DTSTART;VALUE=DATE:{md.date:%Y%m%d}",
                 f"DTEND;VALUE=DATE:{md.date + timedelta(days=1):%Y%m%d}",
             ]
-        vs = f"{md.team.name} – {md.opponent}" if home else f"{md.opponent} – {md.team.name}"
-        lines.append(f"SUMMARY:{_text(('🎯 ' if home else '🚌 ') + vs)}")
+        pair = f"{md.team.name} - {md.opponent}" if home else f"{md.opponent} - {md.team.name}"
+        lines.append(f"SUMMARY:{_text(('[H] ' if home else '[A] ') + pair)}")
+        details = []
+        if md.start_time:
+            details += [_("Match start: %(time)s") % {"time": f"{md.start_time:%H:%M}"}, ""]
         if md.location:
+            details += _venue_lines(md.location)
             lines.append(f"LOCATION:{_text(md.location)}")
-        details = [md.get_venue_display(), md.description]
-        lines.append(f"DESCRIPTION:{_text(' · '.join(d for d in details if d))}")
+        if md.description:
+            details += ["", md.description]
+        while details and not details[-1]:
+            details.pop()
+        if details:
+            lines.append(f"DESCRIPTION:{_text(chr(10).join(details))}")
         lines.append("STATUS:CANCELLED" if md.nuliga_removed else "STATUS:CONFIRMED")
+        lines.append("TRANSP:OPAQUE")
         lines.append("END:VEVENT")
     lines.append("END:VCALENDAR")
-    return "\r\n".join(_fold(line) for line in lines) + "\r\n"
+    return CRLF.join(_fold(line) for line in lines) + CRLF
 
 
 class MatchdayCalendarView(View):
@@ -142,8 +166,11 @@ class MatchdayCalendarView(View):
             if team is None:
                 raise Http404
             matchdays = matchdays.filter(team=team)
-            name = f"{team.name} · {name}"
-        body = build_calendar(matchdays, name, request.get_host().split(":")[0])
+            name = team.name
+        from django.utils import translation
+
+        with translation.override(settings.LANGUAGE_CODE):  # calendar apps send no language
+            body = build_calendar(matchdays, name, request.get_host().split(":")[0])
         response = HttpResponse(body, content_type="text/calendar; charset=utf-8")
         response["Content-Disposition"] = 'inline; filename="matchdays.ics"'
         response["Cache-Control"] = "no-cache"

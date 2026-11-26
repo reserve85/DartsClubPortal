@@ -5078,3 +5078,7 @@ msgstr "Adresse kopieren:"
 
 msgid "Google Calendar: Other calendars → From URL → paste the copied link."
 msgstr "Google Kalender: Weitere Kalender → Per URL → kopierten Link einfügen."
+
+#, python-format
+msgid "Match start: %(time)s"
+msgstr "Spielstart: %(time)s"
