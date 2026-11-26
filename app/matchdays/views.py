@@ -201,27 +201,21 @@ class NuligaSyncView(LoginRequiredMixin, View):
     """POST: import the nuLiga schedule now (admins: every team, captains: their team)."""
 
     def post(self, request):
-        from app.matchdays.nuliga import NuligaError, summary_lines, sync_link
+        from app.matchdays.nuliga import NuligaError, remember_report, report, sync_link
 
         assert_admin_or_captain(request.user)
         links = _nuliga_links(request.user, season_for_request(request))
         if not links:
             raise PermissionDenied
+        reports = []
         for link in links:
             try:
                 result = sync_link(link, actor=request.user)
             except NuligaError as exc:
-                messages.error(request, f"nuLiga · {link.team.name}: {exc}")
+                reports.append(report(link, error=str(exc)))
                 continue
-            lines = summary_lines(result)
-            if lines:
-                messages.success(request, f"nuLiga · {link.team.name}: " + " · ".join(lines[:6]))
-            else:
-                messages.success(
-                    request,
-                    _("nuLiga · %(team)s: everything is up to date (%(n)s matchdays checked).")
-                    % {"team": link.team.name, "n": result.checked},
-                )
+            reports.append(report(link, result))
+        remember_report(request, reports)
         return redirect("matchdays:matchday_list")
 
 

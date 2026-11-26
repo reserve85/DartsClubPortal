@@ -5106,3 +5106,31 @@ msgstr "Abgleich mit nuLiga fehlgeschlagen – nächster Versuch in etwa 1 Stund
 
 msgid "Sync error with nuLiga - the system admin is informed"
 msgstr "Abgleich mit nuLiga fehlgeschlagen – der System-Admin ist informiert"
+
+msgid "nuLiga sync"
+msgstr "nuLiga-Abgleich"
+
+msgid "linked"
+msgstr "verknüpft"
+
+msgid "changed"
+msgstr "geändert"
+
+msgid "not taken over"
+msgstr "nicht übernommen"
+
+#, python-format
+msgid "%(n)s matchdays checked"
+msgstr "%(n)s Spieltage geprüft"
+
+msgid "failed"
+msgstr "fehlgeschlagen"
+
+msgid "The portal tries again in about 1 hour."
+msgstr "Das Portal versucht es in etwa 1 Stunde erneut."
+
+msgid "Everything is up to date - nothing changed."
+msgstr "Alles aktuell – nichts geändert."
+
+msgid "Every change is also in the audit log."
+msgstr "Jede Änderung steht auch im Audit-Log."

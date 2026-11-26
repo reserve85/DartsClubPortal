@@ -222,25 +222,19 @@ def _nuliga_table(form):
 
 
 def _import_nuliga(request, form, season):
-    """Save the team pages and import the new or changed ones right away."""
-    from app.matchdays.nuliga import NuligaError, sync_link
+    """Save the team pages, import the new or changed ones right away and
+    show the outcome as one summary dialog on the next page."""
+    from app.matchdays.nuliga import NuligaError, remember_report, report, sync_link
 
+    reports = []
     for link in form.save_nuliga(season):
         try:
             result = sync_link(link, notify=False, actor=request.user)
         except NuligaError as exc:
-            messages.warning(request, f"nuLiga · {link.team.name}: {exc}")
+            reports.append(report(link, error=str(exc)))
             continue
-        messages.success(
-            request,
-            _("nuLiga · %(team)s: %(new)s matchdays imported, %(linked)s linked.")
-            % {"team": link.team.name, "new": len(result.created), "linked": len(result.adopted)},
-        )
-        for matchday, changes in result.changed:
-            messages.info(
-                request,
-                f"nuLiga · {link.team.name}: {matchday.opponent} – {', '.join(changes)}",
-            )
+        reports.append(report(link, result))
+    remember_report(request, reports)
 
 
 def _season_form_page(request, form, season=None):

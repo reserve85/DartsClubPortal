@@ -176,6 +176,10 @@ class InertiaShareMiddleware:
             auth=lambda: {"user": user_payload(user)},
             # Django messages (success / error after a save) -> toasts.
             flash=lambda: {"messages": _flash_messages(request)},
+            # Summary of a nuLiga sync, shown once as a dialog.
+            nuligaReport=lambda: (
+                request.session.pop("nuliga_report", None) if hasattr(request, "session") else None
+            ),
             nav=lambda: navigation(user) if user.is_authenticated else [],
             i18n=lambda: _catalog(language),
             urls=lambda: {

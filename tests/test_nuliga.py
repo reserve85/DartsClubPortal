@@ -436,13 +436,44 @@ class TestRetries:
         assert link.failures == 1 and "odd" in link.last_error
 
     def test_sync_now_reports_the_result(self, captain_client, link):
-        from django.contrib.messages import get_messages
+        from app.core.models import AuditAction, AuditLog
 
+        page = reverse("matchdays:matchday_list")
+        with _serve(_feed(HOME, AWAY)):
+            captain_client.post(reverse("matchdays:nuliga_sync"))
+        report = inertia_props(captain_client.get(page))["nuligaReport"]
+        assert report[0]["team"] == link.team.name and report[0]["checked"] == 2
+        assert [i["kind"] for i in report[0]["items"]] == ["new", "new"]
+        assert inertia_props(captain_client.get(page))["nuligaReport"] is None  # shown once
+        # Every change lands in the audit log, by the person who synced.
+        logs = AuditLog.objects.filter(action=AuditAction.MATCHDAY_CREATED)
+        assert logs.count() == 2 and logs.first().metadata["source"] == "nuLiga"
+        moved = HOME.replace("20270109T140000", "20270116T140000")
+        with _serve(_feed(moved, AWAY)):
+            captain_client.post(reverse("matchdays:nuliga_sync"))
+        report = inertia_props(captain_client.get(page))["nuligaReport"]
+        changed = [i for i in report[0]["items"] if i["kind"] == "changed"]
+        assert len(changed) == 1 and "16.01.2027" in changed[0]["changes"][0]
+        entry = AuditLog.objects.filter(action=AuditAction.MATCHDAY_UPDATED).latest("pk")
+        assert "16.01.2027" in entry.metadata["changes"][0]
+
+    def test_nothing_changed_still_reports(self, captain_client, link):
         with _serve(_feed(HOME)):
             captain_client.post(reverse("matchdays:nuliga_sync"))
-            resp = captain_client.post(reverse("matchdays:nuliga_sync"))
-        texts = [str(m) for m in get_messages(resp.wsgi_request)]
-        assert any("1" in t and link.team.name in t for t in texts)
+            captain_client.get(reverse("matchdays:matchday_list"))
+            captain_client.post(reverse("matchdays:nuliga_sync"))
+        report = inertia_props(captain_client.get(reverse("matchdays:matchday_list")))
+        assert report["nuligaReport"][0]["items"] == [] and report["nuligaReport"][0]["ok"]
+
+    def test_failure_is_in_the_report(self, captain_client, link):
+        with mock.patch.object(nuliga, "_fetch", side_effect=nuliga.NuligaError("down")):
+            captain_client.post(reverse("matchdays:nuliga_sync"))
+        report = inertia_props(captain_client.get(reverse("matchdays:matchday_list")))
+        assert report["nuligaReport"][0] == {
+            **report["nuligaReport"][0],
+            "ok": False,
+            "error": "down",
+        }
 
     def test_error_tag_on_the_matchday_list(self, captain_client, link):
         self._fail(link)

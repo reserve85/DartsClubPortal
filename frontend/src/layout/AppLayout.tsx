@@ -34,6 +34,7 @@ import {
 } from "@tabler/icons-react";
 import { useEffect, type ReactNode } from "react";
 import { CookieNotice } from "../components/CookieNotice";
+import { NuligaReportDialog } from "../components/NuligaReport";
 import { NavIcon } from "../components/icons";
 import { PlayerAvatar } from "../components/PlayerAvatar";
 import { useRoleLabel } from "../components/roles";
@@ -259,6 +260,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       <AppShell.Main>
         <Box maw={1100} mx="auto" pb={96}>{children}</Box>
         <CookieNotice />
+        <NuligaReportDialog />
       </AppShell.Main>
     </AppShell>
   );

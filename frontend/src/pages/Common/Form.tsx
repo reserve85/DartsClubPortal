@@ -142,7 +142,7 @@ export default function FormPage(p: Props) {
           ) : undefined
         }
       />
-      <Paper withBorder p={{ base: "md", sm: "lg" }} maw={760}>
+      <Paper withBorder p={{ base: "md", sm: "lg" }} maw={p.table?.wide ? 1200 : 760}>
         <form
           onSubmit={(e) => {
             e.preventDefault();

@@ -244,6 +244,7 @@ def sync_link(link: NuligaLink, *, notify: bool = True, actor=None) -> SyncResul
         name = own_team(events)
         with transaction.atomic():
             _apply(link, events, name, result)
+            _audit(result, actor)
         result.checked = len(events)
         link.nuliga_name = name[:255]
         link.last_error = ""
@@ -261,6 +262,67 @@ def sync_link(link: NuligaLink, *, notify: bool = True, actor=None) -> SyncResul
     if notify and result.anything:
         notify_captains(link, result)
     return result
+
+
+def _audit(result: SyncResult, actor) -> None:
+    """Every change of the import in the audit log (who: the person who synced
+    by hand, empty for the daily run)."""
+    from app.core.models import AuditAction
+    from app.core.services import log_action
+
+    user = actor if getattr(actor, "is_authenticated", False) else None
+
+    def log(action, matchday, what, changes=None):
+        meta = {"source": "nuLiga", "nuliga": what, "matchday": _label(matchday)}
+        if changes:
+            meta["changes"] = changes
+        log_action(action, user=user, target=matchday, metadata=meta)
+
+    for m in result.created:
+        log(AuditAction.MATCHDAY_CREATED, m, "imported")
+    changed = {m.pk for m, _c in result.changed}
+    for m in result.adopted:
+        if m.pk not in changed:
+            log(AuditAction.MATCHDAY_UPDATED, m, "linked")
+    for m, changes in result.changed:
+        log(AuditAction.MATCHDAY_UPDATED, m, "updated", changes)
+    for m in result.removed:
+        log(AuditAction.MATCHDAY_UPDATED, m, "removed from the schedule")
+    for m, changes in result.noted:
+        log(AuditAction.MATCHDAY_UPDATED, m, "not taken over (managed by hand)", changes)
+
+
+def _label(m) -> str:
+    when = m.date.strftime("%d.%m.%Y") + (f" {m.start_time:%H:%M}" if m.start_time else "")
+    return f"{when} {_venue_label(m.venue)} – {m.opponent}"
+
+
+def report(link: NuligaLink, result: SyncResult | None = None, error: str = "") -> dict:
+    """One team's outcome for the summary dialog after a sync."""
+    rows = []
+    if result is not None:
+        changed = {m.pk for m, _c in result.changed}
+        rows += [("new", m, []) for m in result.created]
+        rows += [("linked", m, []) for m in result.adopted if m.pk not in changed]
+        rows += [("changed", m, c) for m, c in result.changed]
+        rows += [("removed", m, []) for m in result.removed]
+        rows += [("noted", m, c) for m, c in result.noted]
+    rows.sort(key=lambda r: (r[1].date, r[1].start_time or time(0)))
+    items = [{"kind": kind, "label": _label(m), "changes": c} for kind, m, c in rows]
+    return {
+        "team": link.team.name,
+        "ok": not error,
+        "error": error,
+        "checked": result.checked if result is not None else 0,
+        "first": bool(result and result.first),
+        "items": items,
+    }
+
+
+def remember_report(request, reports: list[dict]) -> None:
+    """Shown once as a dialog on the next page (shared prop ``nuligaReport``)."""
+    if reports:
+        request.session["nuliga_report"] = reports
 
 
 def notify_system_admins(link: NuligaLink) -> None:

@@ -38,6 +38,7 @@ export interface SharedProps {
   urls: Record<string, string | null>;
   counts: { notifications?: number; approvals?: number };
   flash?: { messages?: { message: string; level: string; tags?: string }[] };
+  nuligaReport?: import("./components/NuligaReport").NuligaTeamReport[] | null;
   errors?: Record<string, string[] | string>;
   [key: string]: unknown;
 }
