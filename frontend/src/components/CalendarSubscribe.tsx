@@ -26,7 +26,7 @@ export function CalendarSubscribe({ calendars, size = "sm" }: { calendars: Calen
   };
   return (
     <>
-      <Button size={size} variant="light" leftSection={<IconCalendarPlus size={16} />} onClick={() => setOpen(true)}>
+      <Button size={size} color="gray" leftSection={<IconCalendarPlus size={16} />} onClick={() => setOpen(true)}>
         {t("Subscribe to calendar")}
       </Button>
       <Modal opened={open} onClose={() => setOpen(false)} title={<Text fw={800}>{t("Subscribe to calendar")}</Text>} centered>

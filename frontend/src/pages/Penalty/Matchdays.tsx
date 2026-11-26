@@ -67,7 +67,6 @@ function NuligaBar({ info }: { info: NuligaInfo }) {
           ))}
         </Box>
         <Button
-          variant="light"
           leftSection={<IconRefresh size={16} />}
           loading={busy}
           onClick={() => router.post(info.syncUrl, {}, { preserveScroll: true, onStart: () => setBusy(true), onFinish: () => setBusy(false) })}
