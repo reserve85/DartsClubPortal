@@ -222,7 +222,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                   style={{ borderRadius: 10 }}
                 />
               )}
-              {urls.schedule && (
+              {/* With the penalty module the schedule sits in its group; others (Elo only) get it here. */}
+              {urls.schedule && !user.modules.penalty && (
                 <NavLink
                   component={Link}
                   href={urls.schedule}

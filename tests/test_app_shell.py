@@ -58,6 +58,7 @@ def test_captain_menu_has_team_tools_but_no_admin(captain_client):
     captain = _hrefs(props, "penalty")
     assert reverse("teams:cashier_list") in captain
     assert props["urls"]["schedule"] == reverse("schedule")  # matchdays: the schedule
+    assert captain[0] == reverse("schedule")  # first in "Penalty & league play"
     assert all(reverse("accounts:user_list") not in _hrefs(props, k) for k in _groups(props))
     assert props["auth"]["user"]["isCaptain"] is True and props["auth"]["user"]["isAdmin"] is False
 

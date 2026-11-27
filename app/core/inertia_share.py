@@ -73,7 +73,10 @@ def navigation(user) -> list[dict]:
         # module: one "Penalty" group (captains: their team as a hint).
         manages = is_admin or user_is_captain(user)
         team = getattr(user, "team", None)
-        items = [_item(_("Financial overview"), "dashboard:financial_overview", "coins")]
+        items = [
+            _item(_("Schedule"), "schedule", "calendar-event"),
+            _item(_("Financial overview"), "dashboard:financial_overview", "coins"),
+        ]
         if manages:
             items += [
                 _item(_("Teams & Players"), "teams:team_list", "users"),
