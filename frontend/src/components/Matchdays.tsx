@@ -34,9 +34,20 @@ export function MatchdayRow({ row, own }: { row: MatchdayRowData; own: boolean }
   const body = (
     <Paper withBorder p="sm" radius="md" style={{ ...highlight, opacity: row.isPast ? 0.7 : 1 }}>
       <Group wrap="nowrap" gap="md">
-        <Box ta="center" w={52} style={{ flexShrink: 0 }}>
-          <Text fw={800} fz={22} lh={1} className="num" c={row.isToday ? "teal" : undefined}>{dayjs(row.date).format("DD")}</Text>
-          <Text size="xs" c="dimmed" tt="uppercase">{dayjs(row.date).format("dd MM")}</Text>
+        {/* Weekday on top, "27.11." below - readable at a glance. */}
+        <Box
+          ta="center"
+          w={64}
+          py={4}
+          style={{
+            flexShrink: 0,
+            borderRadius: "var(--mantine-radius-sm)",
+            background: row.isToday ? "var(--mantine-color-teal-6)" : "var(--mantine-color-default-hover)",
+            color: row.isToday ? "white" : undefined,
+          }}
+        >
+          <Text size="xs" fw={700} tt="uppercase" lh={1.2} c={row.isToday ? "white" : "dimmed"}>{dayjs(row.date).format("dd")}</Text>
+          <Text fw={800} fz={17} lh={1.2} className="num">{dayjs(row.date).format("DD.MM.")}</Text>
         </Box>
         <Box style={{ minWidth: 0, flex: 1 }}>
           <Text fw={700} truncate td={row.removed ? "line-through" : undefined}>{row.team} – {row.opponent}</Text>
