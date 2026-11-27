@@ -44,6 +44,65 @@ class HomeView(LoginRequiredMixin, View):
         return redirect(start_url(request.user))
 
 
+class ScheduleView(LoginRequiredMixin, View):
+    """The matchdays of every team of the season, read-only, for every account."""
+
+    def get(self, request):
+        from app.core.permissions import user_can_manage_team
+        from app.matchdays.calendar import calendar_links
+        from app.matchdays.models import Matchday
+        from app.matchdays.services import season_for_request
+        from app.players.models import PlayerTeam
+        from app.teams.services import teams_for_season
+
+        season = season_for_request(request)
+        teams = list(teams_for_season(season).order_by("name"))
+        user = request.user
+        own = {user.team_id} if user.team_id else set()
+        player = getattr(user, "player_link", None)
+        if player is not None and season is not None:
+            own |= set(
+                PlayerTeam.objects.filter(player=player, season=season).values_list(
+                    "team_id", flat=True
+                )
+            )
+        show_past = request.GET.get("past") == "1"
+        today = timezone.localdate()
+        rows = Matchday.objects.filter(team__in=teams).select_related("team")
+        if season is not None:
+            rows = rows.filter(season=season)
+        if not show_past:
+            rows = rows.filter(date__gte=today)
+        manage = {t.pk: user_can_manage_team(user, t) for t in teams}
+        props = {
+            "season": season.name if season else "",
+            "showPast": show_past,
+            "teams": [{"id": t.pk, "name": t.name, "own": t.pk in own} for t in teams],
+            "rows": [
+                {
+                    "id": m.pk,
+                    "date": m.date.isoformat(),
+                    "time": m.start_time.strftime("%H:%M") if m.start_time else "",
+                    "teamId": m.team_id,
+                    "team": m.team.name,
+                    "opponent": m.opponent,
+                    "venue": m.get_venue_display(),
+                    "home": m.venue == "home",
+                    "location": m.location,
+                    "removed": m.nuliga_removed,
+                    "isToday": m.date == today,
+                    "isPast": m.date < today,
+                    "url": reverse("matchdays:matchday_detail", args=[m.pk])
+                    if manage.get(m.team_id)
+                    else None,
+                }
+                for m in rows.order_by("date", "start_time", "team__name")
+            ],
+            "calendars": calendar_links(request, teams, own),
+        }
+        return inertia_render(request, "Schedule", props=props)
+
+
 class OverviewView(LoginRequiredMixin, View):
     """ "My overview": one card per module the user may use."""
 

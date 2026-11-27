@@ -481,3 +481,56 @@ class TestRetries:
         self._fail(link)
         info = inertia_props(captain_client.get(reverse("matchdays:matchday_list")))["nuliga"]
         assert info["teams"][0]["retrying"] and not info["teams"][0]["gaveUp"]
+
+
+@pytest.mark.django_db
+class TestPolish:
+    def test_new_venue_number_alone_is_no_news(self, link, captain_user):
+        with _serve(_feed(HOME)):
+            nuliga.sync_link(link)
+        mail.outbox.clear()
+        renumbered = HOME.replace("Clubheim (0901)", "Clubheim (0999)")
+        with _serve(_feed(renumbered)):
+            result = nuliga.sync_link(link)
+        assert not result.anything and len(mail.outbox) == 0
+        assert "(0999)" in Matchday.objects.get().location  # still kept up to date
+
+    def test_inbox_message_has_details_and_a_link(self, link, captain_user):
+        from notifications.models import Notification
+
+        with _serve(_feed(HOME)):
+            nuliga.sync_link(link)
+        note = Notification.objects.get(recipient=captain_user)
+        assert "SV Gast" in note.description
+        assert note.data["url"].startswith(reverse("matchdays:matchday_list"))
+
+    def test_structured_mail(self, link, captain_user):
+        with _serve(_feed(HOME)):
+            nuliga.sync_link(link)
+        html = next(body for body, kind in mail.outbox[0].alternatives if kind == "text/html")
+        assert "SV Gast" in html and "border-left:4px solid" in html
+
+    def test_schedule_for_every_account(self, client, season, team, db):
+        from django.contrib.auth import get_user_model
+
+        club = get_user_model().objects.create_user(
+            email="tablet@example.com",
+            password="pw",
+            approval_status="approved",
+            is_club_account=True,
+            penalty_access=False,
+        )
+        client.force_login(club)
+        Matchday.objects.create(
+            team=team, season=season, opponent="SV Gast", date=timezone.localdate()
+        )
+        props = inertia_props(client.get(reverse("schedule")))
+        assert [r["opponent"] for r in props["rows"]] == ["SV Gast"]
+        assert props["rows"][0]["url"] is None and props["calendars"]
+        overview = inertia_props(client.get(reverse("overview")))
+        assert overview["nextMatchdays"] and overview["calendars"]
+
+    def test_linked_player_starts_on_my_overview(self, player_client, player_user, player):
+        player_user.player_link = player
+        player_user.save()
+        assert player_client.get("/").headers["Location"] == reverse("overview")

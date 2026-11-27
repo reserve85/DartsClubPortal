@@ -140,7 +140,9 @@ def unread_count(user) -> int:
 # ---------------------------------------------------------------------------
 # Business events — additive to e-mail, never switchable off (decision 5)
 # ---------------------------------------------------------------------------
-def notify_user(*, recipient, verb, sender=None, target=None, level="info") -> None:
+def notify_user(
+    *, recipient, verb, sender=None, target=None, level="info", description=None, url=None
+) -> None:
     """ONE in-app row for ``recipient`` — the single write path for events.
 
     ``verb`` may be a plain string OR a zero-arg callable that builds the
@@ -163,12 +165,17 @@ def notify_user(*, recipient, verb, sender=None, target=None, level="info") -> N
         language = getattr(recipient, "preferred_language", None) or settings.LANGUAGE_CODE
         with translation.override(language):
             text = verb() if callable(verb) else verb
+            # Optional details (one line each) and a link, shown in the inbox.
+            details = description() if callable(description) else description
+            extra = {"url": url} if url else {}
             notify.send(
                 sender=sender if sender is not None else recipient,
                 recipient=recipient,
                 verb=str(text),
                 target=target,
                 level=level,
+                description=str(details) if details else None,
+                **extra,
             )
     except Exception:
         logger.exception(

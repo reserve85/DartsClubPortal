@@ -9,6 +9,8 @@ import { useT } from "../i18n";
 interface Row {
   id: number;
   verb: string;
+  description: string;
+  url: string | null;
   actor: string;
   when: string;
   unread: boolean;
@@ -81,7 +83,19 @@ export default function Notifications({ tab, rows, page, pages, unreadCount, url
                   <Text size="xs" c="dimmed">
                     {[n.actor, dayjs(n.when).format("DD.MM.YYYY HH:mm")].filter(Boolean).join(" · ")}
                   </Text>
+                  {n.description && (
+                    <Stack gap={4} mt={8}>
+                      {n.description.split(/\r?\n/).filter(Boolean).map((line, i) => (
+                        <Text key={i} size="sm" style={{ borderLeft: "3px solid var(--mantine-color-default-border)", paddingLeft: 8 }}>
+                          {line}
+                        </Text>
+                      ))}
+                    </Stack>
+                  )}
                   <Group gap={6} mt={8}>
+                    {n.url && (
+                      <Button size="compact-sm" component={Link} href={n.url}>{t("Open link")}</Button>
+                    )}
                     {n.reviewUrl && (
                       <Button size="compact-sm" component={Link} href={n.reviewUrl}>{t("Review")}</Button>
                     )}

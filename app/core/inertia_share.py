@@ -185,6 +185,7 @@ class InertiaShareMiddleware:
             urls=lambda: {
                 "home": reverse("home"),
                 "overview": _url("overview"),
+                "schedule": _url("schedule"),
                 "settings": _url("accounts:settings"),
                 "logout": _url("account_logout"),
                 "notifications": _url("notifications:unread"),

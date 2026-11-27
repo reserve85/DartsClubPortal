@@ -160,12 +160,19 @@ def _calendars(request, user) -> list:
     return calendar_links(request, teams_for_season(season).order_by("name"), own)
 
 
+def _league_play() -> bool:
+    """Matchdays exist with the penalty module; everybody may see the schedule."""
+    from app.core.modules import PENALTY, is_enabled
+
+    return is_enabled(PENALTY)
+
+
 def build_overview(user, request=None) -> dict:
     mods = user_modules(user)
     return {
-        "calendars": _calendars(request, user) if mods.get("penalty") else [],
+        "calendars": _calendars(request, user) if _league_play() else [],
         "elo": _elo_card(user) if mods.get("elo") else None,
         "penalty": _penalty_card(user) if mods.get("penalty") else None,
-        "nextMatchdays": _next_matchdays(user) if mods.get("penalty") else [],
+        "nextMatchdays": _next_matchdays(user) if _league_play() else [],
         "today": timezone.localdate().isoformat(),
     }

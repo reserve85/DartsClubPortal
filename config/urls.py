@@ -94,6 +94,12 @@ urlpatterns += i18n_patterns(
     # app/core/access.py); modules are routed only when enabled.
     path("", core_views.HomeView.as_view(), name="home"),
     path("overview/", core_views.OverviewView.as_view(), name="overview"),
+    # Schedule of every team, read-only, for every account (club account too).
+    *(
+        [path("schedule/", core_views.ScheduleView.as_view(), name="schedule")]
+        if PENALTY in _MODULES
+        else []
+    ),
     *(PENALTY_URLS if PENALTY in _MODULES else []),
     # Members (players with or without a login) belong to both modules.
     path("players/", include("app.players.urls")),

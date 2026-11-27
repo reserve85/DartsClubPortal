@@ -24,6 +24,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import {
   IconBell,
+  IconCalendarEvent,
   IconChevronDown,
   IconInfoCircle,
   IconLayoutDashboard,
@@ -137,9 +138,12 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
   // Longest matching menu link is the active one.
   const path = page.url.split("?")[0];
-  const allHrefs = nav.flatMap((g) => g.items.map((i) => i.href)).concat(urls.overview ? [urls.overview] : []);
+  const allHrefs = nav
+    .flatMap((g) => g.items.map((i) => i.href))
+    .concat(urls.overview ? [urls.overview] : [])
+    .concat(urls.schedule ? [urls.schedule] : []);
   const active = allHrefs.filter((h) => path === h || (h !== "/" && path.startsWith(h))).sort((a, b) => b.length - a.length)[0];
-  const showOverview = Boolean(user?.modules.elo && user?.modules.penalty && urls.overview);
+  const showOverview = Boolean((user?.modules.elo || user?.modules.penalty) && urls.overview);
 
   return (
     <AppShell
@@ -151,7 +155,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         <Group h={57} px="md" justify="space-between" wrap="nowrap">
           <Group gap="xs" wrap="nowrap">
             <Burger opened={opened} onClick={toggle} hiddenFrom="md" size="sm" aria-label={t("Menu")} />
-            <UnstyledButton component={Link} href={urls.home ?? "/"}>
+            <UnstyledButton component={Link} href={urls.overview ?? urls.home ?? "/"}>
               <Group gap={8} wrap="nowrap">
                 <ClubLogo />
                 <Text fw={800} size="lg" visibleFrom="xs" truncate>
@@ -214,6 +218,17 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                   label={t("My overview")}
                   leftSection={<IconLayoutDashboard size={18} />}
                   active={active === urls.overview}
+                  variant="filled"
+                  style={{ borderRadius: 10 }}
+                />
+              )}
+              {urls.schedule && (
+                <NavLink
+                  component={Link}
+                  href={urls.schedule}
+                  label={t("Schedule")}
+                  leftSection={<IconCalendarEvent size={18} />}
+                  active={active === urls.schedule}
                   variant="filled"
                   style={{ borderRadius: 10 }}
                 />

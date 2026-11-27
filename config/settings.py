@@ -136,6 +136,9 @@ if (
 # N recipients would otherwise freeze the whole site. Tests force synchronous
 # sending so ``django.core.mail.outbox`` assertions stay reliable.
 ASYNC_NOTIFICATIONS = (not TESTING) and env_bool("NOTIFICATIONS_ASYNC", "True")
+# django-notifications: extra keyword arguments (e.g. the link of a message)
+# are stored in Notification.data.
+DJANGO_NOTIFICATIONS_CONFIG = {"USE_JSONFIELD": True}
 
 # ---------------------------------------------------------------------------
 # Outbox + digest (penalties are collected, never mailed one row at a time)

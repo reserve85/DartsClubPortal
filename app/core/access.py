@@ -89,7 +89,12 @@ def start_url(user) -> str:
     mods = user_modules(user)
     choice = getattr(user, "start_page", "auto") or "auto"
     if choice == "auto":
-        choice = getattr(settings, "DEFAULT_START_PAGE", ELO)
+        # A person (linked player) starts on "My overview"; other accounts
+        # (e.g. the club account) on the club's default.
+        if getattr(user, "player_link_id", None):
+            choice = "overview"
+        else:
+            choice = getattr(settings, "DEFAULT_START_PAGE", ELO)
     if choice == "overview" and any(mods.values()):
         return reverse("overview")
     if choice in START_URLS and mods.get(choice):

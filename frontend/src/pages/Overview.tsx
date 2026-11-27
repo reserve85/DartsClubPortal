@@ -32,7 +32,10 @@ function NextMatchdays({ teams, calendars }: { teams: NextTeam[]; calendars: Cal
     <Paper withBorder p="md">
       <Group justify="space-between" mb="sm" gap="xs">
         <Text fw={800}>📅 {t("Next matchdays")}</Text>
-        <CalendarSubscribe calendars={calendars} size="xs" />
+        <Group gap={6}>
+          <Button size="xs" component={Link} href="/schedule/">{t("Schedule")}</Button>
+          <CalendarSubscribe calendars={calendars} size="xs" />
+        </Group>
       </Group>
       <Stack gap="xs">
         {teams.map((team) => (

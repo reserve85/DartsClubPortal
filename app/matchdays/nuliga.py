@@ -342,7 +342,13 @@ def notify_system_admins(link: NuligaLink) -> None:
                 "n": n,
             }
 
-        notify_user(recipient=user, verb=verb, level="warning")
+        notify_user(
+            recipient=user,
+            verb=verb,
+            level="warning",
+            description=link.last_error,
+            url=reverse("season_update", args=[link.season_id]),
+        )
         if not user.email or not email_configured():
             continue
         with translation.override(lang):
@@ -483,7 +489,11 @@ def _unsnapshot(data: dict):
 
 def _changes(matchday, values: dict) -> list[str]:
     out = []
-    if matchday.date != values["date"] or matchday.start_time != values["start_time"]:
+    if matchday.date == values["date"] and matchday.start_time != values["start_time"]:
+        before = f"{matchday.start_time:%H:%M}" if matchday.start_time else "–"
+        after = f"{values['start_time']:%H:%M}" if values["start_time"] else "–"
+        out.append(str(_("start time %(old)s → %(new)s") % {"old": before, "new": after}))
+    elif matchday.date != values["date"]:
         old = matchday.date.strftime("%d.%m.%Y") + (
             f" {matchday.start_time:%H:%M}" if matchday.start_time else ""
         )
@@ -495,9 +505,15 @@ def _changes(matchday, values: dict) -> list[str]:
         out.append(str(_("now %(venue)s") % {"venue": _venue_label(values["venue"])}))
     if matchday.opponent != values["opponent"]:
         out.append(str(_("opponent: %(name)s") % {"name": values["opponent"]}))
-    if matchday.location != values["location"] and matchday.location:
+    if matchday.location and _place(matchday.location) != _place(values["location"]):
         out.append(str(_("venue: %(place)s") % {"place": values["location"]}))
     return out
+
+
+def _place(location: str) -> str:
+    """The venue without nuLiga's venue number: a new number for the same
+    hall and address is no news ("Hall (09030470): Street" == "Hall (09030250): Street")."""
+    return " ".join(re.sub(r"\(\s*\d+\s*\)", " ", location or "").casefold().split())
 
 
 # -------------------------------------------------------------- notification
@@ -512,21 +528,29 @@ def _recipients(team):
 
 
 def summary_lines(result: SyncResult) -> list[str]:
+    """One line per affected matchday, sorted by date."""
+
     def label(m):
         when = m.date.strftime("%d.%m.%Y") + (f" {m.start_time:%H:%M}" if m.start_time else "")
         return f"{when} {_venue_label(m.venue)} – {m.opponent}"
 
-    lines = [_("New: %(m)s") % {"m": label(m)} for m in result.created]
-    changed = {m.pk for m, _changes in result.changed}
-    lines += [_("Linked: %(m)s") % {"m": label(m)} for m in result.adopted if m.pk not in changed]
-    lines += [f"{label(m)}: {', '.join(changes)}" for m, changes in result.changed]
-    lines += [_("No longer in nuLiga: %(m)s") % {"m": label(m)} for m in result.removed]
-    lines += [
-        _("%(m)s: nuLiga %(changes)s - not taken over, managed by hand")
-        % {"m": label(m), "changes": ", ".join(changes)}
-        for m, changes in result.noted
+    changed = {m.pk for m, _c in result.changed}
+    rows = [(m, _("New: %(m)s") % {"m": label(m)}) for m in result.created]
+    rows += [
+        (m, _("Linked: %(m)s") % {"m": label(m)}) for m in result.adopted if m.pk not in changed
     ]
-    return lines
+    rows += [(m, f"{label(m)}: {', '.join(c)}") for m, c in result.changed]
+    rows += [(m, _("No longer in nuLiga: %(m)s") % {"m": label(m)}) for m in result.removed]
+    rows += [
+        (
+            m,
+            _("%(m)s: nuLiga %(changes)s - not taken over, managed by hand")
+            % {"m": label(m), "changes": ", ".join(c)},
+        )
+        for m, c in result.noted
+    ]
+    rows.sort(key=lambda r: (r[0].date, r[0].start_time or time(0)))
+    return [str(line) for _m, line in rows]
 
 
 def notify_captains(link: NuligaLink, result: SyncResult) -> None:
@@ -553,19 +577,71 @@ def notify_captains(link: NuligaLink, result: SyncResult) -> None:
                 + len(r.noted),
             }
 
-        notify_user(recipient=user, verb=verb, level="info")
+        notify_user(
+            recipient=user,
+            verb=verb,
+            level="info",
+            description=lambda r=result: chr(10).join(summary_lines(r)),
+            url=reverse("matchdays:matchday_list") + f"?team={link.team_id}",
+        )
         if not user.email or not email_configured():
             continue
         with translation.override(lang):
             subject = str(verb())
-            lines = summary_lines(result)
+            items = mail_items(result)
         NotificationService().send_templated(
             recipients=[user],
             template_base="emails/nuliga_changes",
             subject=subject,
             language=lang,
-            context={"team": link.team, "lines": lines, "url": url, "first": result.first},
+            context={"team": link.team, "items": items, "url": url, "first": result.first},
         )
+
+
+KIND_STYLE = {
+    "new": ("#0ca678", "#e6fcf5"),
+    "linked": ("#1c7ed6", "#e7f5ff"),
+    "changed": ("#e8590c", "#fff4e6"),
+    "removed": ("#e03131", "#fff5f5"),
+    "noted": ("#f08c00", "#fff9db"),
+}
+
+
+def mail_items(result: SyncResult) -> list[dict]:
+    """The changes for the e-mail: one block per matchday, sorted by date."""
+    from django.utils.formats import date_format
+
+    labels = {
+        "new": _("New"),
+        "linked": _("Linked"),
+        "changed": _("Changed"),
+        "removed": _("No longer in nuLiga"),
+        "noted": _("Not taken over (managed by hand)"),
+    }
+    changed = {m.pk for m, _c in result.changed}
+    rows = [("new", m, []) for m in result.created]
+    rows += [("linked", m, []) for m in result.adopted if m.pk not in changed]
+    rows += [("changed", m, c) for m, c in result.changed]
+    rows += [("removed", m, []) for m in result.removed]
+    rows += [("noted", m, c) for m, c in result.noted]
+    rows.sort(key=lambda r: (r[1].date, r[1].start_time or time(0)))
+    items = []
+    for kind, m, changes in rows:
+        color, background = KIND_STYLE[kind]
+        items.append(
+            {
+                "kind": str(labels[kind]),
+                "color": color,
+                "background": background,
+                "day": date_format(m.date, "D, d.m.Y"),
+                "time": f"{m.start_time:%H:%M}" if m.start_time else "",
+                "venue": _venue_label(m.venue),
+                "opponent": m.opponent,
+                "location": m.location,
+                "changes": changes,
+            }
+        )
+    return items
 
 
 # ------------------------------------------------------------------- runs

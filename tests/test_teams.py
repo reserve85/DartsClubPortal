@@ -209,6 +209,14 @@ def test_captain_sees_team_table_read_only(captain_client, team):
 
 def test_team_name_links_to_financial_overview(admin_client, team):
     """No 'Open' button — the team name itself opens the financial overview."""
-    content = admin_client.get(reverse("teams:team_list")).content.decode()
+    import json
+
+    from tests.conftest import inertia_props
+
+    response = admin_client.get(reverse("teams:team_list"))
+    content = response.content.decode()
     assert f"{reverse('dashboard:financial_overview')}?team={team.pk}" in content
-    assert "Öffnen" not in content and ">Open<" not in content
+    # The page itself (not the shared translation catalog) has no "Open" button.
+    props = {k: v for k, v in inertia_props(response).items() if k != "i18n"}
+    page = json.dumps(props, ensure_ascii=False)
+    assert "Öffnen" not in page and ">Open<" not in page

@@ -120,6 +120,8 @@ class NotificationListView(LoginRequiredMixin, View):
             return {
                 "id": notice.pk,
                 "verb": notice.verb,
+                "description": notice.description or "",
+                "url": (notice.data or {}).get("url") if isinstance(notice.data, dict) else None,
                 "actor": str(actor) if actor else "",
                 "when": timezone.localtime(notice.timestamp).isoformat(),
                 "unread": notice.unread,

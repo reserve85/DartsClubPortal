@@ -5167,3 +5167,38 @@ msgstr "Rolle & Rechte"
 
 msgid "Catalog entry"
 msgstr "Katalogeintrag"
+
+msgid "Schedule"
+msgstr "Spielplan"
+
+msgid "Upcoming"
+msgstr "Anstehend"
+
+msgid "Whole season"
+msgstr "Ganze Saison"
+
+msgid "New"
+msgstr "Neu"
+
+msgid "Linked"
+msgstr "Verknüpft"
+
+msgid "Changed"
+msgstr "Geändert"
+
+msgid "No longer in nuLiga"
+msgstr "Nicht mehr in nuLiga"
+
+msgid "Not taken over (managed by hand)"
+msgstr "Nicht übernommen (von Hand verwaltet)"
+
+#, python-format
+msgid "nuLiga schedule of %(team)s"
+msgstr "nuLiga-Spielplan von %(team)s"
+
+msgid "Open link"
+msgstr "Öffnen"
+
+#, python-format
+msgid "start time %(old)s → %(new)s"
+msgstr "Beginn %(old)s → %(new)s"
