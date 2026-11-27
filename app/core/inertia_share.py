@@ -92,6 +92,19 @@ def navigation(user) -> list[dict]:
                 "items": [i for i in items if i],
             }
         )
+    elif PENALTY in enabled_modules():
+        # Without the penalty module (Elo only): nothing of penalties, just
+        # the schedule of the club's teams.
+        schedule = _item(_("Schedule"), "schedule", "calendar-event")
+        if schedule:
+            groups.append(
+                {
+                    "key": "league",
+                    "label": str(_("League play")),
+                    "icon": "calendar-event",
+                    "items": [schedule],
+                }
+            )
     if scopes:
         portal = "portal" in scopes
         items = [

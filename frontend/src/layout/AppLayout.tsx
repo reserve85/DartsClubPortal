@@ -24,7 +24,6 @@ import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import {
   IconBell,
-  IconCalendarEvent,
   IconChevronDown,
   IconInfoCircle,
   IconLayoutDashboard,
@@ -218,18 +217,6 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                   label={t("My overview")}
                   leftSection={<IconLayoutDashboard size={18} />}
                   active={active === urls.overview}
-                  variant="filled"
-                  style={{ borderRadius: 10 }}
-                />
-              )}
-              {/* With the penalty module the schedule sits in its group; others (Elo only) get it here. */}
-              {urls.schedule && !user.modules.penalty && (
-                <NavLink
-                  component={Link}
-                  href={urls.schedule}
-                  label={t("Schedule")}
-                  leftSection={<IconCalendarEvent size={18} />}
-                  active={active === urls.schedule}
                   variant="filled"
                   style={{ borderRadius: 10 }}
                 />

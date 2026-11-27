@@ -5058,6 +5058,9 @@ msgstr "Diesen Spieltag löschen? Er wird nicht erneut aus nuLiga importiert. Sp
 msgid "%(m)s: nuLiga %(changes)s - not taken over, managed by hand"
 msgstr "%(m)s: nuLiga %(changes)s – nicht übernommen, von Hand verwaltet"
 
+msgid "League play"
+msgstr "Spielbetrieb"
+
 msgid "Penalty & league play"
 msgstr "Penalty & Spielbetrieb"
 

@@ -84,6 +84,11 @@ class TestModuleAccess:
         nav = inertia_props(player_client.get(reverse("elo:ranking")))["nav"]
         hrefs = [i["href"] for g in nav for i in g["items"]]
         assert reverse("dashboard:financial_overview") not in hrefs
+        # Nothing of penalties - only "League play" with the schedule.
+        assert [g["key"] for g in nav if g["key"] in ("penalty", "league")] == ["league"]
+        assert [i["href"] for g in nav if g["key"] == "league" for i in g["items"]] == [
+            reverse("schedule")
+        ]
         fields = inertia_props(player_client.get(reverse("accounts:settings")))["fields"]
         assert "penalty_notify_mode" not in fields
         assert "elo_match_notify" in fields
