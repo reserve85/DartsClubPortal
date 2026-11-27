@@ -174,7 +174,7 @@ def _nuliga_links(user, season):
 
 
 def _nuliga_info(user, season):
-    from app.matchdays.nuliga import MAX_RETRIES
+    from app.matchdays.nuliga import max_retries
 
     links = _nuliga_links(user, season)
     if not links:
@@ -188,9 +188,9 @@ def _nuliga_info(user, season):
                 if link.last_sync_at
                 else None,
                 "error": link.last_error,
-                # Retried every hour until MAX_RETRIES, then the system admin knows.
-                "retrying": 0 < link.failures < MAX_RETRIES,
-                "gaveUp": link.failures >= MAX_RETRIES,
+                # Retried until NULIGA_MAX_RETRIES, then the system admin knows.
+                "retrying": 0 < link.failures < max_retries(),
+                "gaveUp": link.failures >= max_retries(),
             }
             for link in links
         ],

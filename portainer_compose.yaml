@@ -105,6 +105,13 @@ services:
       # - NOTIFICATIONS_SCHEDULER_INTERVAL=30          # flusher tick (s): penalty outbox, Elo daily summary, monthly Elo report | Default: 30
       # - NOTIFICATION_QUIET_HOURS=22:00-07:00         # Quick-mode night window, empty = off | Default: (empty)
 
+      # ── nuLiga import of the matchdays (links: Seasons → Edit) ──────────
+      # - NULIGA_SYNC=True                             # daily import on/off ("sync now" always works) | Default: True
+      # - NULIGA_SYNC_TIME=06:00                       # daily import from this time (HH:MM) | Default: 06:00
+      # - NULIGA_RETRY_MINUTES=60                      # after a failure: next try in N minutes | Default: 60
+      # - NULIGA_MAX_RETRIES=24                        # failures in a row before the system admin is told | Default: 24
+      # - CALENDAR_REMINDERS=240,90                    # calendar reminders before the start (minutes), empty = none | Default: 240,90
+
       # ── Optional tuning ─────────────────────────────────────────────────
       # - DJANGO_LOG_LEVEL=INFO                       # level of the app.* loggers | Default: INFO
       # - INVITE_EXPIRE_DAYS=14                       # invitation link validity in days | Default: 14

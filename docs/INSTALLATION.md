@@ -120,6 +120,11 @@ Every option is also documented inline in
 | `DEFAULT_FROM_EMAIL`, `SUPPORT_EMAIL` | – | Sender and support address |
 | `ACCOUNT_EMAIL_VERIFICATION` | `mandatory` | `mandatory`, `optional`, `none` |
 | `NOTIFICATION_QUIET_HOURS` | – | e.g. `22:00-07:00`: no single mails at night |
+| `NULIGA_SYNC` | `True` | daily nuLiga import of the matchdays ("sync now" always works) |
+| `NULIGA_SYNC_TIME` | `06:00` | the daily import runs from this time |
+| `NULIGA_RETRY_MINUTES` | `60` | after a failed import: next try in N minutes |
+| `NULIGA_MAX_RETRIES` | `24` | failures in a row before the system account is told |
+| `CALENDAR_REMINDERS` | `240,90` | reminders in the subscribed calendar, minutes before the start (empty = none) |
 | `INVITE_EXPIRE_DAYS` | `14` | Validity of invitation links |
 
 ### Imprint and privacy policy

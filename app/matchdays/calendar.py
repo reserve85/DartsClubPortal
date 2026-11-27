@@ -23,7 +23,16 @@ SALT = "matchday-calendar"
 PAST_DAYS = 90
 LENGTH = timedelta(hours=4)
 CRLF = chr(13) + chr(10)
-REMINDERS = ("-PT4H", "-PT90M")
+
+
+def reminder_minutes() -> list[int]:
+    """Reminders before the start (``CALENDAR_REMINDERS``, minutes, "240,90")."""
+    out = []
+    for part in str(getattr(settings, "CALENDAR_REMINDERS", "240,90") or "").split(","):
+        part = part.strip()
+        if part.isdigit() and int(part) > 0:
+            out.append(int(part))
+    return out
 
 
 def token_for(team_id: int | None) -> str:
@@ -50,6 +59,10 @@ def calendar_links(request, teams, own: set[int]) -> list[dict]:
             "own": team_id in own,
             "url": url,
             "webcal": "webcal://" + url.split("://", 1)[-1],
+            # The same calendar without reminders.
+            "urlPlain": url + "?alarms=0",
+            "webcalPlain": "webcal://" + url.split("://", 1)[-1] + "?alarms=0",
+            "reminders": reminder_minutes(),
         }
 
     rows = [link(t.pk, t.name) for t in teams]
@@ -97,7 +110,7 @@ def _venue_lines(location: str) -> list[str]:
     return [name.strip(), *[part.strip() for part in address.split(", ") if part.strip()]]
 
 
-def build_calendar(matchdays, name: str, host: str) -> str:
+def build_calendar(matchdays, name: str, host: str, alarms: bool = True) -> str:
     """One event per matchday, in the style the club already uses:
     "[H] Home - Guest" / "[A] Home - Guest", 4 hours, start time and venue
     address in the description."""
@@ -143,9 +156,10 @@ def build_calendar(matchdays, name: str, host: str) -> str:
             lines.append(f"DESCRIPTION:{_text(chr(10).join(details))}")
         lines.append("STATUS:CANCELLED" if md.nuliga_removed else "STATUS:CONFIRMED")
         lines.append("TRANSP:OPAQUE")
-        if md.start_time and not md.nuliga_removed:
-            # Default reminders: 4 hours and 90 minutes before the start.
-            for trigger in REMINDERS:
+        if alarms and md.start_time and not md.nuliga_removed:
+            # Reminders before the start (CALENDAR_REMINDERS, minutes).
+            for minutes in reminder_minutes():
+                trigger = f"-PT{minutes}M"
                 lines += [
                     "BEGIN:VALARM",
                     "ACTION:DISPLAY",
@@ -181,7 +195,12 @@ class MatchdayCalendarView(View):
         from django.utils import translation
 
         with translation.override(settings.LANGUAGE_CODE):  # calendar apps send no language
-            body = build_calendar(matchdays, name, request.get_host().split(":")[0])
+            body = build_calendar(
+                matchdays,
+                name,
+                request.get_host().split(":")[0],
+                alarms=request.GET.get("alarms") != "0",
+            )
         response = HttpResponse(body, content_type="text/calendar; charset=utf-8")
         response["Content-Disposition"] = 'inline; filename="matchdays.ics"'
         response["Cache-Control"] = "no-cache"

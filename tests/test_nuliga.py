@@ -362,7 +362,9 @@ class TestCalendar:
         assert "Spielstart: 19:30" in body or "Match start: 19:30" in body
         assert "STATUS:CANCELLED" in body
         # Reminders 4 h and 90 min before - only for the match with a start time
-        assert body.count("TRIGGER:-PT4H") == 1 and body.count("TRIGGER:-PT90M") == 1
+        assert body.count("TRIGGER:-PT240M") == 1 and body.count("TRIGGER:-PT90M") == 1
+        plain = client.get(reverse("matchdays:calendar", args=[token_for(team.pk)]) + "?alarms=0")
+        assert "VALARM" not in plain.content.decode()
         # 4 hours from 19:30 local time
         start = body.split("DTSTART:")[1][:16]
         end = body.split("DTEND:")[1][:16]
@@ -408,9 +410,9 @@ class TestRetries:
         # Retried after an hour - even at night - not before.
         assert nuliga.links_due(tried + timedelta(minutes=30)) == []
         assert nuliga.links_due(tried + timedelta(minutes=61)) == [link]
-        for _i in range(nuliga.MAX_RETRIES - 1):
+        for _i in range(nuliga.max_retries() - 1):
             self._fail(link)
-        assert link.failures == nuliga.MAX_RETRIES
+        assert link.failures == nuliga.max_retries()
         assert Notification.objects.filter(recipient=system).count() == 1
         assert any(system.email in m.to for m in mail.outbox)
         # Then back to once a day; one more failure tells nobody again.
@@ -534,3 +536,33 @@ class TestPolish:
         player_user.player_link = player
         player_user.save()
         assert player_client.get("/").headers["Location"] == reverse("overview")
+
+
+@pytest.mark.django_db
+class TestSettings:
+    def test_daily_time_and_switch(self, link, settings):
+        berlin = timezone.get_current_timezone()
+        at = datetime(2026, 11, 26, 6, 30, tzinfo=berlin)
+        settings.NULIGA_SYNC_TIME = "07:15"
+        assert nuliga.links_due(at) == []
+        assert nuliga.links_due(at.replace(hour=7, minute=20)) == [link]
+        settings.NULIGA_SYNC = False
+        assert nuliga.links_due(at.replace(hour=9)) == []
+
+    def test_retry_interval_and_count(self, settings):
+        settings.NULIGA_RETRY_MINUTES = 30
+        settings.NULIGA_MAX_RETRIES = 5
+        assert nuliga.retry_after() == timedelta(minutes=30) and nuliga.max_retries() == 5
+
+    def test_calendar_reminders(self, client, settings, season, team):
+        from app.matchdays.calendar import token_for
+
+        Matchday.objects.create(
+            team=team, season=season, opponent="X", date=timezone.localdate(), start_time=time(19)
+        )
+        url = reverse("matchdays:calendar", args=[token_for(team.pk)])
+        settings.CALENDAR_REMINDERS = "60"
+        body = client.get(url).content.decode()
+        assert "TRIGGER:-PT60M" in body and body.count("VALARM") == 2
+        settings.CALENDAR_REMINDERS = ""
+        assert "VALARM" not in client.get(url).content.decode()

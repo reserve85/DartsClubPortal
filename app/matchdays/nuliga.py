@@ -36,9 +36,26 @@ from app.matchdays.models import Matchday, NuligaLink, Season, VenueChoice
 
 logger = logging.getLogger("app.matchdays")
 
-DAILY_FROM = time(6, 0)
-RETRY_AFTER = timedelta(hours=1)
-MAX_RETRIES = 24
+
+def daily_from() -> time:
+    """Start of the daily import (``NULIGA_SYNC_TIME``, default 06:00)."""
+    raw = str(getattr(settings, "NULIGA_SYNC_TIME", "06:00") or "06:00")
+    try:
+        hour, minute = (int(x) for x in raw.strip().split(":")[:2])
+        return time(hour, minute)
+    except ValueError:
+        logger.warning("NULIGA_SYNC_TIME=%r is no HH:MM time - using 06:00.", raw)
+        return time(6, 0)
+
+
+def retry_after() -> timedelta:
+    return timedelta(minutes=max(5, int(getattr(settings, "NULIGA_RETRY_MINUTES", 60))))
+
+
+def max_retries() -> int:
+    return max(1, int(getattr(settings, "NULIGA_MAX_RETRIES", 24)))
+
+
 MAX_BYTES = 2_000_000
 TIMEOUT = 20
 FEED_HREF = re.compile(r"""href\s*=\s*["']([^"']*getTeamMeetingsWebcal[^"']*)["']""", re.IGNORECASE)
@@ -231,7 +248,7 @@ def sync_link(link: NuligaLink, *, notify: bool = True, actor=None) -> SyncResul
     """Import the feed of one team page; returns what changed.
 
     A failure is counted: the daily run retries every hour, and after
-    ``MAX_RETRIES`` failures in a row the system admin is told once.
+    ``NULIGA_MAX_RETRIES`` failures in a row the system admin is told once.
     """
     result = SyncResult(first=link.last_sync_at is None)
     link.last_sync_at = timezone.now()
@@ -255,7 +272,7 @@ def sync_link(link: NuligaLink, *, notify: bool = True, actor=None) -> SyncResul
         link.failures = min(link.failures + 1, 32000)
         link.save(update_fields=["last_sync_at", "last_error", "feed_url", "failures"])
         logger.warning("nuLiga import failed for %s (%s in a row): %s", link, link.failures, exc)
-        if link.failures == MAX_RETRIES:
+        if link.failures == max_retries():
             notify_system_admins(link)
         raise error from exc
     link.save(update_fields=["last_sync_at", "last_error", "feed_url", "nuliga_name", "failures"])
@@ -326,7 +343,7 @@ def remember_report(request, reports: list[dict]) -> None:
 
 
 def notify_system_admins(link: NuligaLink) -> None:
-    """The import failed ``MAX_RETRIES`` times in a row: tell the system account(s)."""
+    """The import failed ``NULIGA_MAX_RETRIES`` times in a row: tell the system account(s)."""
     from django.contrib.auth import get_user_model
 
     from app.notifications.inapp import notify_user
@@ -649,19 +666,21 @@ def links_due(now: datetime | None = None):
     """Links of the default season to import now.
 
     Once a day from 06:00; after a failure every hour (any time of day) up to
-    ``MAX_RETRIES`` times, then back to once a day.
+    ``NULIGA_MAX_RETRIES`` times, then back to once a day.
     """
     now = timezone.localtime(now or timezone.now())
+    if not getattr(settings, "NULIGA_SYNC", True):
+        return []
     season = Season.default() or Season.objects.order_by("-name").first()
     if season is None:
         return []
     due = []
     for link in NuligaLink.objects.filter(season=season).select_related("team", "season"):
         last = timezone.localtime(link.last_sync_at) if link.last_sync_at else None
-        if 0 < link.failures < MAX_RETRIES:
-            if last is None or now - last >= RETRY_AFTER:
+        if 0 < link.failures < max_retries():
+            if last is None or now - last >= retry_after():
                 due.append(link)
-        elif now.time() >= DAILY_FROM and (last is None or last.date() < now.date()):
+        elif now.time() >= daily_from() and (last is None or last.date() < now.date()):
             due.append(link)
     return due
 

@@ -155,6 +155,14 @@ NOTIFICATION_COALESCE_SECONDS = 0 if TESTING else env_int("NOTIFICATION_COALESCE
 NOTIFICATION_SCHEDULER = (not TESTING) and env_bool("NOTIFICATIONS_SCHEDULER", "True")
 NOTIFICATION_SCHEDULER_INTERVAL = env_int("NOTIFICATIONS_SCHEDULER_INTERVAL", 30)
 
+# nuLiga import of the matchdays (see app.matchdays.nuliga).
+NULIGA_SYNC = env_bool("NULIGA_SYNC", "True")  # daily import on/off ("sync now" always works)
+NULIGA_SYNC_TIME = env("NULIGA_SYNC_TIME", "06:00")  # daily from this time (HH:MM)
+NULIGA_RETRY_MINUTES = env_int("NULIGA_RETRY_MINUTES", 60)  # after a failure: try again in ...
+NULIGA_MAX_RETRIES = env_int("NULIGA_MAX_RETRIES", 24)  # ... this often, then tell the admin
+# Calendar subscription: reminders before the start in minutes ("" = none).
+CALENDAR_REMINDERS = env("CALENDAR_REMINDERS", "240,90")
+
 # Optional quiet window "22:00-07:00" (local time, may wrap midnight). A QUICK
 # mode message that becomes due inside it is delayed until the window ends;
 # the daily digest is unaffected (its time is chosen by the user anyway).

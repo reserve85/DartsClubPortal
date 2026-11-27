@@ -5202,3 +5202,28 @@ msgstr "Öffnen"
 #, python-format
 msgid "start time %(old)s → %(new)s"
 msgstr "Beginn %(old)s → %(new)s"
+
+msgid "With reminders"
+msgstr "Mit Erinnerungen"
+
+msgid "Without reminders"
+msgstr "Ohne Erinnerungen"
+
+#, python-format
+msgid "Reminder %(when)s before the start (iPhone, Outlook; Google Calendar uses its own reminders)."
+msgstr "Erinnerung %(when)s vor Spielbeginn (iPhone, Outlook; Google Kalender nutzt seine eigenen Erinnerungen)."
+
+msgid "No reminders - only the matchdays."
+msgstr "Keine Erinnerungen – nur die Spieltage."
+
+#, python-format
+msgid "%(h)s h %(m)s min"
+msgstr "%(h)s Std. %(m)s Min."
+
+#, python-format
+msgid "%(n)s h"
+msgstr "%(n)s Std."
+
+#, python-format
+msgid "%(n)s min"
+msgstr "%(n)s Min."
