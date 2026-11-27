@@ -44,14 +44,25 @@ class HomeView(LoginRequiredMixin, View):
         return redirect(start_url(request.user))
 
 
+def _numeric(value):
+    return int(value) if value and str(value).isdigit() else None
+
+
 class ScheduleView(LoginRequiredMixin, View):
     """The matchdays of every team of the season, read-only, for every account."""
 
     def get(self, request):
-        from app.core.permissions import user_can_manage_team
+        from app.core.access import has_module
+        from app.core.modules import PENALTY
+        from app.core.permissions import (
+            user_can_manage_team,
+            user_is_captain,
+            user_is_penalty_admin,
+        )
         from app.matchdays.calendar import calendar_links
         from app.matchdays.models import Matchday
         from app.matchdays.services import season_for_request
+        from app.matchdays.views import _nuliga_info
         from app.players.models import PlayerTeam
         from app.teams.services import teams_for_season
 
@@ -73,7 +84,8 @@ class ScheduleView(LoginRequiredMixin, View):
             rows = rows.filter(season=season)
         if not show_past:
             rows = rows.filter(date__gte=today)
-        manage = {t.pk: user_can_manage_team(user, t) for t in teams}
+        penalty = has_module(user, PENALTY)
+        manage = {t.pk: penalty and user_can_manage_team(user, t) for t in teams}
         props = {
             "season": season.name if season else "",
             "showPast": show_past,
@@ -90,6 +102,7 @@ class ScheduleView(LoginRequiredMixin, View):
                     "home": m.venue == "home",
                     "location": m.location,
                     "removed": m.nuliga_removed,
+                    "manual": bool(m.nuliga_uid) and m.nuliga_manual,
                     "isToday": m.date == today,
                     "isPast": m.date < today,
                     "url": reverse("matchdays:matchday_detail", args=[m.pk])
@@ -99,6 +112,10 @@ class ScheduleView(LoginRequiredMixin, View):
                 for m in rows.order_by("date", "start_time", "team__name")
             ],
             "calendars": calendar_links(request, teams, own),
+            "teamId": _numeric(request.GET.get("team")),
+            # Admins and captains manage the matchdays right here.
+            "canCreate": penalty and (user_is_penalty_admin(user) or user_is_captain(user)),
+            "nuliga": _nuliga_info(user, season) if penalty else None,
         }
         return inertia_render(request, "Schedule", props=props)
 

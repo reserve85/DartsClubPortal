@@ -3,6 +3,7 @@ import { Badge, Box, Button, Group, Paper, SimpleGrid, Stack, Text, UnstyledButt
 import { IconCoins, IconPlus, IconTrophy } from "@tabler/icons-react";
 import { BalanceTiles } from "../components/BalanceTiles";
 import { CalendarSubscribe, type CalendarLink } from "../components/CalendarSubscribe";
+import { MatchdayRow, type MatchdayRowData } from "../components/Matchdays";
 import { PlayerAvatar } from "../components/PlayerAvatar";
 import { Delta, EmptyState, PageHeader, StatGrid, StatTile } from "../components/ui";
 import { useFormat, useT } from "../i18n";
@@ -14,20 +15,16 @@ interface Props {
     me: { playerId: number; elo: number; position: number | null; monthChange: number; recent: { id: number; date: string; won: boolean; oppName: string; me: number; opp: number }[] } | null;
   } | null;
   penalty: { me: boolean | null; season?: string; total?: number; paid?: number; balance?: number } | null;
-  nextMatchdays: NextTeam[];
+  nextMatchdays: MatchdayRowData[];
+  ownTeams: number[];
   calendars: CalendarLink[];
   today: string;
 }
-interface NextTeam {
-  team: string;
-  own: boolean;
-  matchdays: { id: number; date: string; time: string; opponent: string; venue: string; home: boolean; location: string; url: string | null }[];
-}
+const row = { display: "flex", alignItems: "center", gap: 12, borderBottom: "1px solid var(--mantine-color-default-border)" } as const;
 
-/** Next matchdays of every team: the next two weeks, at least the next one; own teams first. */
-function NextMatchdays({ teams, calendars }: { teams: NextTeam[]; calendars: CalendarLink[] }) {
+/** The coming matchdays of every team by date (next two weeks, at least three). */
+function NextMatchdays({ rows, ownTeams, calendars }: { rows: MatchdayRowData[]; ownTeams: number[]; calendars: CalendarLink[] }) {
   const t = useT();
-  const f = useFormat();
   return (
     <Paper withBorder p="md">
       <Group justify="space-between" mb="sm" gap="xs">
@@ -38,49 +35,15 @@ function NextMatchdays({ teams, calendars }: { teams: NextTeam[]; calendars: Cal
         </Group>
       </Group>
       <Stack gap="xs">
-        {teams.map((team) => (
-          <Paper
-            key={team.team}
-            p="xs"
-            radius="md"
-            withBorder
-            style={team.own ? { background: "var(--mantine-color-brand-light)", boxShadow: "inset 3px 0 0 var(--mantine-color-brand-6)" } : undefined}
-          >
-            <Group gap={6} mb={4}>
-              <Text fw={800} size="sm">{team.team}</Text>
-              {team.own && <Badge size="xs" color="brand">{t("my team")}</Badge>}
-            </Group>
-            {team.matchdays.map((m) => {
-              const line = (
-                <Group gap={8} wrap="nowrap" align="flex-start">
-                  <Text size="sm" fw={700} className="num" w={92} style={{ flexShrink: 0 }}>
-                    {f.date(m.date)}{m.time ? ` ${m.time}` : ""}
-                  </Text>
-                  <Box style={{ minWidth: 0 }}>
-                    <Text size="sm" truncate>
-                      <Badge size="xs" variant="light" color="brand" mr={6}>{m.venue}</Badge>
-                      {m.opponent}
-                    </Text>
-                    {m.location && <Text size="xs" c="dimmed" truncate>{m.location}</Text>}
-                  </Box>
-                </Group>
-              );
-              return m.url ? (
-                <UnstyledButton key={m.id} component={Link} href={m.url} display="block" py={2}>{line}</UnstyledButton>
-              ) : (
-                <Box key={m.id} py={2}>{line}</Box>
-              );
-            })}
-          </Paper>
+        {rows.map((r) => (
+          <MatchdayRow key={r.id} row={r} own={ownTeams.includes(r.teamId)} />
         ))}
       </Stack>
     </Paper>
   );
 }
 
-const row = { display: "flex", alignItems: "center", gap: 12, borderBottom: "1px solid var(--mantine-color-default-border)" } as const;
-
-export default function Overview({ elo, penalty, nextMatchdays, calendars, today }: Props) {
+export default function Overview({ elo, penalty, nextMatchdays, ownTeams, calendars, today }: Props) {
   const t = useT();
   const f = useFormat();
   const { auth } = usePage<SharedProps>().props;
@@ -153,7 +116,7 @@ export default function Overview({ elo, penalty, nextMatchdays, calendars, today
             </Group>
           </Paper>
         )}
-        {nextMatchdays.length > 0 && <NextMatchdays teams={nextMatchdays} calendars={calendars} />}
+        {nextMatchdays.length > 0 && <NextMatchdays rows={nextMatchdays} ownTeams={ownTeams ?? []} calendars={calendars} />}
         {!elo && !penalty && <EmptyState>{t("No module is available for your account. Please contact an administrator.")}</EmptyState>}
       </SimpleGrid>
     </>

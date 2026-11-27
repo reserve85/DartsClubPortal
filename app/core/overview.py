@@ -77,14 +77,18 @@ def _penalty_card(user) -> dict:
 NEXT_DAYS = 14
 
 
+NEXT_MIN = 3
+
+
 def _next_matchdays(user) -> list:
-    """Per team of the season: every matchday of the next two weeks, at
-    least the next one. The account's own teams come first."""
+    """The coming matchdays of every team, by date: all of the next two weeks,
+    at least the next three. Same rows as the schedule."""
     from datetime import timedelta
 
+    from app.core.access import has_module
+    from app.core.modules import PENALTY
     from app.core.permissions import user_can_manage_team
     from app.matchdays.models import Matchday, Season
-    from app.players.models import PlayerTeam
     from app.teams.services import teams_for_season
 
     season = (
@@ -93,51 +97,55 @@ def _next_matchdays(user) -> list:
     if season is None:
         return []
     today = timezone.localdate()
+    teams = list(teams_for_season(season))
+    upcoming = list(
+        Matchday.objects.filter(
+            season=season, team__in=teams, date__gte=today, nuliga_removed=False
+        )
+        .select_related("team")
+        .order_by("date", "start_time", "team__name")
+    )
+    soon = [m for m in upcoming if m.date <= today + timedelta(days=NEXT_DAYS)]
+    shown = soon if len(soon) >= NEXT_MIN else upcoming[:NEXT_MIN]
+    penalty = has_module(user, PENALTY)
+    manage = {t.pk: penalty and user_can_manage_team(user, t) for t in teams}
+    return [
+        {
+            "id": m.pk,
+            "date": m.date.isoformat(),
+            "time": m.start_time.strftime("%H:%M") if m.start_time else "",
+            "teamId": m.team_id,
+            "team": m.team.name,
+            "opponent": m.opponent,
+            "venue": m.get_venue_display(),
+            "home": m.venue == "home",
+            "location": m.location,
+            "removed": False,
+            "manual": bool(m.nuliga_uid) and m.nuliga_manual,
+            "isToday": m.date == today,
+            "isPast": False,
+            "url": f"/matchdays/{m.pk}/" if manage.get(m.team_id) else None,
+        }
+        for m in shown
+    ]
+
+
+def _own_teams(user) -> list:
+    from app.matchdays.models import Season
+    from app.players.models import PlayerTeam
+
     own = {user.team_id} if user.team_id else set()
     player = getattr(user, "player_link", None)
-    if player is not None:
+    season = (
+        Season.objects.filter(is_default=True).first() or Season.objects.order_by("-name").first()
+    )
+    if player is not None and season is not None:
         own |= set(
             PlayerTeam.objects.filter(player=player, season=season).values_list(
                 "team_id", flat=True
             )
         )
-    upcoming = (
-        Matchday.objects.filter(season=season, date__gte=today, nuliga_removed=False)
-        .select_related("team")
-        .order_by("date", "start_time", "pk")
-    )
-    by_team: dict[int, list] = {}
-    for matchday in upcoming:
-        by_team.setdefault(matchday.team_id, []).append(matchday)
-    rows = []
-    for team in teams_for_season(season).order_by("name"):
-        dates = by_team.get(team.pk, [])
-        soon = [m for m in dates if m.date <= today + timedelta(days=NEXT_DAYS)]
-        shown = soon or dates[:1]
-        if not shown:
-            continue
-        can_open = user_can_manage_team(user, team)
-        rows.append(
-            {
-                "team": team.name,
-                "own": team.pk in own,
-                "matchdays": [
-                    {
-                        "id": m.pk,
-                        "date": m.date.isoformat(),
-                        "time": m.start_time.strftime("%H:%M") if m.start_time else "",
-                        "opponent": m.opponent,
-                        "venue": m.get_venue_display(),
-                        "home": m.venue == "home",
-                        "location": m.location,
-                        "url": f"/matchdays/{m.pk}/" if can_open else None,
-                    }
-                    for m in shown
-                ],
-            }
-        )
-    rows.sort(key=lambda r: (not r["own"], r["matchdays"][0]["date"], r["team"]))
-    return rows
+    return sorted(own)
 
 
 def _calendars(request, user) -> list:
@@ -174,5 +182,6 @@ def build_overview(user, request=None) -> dict:
         "elo": _elo_card(user) if mods.get("elo") else None,
         "penalty": _penalty_card(user) if mods.get("penalty") else None,
         "nextMatchdays": _next_matchdays(user) if _league_play() else [],
+        "ownTeams": _own_teams(user) if _league_play() else [],
         "today": timezone.localdate().isoformat(),
     }

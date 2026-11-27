@@ -76,7 +76,6 @@ def navigation(user) -> list[dict]:
         items = [_item(_("Financial overview"), "dashboard:financial_overview", "coins")]
         if manages:
             items += [
-                _item(_("Matchdays"), "matchdays:matchday_list", "calendar"),
                 _item(_("Teams & Players"), "teams:team_list", "users"),
                 _item(_("Penalty catalog"), "penalties:catalog_list", "book"),
                 _item(_("Cash box"), "teams:cashier_list", "wallet"),

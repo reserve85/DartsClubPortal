@@ -69,7 +69,7 @@ class TestStartPage:
 
     def test_menu_shows_both_modules(self, admin_client):
         html = admin_client.get(reverse("elo:ranking")).content.decode()
-        assert reverse("matchdays:matchday_list") in html
+        assert reverse("schedule") in html
         assert reverse("elo:match_create") in html
         assert reverse("overview") in html
 

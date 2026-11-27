@@ -216,7 +216,7 @@ class NuligaSyncView(LoginRequiredMixin, View):
                 continue
             reports.append(report(link, result))
         remember_report(request, reports)
-        return redirect("matchdays:matchday_list")
+        return redirect("schedule")
 
 
 def _matchday_groups():
@@ -231,7 +231,7 @@ def _matchday_groups():
 class MatchdayCreateView(LoginRequiredMixin, InertiaFormMixin, CreateView):
     model = Matchday
     form_class = MatchdayForm
-    success_url = reverse_lazy("matchdays:matchday_list")
+    success_url = reverse_lazy("schedule")
 
     def dispatch(self, request, *args, **kwargs):
         assert_admin_or_captain(request.user)
@@ -248,7 +248,7 @@ class MatchdayCreateView(LoginRequiredMixin, InertiaFormMixin, CreateView):
             "title": str(_("New matchday")),
             "subtitle": str(_("Add the players afterwards on the matchday page.")),
             "submitLabel": str(_("Create matchday")),
-            "cancelUrl": reverse("matchdays:matchday_list"),
+            "cancelUrl": reverse("schedule"),
             "groups": _matchday_groups(),
         }
 
@@ -274,7 +274,7 @@ class MatchdayCreateView(LoginRequiredMixin, InertiaFormMixin, CreateView):
 class MatchdayUpdateView(LoginRequiredMixin, InertiaFormMixin, UpdateView):
     model = Matchday
     form_class = MatchdayForm
-    success_url = reverse_lazy("matchdays:matchday_list")
+    success_url = reverse_lazy("schedule")
 
     def dispatch(self, request, *args, **kwargs):
         assert_admin_or_captain(request.user)
@@ -529,4 +529,4 @@ class MatchdayDeleteView(LoginRequiredMixin, View):
                 link.save(update_fields=["ignored_uids"])
         matchday.delete()
         messages.success(request, _("Matchday deleted."))
-        return redirect("matchdays:matchday_list")
+        return redirect("schedule")

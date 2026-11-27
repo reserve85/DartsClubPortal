@@ -575,7 +575,7 @@ def notify_captains(link: NuligaLink, result: SyncResult) -> None:
     from app.notifications.inapp import notify_user
     from app.notifications.services import NotificationService, absolute_url, email_configured
 
-    url = absolute_url(reverse("matchdays:matchday_list") + f"?team={link.team_id}")
+    url = absolute_url(reverse("schedule") + f"?team={link.team_id}")
     for user in _recipients(link.team):
         lang = user.preferred_language or settings.LANGUAGE_CODE
 
@@ -599,7 +599,7 @@ def notify_captains(link: NuligaLink, result: SyncResult) -> None:
             verb=verb,
             level="info",
             description=lambda r=result: chr(10).join(summary_lines(r)),
-            url=reverse("matchdays:matchday_list") + f"?team={link.team_id}",
+            url=reverse("schedule") + f"?team={link.team_id}",
         )
         if not user.email or not email_configured():
             continue

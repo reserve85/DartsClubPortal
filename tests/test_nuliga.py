@@ -217,7 +217,7 @@ def test_overview_next_matchdays(captain_client, season, team, other_team):
     from datetime import timedelta
 
     today = timezone.localdate()
-    for team_obj, days in ((other_team, (2,)), (team, (3, 10, 20)), (other_team, (40,))):
+    for team_obj, days in ((other_team, (0, 2)), (team, (3, 10, 20)), (other_team, (40,))):
         for d in days:
             Matchday.objects.create(
                 team=team_obj, season=season, opponent=f"G{d}", date=today + timedelta(days=d)
@@ -225,25 +225,27 @@ def test_overview_next_matchdays(captain_client, season, team, other_team):
     Matchday.objects.create(
         team=team, season=season, opponent="past", date=today - timedelta(days=1)
     )
-    rows = inertia_props(captain_client.get(reverse("overview")))["nextMatchdays"]
-    assert [r["team"] for r in rows] == [team.name, other_team.name]  # own team first
-    assert rows[0]["own"] and [m["opponent"] for m in rows[0]["matchdays"]] == ["G3", "G10"]
-    assert [m["opponent"] for m in rows[1]["matchdays"]] == ["G2"]
-    assert rows[0]["matchdays"][0]["url"] and rows[1]["matchdays"][0]["url"] is None
+    props = inertia_props(captain_client.get(reverse("overview")))
+    rows = props["nextMatchdays"]
+    # Every team, by date, the next two weeks.
+    assert [r["opponent"] for r in rows] == ["G0", "G2", "G3", "G10"]
+    assert rows[0]["isToday"] and not rows[1]["isToday"]
+    assert props["ownTeams"] == [team.pk]
+    assert rows[2]["url"] and rows[0]["url"] is None  # own team: the captain's matchday
 
 
 @pytest.mark.django_db
-def test_overview_shows_the_next_one_beyond_two_weeks(player_client, season, team):
+def test_overview_shows_at_least_the_next_three(player_client, season, team):
     from datetime import timedelta
 
     today = timezone.localdate()
-    for d in (30, 45):
+    for d in (30, 45, 60, 90):
         Matchday.objects.create(
             team=team, season=season, opponent=f"G{d}", date=today + timedelta(days=d)
         )
     rows = inertia_props(player_client.get(reverse("overview")))["nextMatchdays"]
-    assert [m["opponent"] for m in rows[0]["matchdays"]] == ["G30"]
-    assert rows[0]["own"] is False and rows[0]["matchdays"][0]["url"] is None
+    assert [r["opponent"] for r in rows] == ["G30", "G45", "G60"]
+    assert rows[0]["url"] is None
 
 
 @pytest.mark.django_db
@@ -504,7 +506,7 @@ class TestPolish:
             nuliga.sync_link(link)
         note = Notification.objects.get(recipient=captain_user)
         assert "SV Gast" in note.description
-        assert note.data["url"].startswith(reverse("matchdays:matchday_list"))
+        assert note.data["url"].startswith(reverse("schedule"))
 
     def test_structured_mail(self, link, captain_user):
         with _serve(_feed(HOME)):
@@ -566,3 +568,15 @@ class TestSettings:
         assert "TRIGGER:-PT60M" in body and body.count("VALARM") == 2
         settings.CALENDAR_REMINDERS = ""
         assert "VALARM" not in client.get(url).content.decode()
+
+
+@pytest.mark.django_db
+def test_schedule_is_the_matchday_page_for_captains(captain_client, link, season, team):
+    props = inertia_props(captain_client.get(reverse("schedule") + f"?team={team.pk}"))
+    assert props["canCreate"] and props["nuliga"]["syncUrl"] == reverse("matchdays:nuliga_sync")
+    assert props["teamId"] == team.pk
+    with _serve(_feed(HOME)):
+        resp = captain_client.post(reverse("matchdays:nuliga_sync"))
+    assert resp.headers["Location"] == reverse("schedule")
+    rows = inertia_props(captain_client.get(reverse("schedule") + "?past=1"))["rows"]
+    assert rows and rows[0]["url"] == reverse("matchdays:matchday_detail", args=[rows[0]["id"]])
